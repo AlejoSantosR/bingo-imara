@@ -7,21 +7,13 @@
     const style=document.createElement('style');
     style.id='imaraEventExperienceStyles';
     style.textContent=`
-      .dual-ball-stage{position:relative;padding-top:30px}
-      .dual-ball-stage::before{
-        content:"";position:absolute;top:3px;left:50%;width:min(245px,82%);height:22px;
-        transform:translateX(-50%);border-radius:999px;border:1px solid rgba(255,255,255,.16);
-        background:linear-gradient(90deg,rgba(255,91,143,.16),rgba(141,107,255,.24),rgba(43,212,167,.14));
-        box-shadow:inset 0 0 14px rgba(255,255,255,.08),0 7px 18px rgba(0,0,0,.22);
-        opacity:.7;overflow:hidden
-      }
+      .dual-ball-stage{position:relative;padding-top:0!important}
+      .dual-ball-stage::before,
       .dual-ball-stage::after{
-        content:"";position:absolute;top:7px;left:50%;width:48px;height:14px;transform:translateX(-50%);
-        border-radius:999px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.76),transparent);
-        opacity:.22
+        display:none!important;
+        content:none!important;
+        animation:none!important
       }
-      body.roulette-active .dual-ball-stage::before{animation:imaraChannelPulse .42s ease-in-out infinite alternate}
-      body.roulette-active .dual-ball-stage::after{animation:imaraChannelFlow .62s linear infinite}
       body.roulette-active .bingo-letter-ball,
       body.roulette-active .bingo-number-ball{filter:saturate(1.12) brightness(1.04)}
 
@@ -44,11 +36,9 @@
       .winner-countdown-sub{margin-top:10px;color:#b9c4d8;font-size:14px}
       .winner-countdown-card.pulse{animation:imaraWinnerPulse .38s cubic-bezier(.18,1.3,.3,1)}
 
-      @keyframes imaraChannelPulse{from{box-shadow:inset 0 0 10px rgba(255,255,255,.05),0 6px 16px rgba(0,0,0,.18)}to{box-shadow:inset 0 0 22px rgba(141,107,255,.18),0 6px 24px rgba(255,91,143,.12)}}
-      @keyframes imaraChannelFlow{0%{transform:translateX(-160%)}100%{transform:translateX(60%)}}
       @keyframes imaraWinnerCard{from{opacity:0;transform:scale(.82) translateY(18px)}to{opacity:1;transform:none}}
       @keyframes imaraWinnerPulse{0%{transform:scale(.94)}65%{transform:scale(1.035)}100%{transform:none}}
-      @media(prefers-reduced-motion:reduce){body.roulette-active .dual-ball-stage::before,body.roulette-active .dual-ball-stage::after,.winner-countdown-card{animation:none!important}}
+      @media(prefers-reduced-motion:reduce){.winner-countdown-card{animation:none!important}}
     `;
     document.head.appendChild(style);
   }
