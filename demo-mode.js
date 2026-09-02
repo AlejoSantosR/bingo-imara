@@ -12,6 +12,7 @@
       winners:[],
       savedDrawn:[],
       savedRound:null,
+      savedActivity:[],
       startedAt:null
     };
   }
@@ -162,12 +163,12 @@
       winners:[],
       savedDrawn:Array.isArray(state.drawn)?[...state.drawn]:[],
       savedRound:JSON.parse(JSON.stringify(state.round||{})),
+      savedActivity:JSON.parse(JSON.stringify(state.activity||[])),
       startedAt:new Date().toISOString()
     };
 
     state.drawn=[];
     state.round={name:'Ronda DEMO',pattern:'line',prize:'Premio de prueba',reveal:true,status:'open'};
-    addActivity('🧪 Se inició una sesión de prueba temporal.');
     saveDemo();
     saveState();
     renderDemoBanner();
@@ -181,7 +182,7 @@
     if(!confirm('¿Finalizar la prueba y restaurar el tablero/ronda que tenías antes?'))return;
     state.drawn=Array.isArray(demo.savedDrawn)?[...demo.savedDrawn]:[];
     if(demo.savedRound)state.round=JSON.parse(JSON.stringify(demo.savedRound));
-    addActivity('🧪 Se finalizó el modo prueba y se restauró el juego real.');
+    state.activity=Array.isArray(demo.savedActivity)?JSON.parse(JSON.stringify(demo.savedActivity)):[];
     demo=defaultDemo();
     localStorage.removeItem(DEMO_KEY);
     saveState();
