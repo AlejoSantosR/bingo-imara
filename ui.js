@@ -56,6 +56,29 @@ function renderGame(){
   document.getElementById('roundStatus').value=state.round.status;
 }
 
+let lastAutoWinnerNotice='';
+function renderAutoWinnerStatus(){
+  const el=document.getElementById('autoWinnerStatus'); if(!el)return;
+  const candidates=currentWinningCards();
+  if(!candidates.length){
+    el.innerHTML='<div class="muted">✅ Sin ganador detectado todavía para <strong>'+escapeHtml(patternName(state.round.pattern))+'</strong>.</div>';
+    lastAutoWinnerNotice='';
+    return;
+  }
+  const ids=candidates.map(c=>c.id).sort();
+  const key=state.round.name+'|'+state.round.pattern+'|'+ids.join(',');
+  el.innerHTML=`<div class="success" style="font-size:15px">⚠️ <strong>${candidates.length} posible${candidates.length===1?'':'s'} ganador${candidates.length===1?'':'es'} detectado${candidates.length===1?'':'s'}.</strong><br><span style="display:inline-block;margin-top:7px">${candidates.map(c=>`<button class="mini" onclick="openCandidate('${c.id}')">🏆 ${escapeHtml(c.id)}${c.buyer?' · '+escapeHtml(c.buyer):''}</button>`).join(' ')}</span><br><small>La detección es automática, pero debes confirmar y registrar el ganador desde “Validar ganador”.</small></div>`;
+  if(key!==lastAutoWinnerNotice){
+    lastAutoWinnerNotice=key;
+    toast(`⚠️ ${candidates.length} posible${candidates.length===1?'':'s'} ganador${candidates.length===1?'':'es'}`);
+  }
+}
+window.openCandidate=function(id){
+  showView('validate');
+  document.getElementById('winnerInput').value=id;
+  document.getElementById('validateBtn').click();
+};
+
 function renderWinners(){
   const el=document.getElementById('winnersList');
   el.innerHTML=state.winners.length?state.winners.map(w=>`
@@ -96,7 +119,7 @@ function renderSettings(){
 }
 
 function renderAll(){
-  renderDashboard(); renderCards(); renderGame(); renderWinners(); renderPublic(); renderSettings();
+  renderDashboard(); renderCards(); renderGame(); renderAutoWinnerStatus(); renderWinners(); renderPublic(); renderSettings();
   const info=document.getElementById('generateModeInfo');
   if(info){
     const ranges=columnRanges(state.settings.ballMax).map((r,i)=>`${['B','I','N','G','O'][i]} ${r[0]}–${r[1]}`).join(' · ');
