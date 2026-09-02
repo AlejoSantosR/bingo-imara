@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bingo IMARA · PL4 Tribu IMARA</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo" id="sideLogo">IM</div>
+      <div>
+        <h1>Bingo IMARA</h1>
+        <small>PL4 · Tribu IMARA</small>
+      </div>
+    </div>
+    <div class="nav">
+      <button data-view="dashboard" class="active">🏠 Inicio</button>
+      <button data-view="cards">🎟️ Cartones</button>
+      <button data-view="game">🎱 Juego</button>
+      <button data-view="validate">🏆 Validar ganador</button>
+      <button data-view="public">📺 Pantalla pública</button>
+      <button data-view="settings">⚙️ Configuración</button>
+    </div>
+    <div class="sidebar-footer">Hecho para <strong>PL4 Tribu IMARA</strong><br>Listo para GitHub Pages · Datos guardados en este navegador.</div>
+  </aside>
+
+  <main class="content">
+    <div class="topbar">
+      <div>
+        <h2 id="pageTitle">Inicio</h2>
+        <p id="pageSubtitle">Control general del Bingo IMARA.</p>
+      </div>
+      <div class="actions">
+        <button class="btn" id="backupBtn">⬇️ Backup</button>
+        <button class="btn" id="openPublicBtn">📺 Abrir pública</button>
+      </div>
+    </div>
+
+    <section class="view" id="view-dashboard">
+      <div class="grid kpis">
+        <div class="card kpi"><div class="label">Cartones emitidos</div><div class="value" id="kpiIssued">0</div><div class="hint">Incluye pagados</div></div>
+        <div class="card kpi"><div class="label">Cartones pagados</div><div class="value" id="kpiPaid">0</div><div class="hint">Habilitados para ganar</div></div>
+        <div class="card kpi"><div class="label">Recaudado</div><div class="value" id="kpiRevenue">$0</div><div class="hint" id="kpiPriceHint">$30.000 por cartón</div></div>
+        <div class="card kpi"><div class="label">Pendiente por cobrar</div><div class="value" id="kpiPending">$0</div><div class="hint">Emitidos aún no pagados</div></div>
+      </div>
+
+      <div class="grid two" style="margin-top:16px">
+        <div class="card">
+          <div class="section-title"><h3>Estado de los cartones</h3><span class="muted" id="totalCardsLabel">0 cartones</span></div>
+          <div id="statusSummary"></div>
+        </div>
+        <div class="card">
+          <div class="section-title"><h3>Ronda actual</h3><button class="mini" data-view-jump="game">Ir al juego</button></div>
+          <div id="roundSummary"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="section-title"><h3>Últimos movimientos</h3></div>
+        <div id="activityList" class="muted">Aún no hay movimientos.</div>
+      </div>
+    </section>
+
+    <section class="view hidden" id="view-cards">
+      <div class="card">
+        <div class="section-title">
+          <h3>Gestión de cartones</h3>
+          <div class="actions">
+            <button class="btn primary" id="generateBtn">➕ Generar cartones</button>
+            <button class="btn good" id="printBatchBtn">🖨️ Imprimir / PDF lote</button>
+          </div>
+        </div>
+        <div class="success" style="margin-bottom:12px">✅ <strong>Salida real de cartones:</strong> genera la cantidad exacta y el sistema abre el lote diseñado para imprimir o guardar en PDF. Cada cartón incluye su número único y su matriz B-I-N-G-O.</div>
+        <div class="filters">
+          <input class="input" id="cardSearch" placeholder="Buscar #, comprador o teléfono">
+          <select class="input" id="statusFilter">
+            <option value="">Todos los estados</option>
+            <option>Disponible</option><option>Emitido</option><option>Pagado</option><option>Anulado</option><option>Ganador</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Cartón</th><th>Comprador</th><th>Teléfono</th><th>Estado</th><th>Valor</th><th>Imagen</th><th>Acciones</th>
+            </tr></thead>
+            <tbody id="cardsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="view hidden" id="view-game">
+      <div class="game-layout">
+        <div class="card draw-box">
+          <div class="section-title"><h3>Sorteo de balotas</h3><span class="muted" id="drawCount">0 / 99</span></div>
+          <div class="last-ball" id="lastBall">—</div>
+          <div class="draw-controls">
+            <button class="btn primary" id="drawBtn">🎱 Sacar balota</button>
+            <input class="input" id="manualBall" type="number" min="1" max="99" placeholder="Número manual" style="width:150px">
+            <button class="btn" id="manualBtn">Marcar</button>
+            <button class="btn bad" id="undoDrawBtn">↩ Deshacer</button>
+          </div>
+          <div class="footer-note">El sorteo aleatorio nunca repite una balota ya llamada.</div>
+        </div>
+
+        <div class="card">
+          <div class="section-title"><h3>Configurar ronda</h3></div>
+          <div class="form-grid">
+            <label>Nombre de la ronda<input class="input" id="roundName" value="Ronda 1"></label>
+            <label>Tipo de victoria
+              <select class="input" id="roundPattern">
+                <option value="line">Línea</option>
+                <option value="corners">4 esquinas</option>
+                <option value="x">X completa</option>
+                <option value="full">Cartón lleno</option>
+              </select>
+            </label>
+            <label class="full">Premio / sorpresa<input class="input" id="roundPrize" placeholder="Ej: $300.000 / Sesión de bienestar / Sorpresa"></label>
+            <label>Mostrar premio al público
+              <select class="input" id="prizeReveal"><option value="no">No, mantener sorpresa</option><option value="yes">Sí, revelar</option></select>
+            </label>
+            <label>Estado
+              <select class="input" id="roundStatus"><option value="open">Ronda abierta</option><option value="closed">Ronda cerrada</option></select>
+            </label>
+          </div>
+          <div style="margin-top:12px"><button class="btn good" id="saveRoundBtn">Guardar ronda</button> <button class="btn bad" id="resetDrawBtn">Reiniciar balotas</button></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="section-title"><h3 id="boardTitle">Tablero 1–99</h3></div>
+        <div class="board" id="ballBoard"></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="section-title"><h3>Historial de balotas</h3><span class="muted">Más reciente primero</span></div>
+        <div class="history" id="drawHistory"></div>
+      </div>
+    </section>
+
+    <section class="view hidden" id="view-validate">
+      <div class="grid two">
+        <div class="card">
+          <div class="section-title"><h3>Validar un “¡Bingo!”</h3></div>
+          <div class="form-grid">
+            <label class="full">Número de cartón<input class="input" id="winnerInput" placeholder="Ej: 27 o IMARA-027"></label>
+          </div>
+          <div style="margin-top:12px">
+            <button class="btn primary" id="validateBtn">🔎 Validar cartón</button>
+          </div>
+          <div id="validationResult" style="margin-top:16px"></div>
+        </div>
+        <div class="card">
+          <div class="section-title"><h3>Vista del cartón</h3></div>
+          <div id="winnerCardPreview" class="muted">Busca un cartón para verlo aquí.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="section-title"><h3>Ganadores registrados</h3></div>
+        <div id="winnersList" class="muted">Aún no hay ganadores.</div>
+      </div>
+    </section>
+
+    <section class="view hidden" id="view-public">
+      <div class="public-shell">
+        <div class="public">
+          <div class="public-hero">
+            <img id="publicLogoImage" class="logo-preview hidden" alt="Logo">
+            <div class="public-logo" id="publicLogoText">IM</div>
+            <div class="muted">PL4 · TRIBU IMARA</div>
+            <h1 id="publicTitle">BINGO IMARA</h1>
+            <div class="subtitle">Una experiencia para compartir, conectar y sorprendernos.</div>
+            <div class="price" id="publicPrice">$30.000</div>
+            <div class="muted">por cartón</div>
+            <div class="public-prize">
+              <div class="muted">PREMIO DE ESTA RONDA</div>
+              <div style="font-size:22px;font-weight:1000;margin-top:7px" id="publicPrize">🎁 SORPRESA</div>
+            </div>
+            <div style="margin-top:16px" class="muted">
+              ✨ Bienestar · 💵 Dinero en efectivo · 👨‍👩‍👧‍👦 Familia · 🎉 Y mucho más
+            </div>
+          </div>
+          <div class="public-main">
+            <div class="public-last">
+              <div class="last-ball" id="publicLastBall">—</div>
+              <div class="public-round">
+                <div class="muted">RONDA ACTUAL</div>
+                <h2 id="publicRoundName">Ronda 1</h2>
+                <div id="publicPattern">Gana: Línea</div>
+                <div class="muted" style="margin-top:8px" id="publicDrawCount">0 balotas llamadas</div><div class="muted" id="publicMode">Modo 1–99</div>
+              </div>
+            </div>
+            <div class="public-board" id="publicBoard"></div>
+            <div id="publicWinner"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view hidden" id="view-settings">
+      <div class="grid two">
+        <div class="card">
+          <div class="section-title"><h3>Datos del evento</h3></div>
+          <div class="form-grid">
+            <label>Nombre del evento<input class="input" id="settingTitle"></label>
+            <label>Valor del cartón<input class="input" id="settingPrice" type="number" min="0"></label>
+            <label>Modo de balotas
+              <select class="input" id="settingBallMax">
+                <option value="75">1–75 (clásico)</option>
+                <option value="90">1–90</option>
+                <option value="99">1–99 (IMARA)</option>
+              </select>
+            </label>
+            <label class="full">Texto organizador<input class="input" id="settingOrganizer"></label>
+            <label class="full">Mensaje público<textarea class="input" id="settingMessage"></textarea></label>
+            <label class="full">Logo / imagen del evento
+              <input class="input" id="settingLogo" type="file" accept="image/*">
+            </label>
+            <div class="full"><img id="logoPreview" class="logo-preview hidden" alt="Logo del evento"></div>
+          </div>
+          <div style="margin-top:12px"><button class="btn good" id="saveSettingsBtn">Guardar configuración</button></div>
+        </div>
+
+        <div class="card">
+          <div class="section-title"><h3>Datos y respaldo</h3></div>
+          <div class="notice">Las imágenes se guardan dentro del almacenamiento local del navegador. Para evitar que se llene, cada imagen se limita a aprox. 450 KB.</div>
+          <div class="actions" style="margin-top:14px">
+            <button class="btn" id="exportBtn">⬇️ Exportar backup JSON</button>
+            <label class="btn">⬆️ Importar backup<input id="importFile" type="file" accept=".json,application/json" hidden></label>
+            <button class="btn bad" id="wipeBtn">🗑️ Borrar todo</button>
+          </div>
+          <div class="footer-note">Haz un backup antes y después del evento. Así puedes recuperar cartones, pagos, balotas y ganadores.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<dialog id="generateDialog">
+  <div class="modal-head"><strong>Generar cartones</strong><button class="mini" data-close="generateDialog">✕</button></div>
+  <div class="modal-body">
+    <div class="form-grid">
+      <label>Cantidad exacta a generar<input class="input" id="generateCount" type="number" min="1" max="1000" value="100"></label>
+      <label>Prefijo<input class="input" id="generatePrefix" value="IMARA"></label>
+      <label>Número inicial<input class="input" id="generateStart" type="number" min="1" value="1"></label>
+      <label>Cartones por hoja
+        <select class="input" id="generatePerPage"><option value="1">1 por hoja</option><option value="2" selected>2 por hoja</option><option value="4">4 por hoja</option></select>
+      </label>
+      <label class="full" style="display:flex;grid-template-columns:auto 1fr;align-items:center;gap:10px;color:var(--text)">
+        <input id="generateAutoPrint" type="checkbox" checked style="width:20px;height:20px">
+        Abrir automáticamente los cartones generados listos para imprimir o guardar en PDF
+      </label>
+    </div>
+    <div class="notice" style="margin-top:14px"><span id="generateModeInfo">Cada cartón es único y usa el modo configurado de 99 balotas, distribuido entre B-I-N-G-O, con centro libre. El número del cartón queda impreso en grande.</span></div>
+  </div>
+  <div class="modal-foot"><button class="btn" data-close="generateDialog">Cancelar</button><button class="btn primary" id="confirmGenerateBtn">Generar</button></div>
+</dialog>
+
+<dialog id="cardDialog">
+  <div class="modal-head"><strong id="cardDialogTitle">Editar cartón</strong><button class="mini" data-close="cardDialog">✕</button></div>
+  <div class="modal-body">
+    <input type="hidden" id="editCardId">
+    <div class="form-grid">
+      <label>Comprador<input class="input" id="editBuyer"></label>
+      <label>Teléfono<input class="input" id="editPhone"></label>
+      <label>Estado
+        <select class="input" id="editStatus">
+          <option>Disponible</option><option>Emitido</option><option>Pagado</option><option>Anulado</option><option>Ganador</option>
+        </select>
+      </label>
+      <label>Fecha de pago<input class="input" id="editPaidAt" type="datetime-local"></label>
+      <label class="full">Observaciones<textarea class="input" id="editNotes"></textarea></label>
+      <label class="full">Imagen del cartón / comprobante / referencia
+        <input class="input" id="editImage" type="file" accept="image/*">
+      </label>
+      <div class="full"><img id="editImagePreview" class="img-preview hidden" alt="Imagen"></div>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn" data-close="cardDialog">Cancelar</button>
+    <button class="btn good" id="saveCardBtn">Guardar</button>
+  </div>
+</dialog>
+
+<script src="logo.js"></script>
+<script src="core.js"></script>
+<script src="ui.js"></script>
+<script src="game.js"></script>
+<script src="print.js"></script>
+<script src="settings.js"></script>
+</body>
+</html>
