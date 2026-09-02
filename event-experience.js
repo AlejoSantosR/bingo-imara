@@ -45,7 +45,7 @@
       .winner-countdown-card.pulse{animation:imaraWinnerPulse .38s cubic-bezier(.18,1.3,.3,1)}
 
       @keyframes imaraChannelPulse{from{box-shadow:inset 0 0 10px rgba(255,255,255,.05),0 6px 16px rgba(0,0,0,.18)}to{box-shadow:inset 0 0 22px rgba(141,107,255,.18),0 6px 24px rgba(255,91,143,.12)}}
-      @keyframes imaraChannelFlow{0%{transform:translateX(-160%) }100%{transform:translateX(60%)}}
+      @keyframes imaraChannelFlow{0%{transform:translateX(-160%)}100%{transform:translateX(60%)}}
       @keyframes imaraWinnerCard{from{opacity:0;transform:scale(.82) translateY(18px)}to{opacity:1;transform:none}}
       @keyframes imaraWinnerPulse{0%{transform:scale(.94)}65%{transform:scale(1.035)}100%{transform:scale(1)}}
       @media(prefers-reduced-motion:reduce){body.roulette-active .dual-ball-stage::before,body.roulette-active .dual-ball-stage::after,.winner-countdown-card{animation:none!important}}
@@ -53,7 +53,6 @@
     document.head.appendChild(style);
   }
 
-  /* Acorta la ruleta sin tocar la lógica del sorteo. */
   if(typeof runRouletteAnimation==='function'){
     const originalRunRoulette=runRouletteAnimation;
     runRouletteAnimation=function(finalNumber,duration,opts){
@@ -90,15 +89,12 @@
     overlay.classList.add('show');
   }
 
-  function hideCountdown(){
-    document.getElementById('winnerCountdownOverlay')?.classList.remove('show');
-  }
+  function hideCountdown(){document.getElementById('winnerCountdownOverlay')?.classList.remove('show');}
 
   function runCountdown(cardId,buyer,onComplete,broadcast){
     if(countdownActive)return false;
     countdownActive=true;
     if(broadcast&&bc)bc.postMessage({type:'winner-countdown',cardId,buyer,t:Date.now()});
-
     setCountdownStep('¡BINGO!',cardId,buyer,'Tenemos un cartón válido. Preparando el anuncio…');
     const steps=[
       [560,'A LA UNA…','Confirmando letra, número y figura…'],
@@ -107,26 +103,17 @@
       [2580,'🏆 ¡GANADOR!','¡Bingo confirmado por el sistema!']
     ];
     steps.forEach(([ms,text,sub])=>setTimeout(()=>setCountdownStep(text,cardId,buyer,sub),ms));
-    setTimeout(()=>{
-      if(typeof onComplete==='function')onComplete();
-    },2600);
-    setTimeout(()=>{
-      hideCountdown();
-      countdownActive=false;
-    },3800);
+    setTimeout(()=>{if(typeof onComplete==='function')onComplete();},2600);
+    setTimeout(()=>{hideCountdown();countdownActive=false;},3800);
     return true;
   }
 
-  window.imaraWinnerCountdown=function(cardId,buyer,onComplete){
-    return runCountdown(cardId,buyer,onComplete,true);
-  };
+  window.imaraWinnerCountdown=function(cardId,buyer,onComplete){return runCountdown(cardId,buyer,onComplete,true);};
 
   if(bc&&typeof bc.addEventListener==='function'){
     bc.addEventListener('message',event=>{
       const d=event?.data||{};
-      if(d.type==='winner-countdown'&&!countdownActive){
-        runCountdown(String(d.cardId||''),String(d.buyer||''),null,false);
-      }
+      if(d.type==='winner-countdown'&&!countdownActive)runCountdown(String(d.cardId||''),String(d.buyer||''),null,false);
     });
   }
 
@@ -135,18 +122,13 @@
       if(attempt<30)setTimeout(()=>installWinnerWrapper(attempt+1),100);
       return;
     }
-    if(typeof window.startPlayableDemo!=='function'&&attempt<30){
-      setTimeout(()=>installWinnerWrapper(attempt+1),100);
-      return;
-    }
+    if(typeof window.startPlayableDemo!=='function'&&attempt<30){setTimeout(()=>installWinnerWrapper(attempt+1),100);return;}
     if(window.registerWinner.__imaraCountdownWrapped)return;
     const target=window.registerWinner;
     const wrapped=function(id){
       const c=typeof findCard==='function'?findCard(id):null;
-      if(!c||typeof validatePattern!=='function'||!validatePattern(c)||!['Pagado','Ganador'].includes(c.status)){
-        return target(id);
-      }
-      if(countdownActive){toast?.('El anuncio de Bingo ya está en curso');return;}
+      if(!c||typeof validatePattern!=='function'||!validatePattern(c)||!['Pagado','Ganador'].includes(c.status))return target(id);
+      if(countdownActive){if(typeof toast==='function')toast('El anuncio de Bingo ya está en curso');return;}
       return runCountdown(c.id,c.buyer||'',()=>target(id),true);
     };
     wrapped.__imaraCountdownWrapped=true;
@@ -155,18 +137,4 @@
 
   installStyles();
   installWinnerWrapper();
-})();
-
-/* Acceso privado estable: Usuario + Contraseña. Sin SDK externo ni efectos públicos adicionales. */
-(function(){
-  if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
-  if(document.getElementById('imaraCloudPlatformStable'))return;
-  setTimeout(()=>{
-    if(document.getElementById('imaraCloudPlatformStable'))return;
-    const s=document.createElement('script');
-    s.id='imaraCloudPlatformStable';
-    s.src='cloud-platform.js?v=20260902-stable-login-1';
-    s.defer=true;
-    document.body.appendChild(s);
-  },350);
 })();
