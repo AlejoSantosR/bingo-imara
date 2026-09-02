@@ -139,20 +139,57 @@ function findCard(q){
   return state.cards.find(c=>c.id.toUpperCase()===norm);
 }
 
-function patternName(p){ return ({line:'Línea',corners:'4 esquinas',x:'X completa',full:'Cartón lleno'})[p]||p; }
+function patternName(p){
+  return ({
+    line:'Línea cualquiera', row:'Fila horizontal', column:'Columna vertical',
+    col_b:'Columna B', col_i:'Columna I', col_n:'Columna N', col_g:'Columna G', col_o:'Columna O',
+    diagonal:'Diagonal', corners:'4 esquinas', l_left:'L izquierda', l_right:'L derecha',
+    x:'X completa', plus:'Cruz (+)', t:'Letra T', h:'Letra H', u:'Letra U',
+    frame:'Marco exterior', full:'Cartón lleno'
+  })[p]||p;
+}
 function cellMarked(v){ return v==='FREE' || state.drawn.includes(Number(v)); }
 function validatePattern(card){
   const m=card.grid.map(row=>row.map(cellMarked));
-  if(state.round.pattern==='full') return m.flat().every(Boolean);
-  if(state.round.pattern==='corners') return m[0][0]&&m[0][4]&&m[4][0]&&m[4][4];
-  if(state.round.pattern==='x'){
-    return [0,1,2,3,4].every(i=>m[i][i]) && [0,1,2,3,4].every(i=>m[i][4-i]);
-  }
-  const rows=m.some(r=>r.every(Boolean));
-  const cols=[0,1,2,3,4].some(c=>m.every(r=>r[c]));
-  const d1=[0,1,2,3,4].every(i=>m[i][i]);
-  const d2=[0,1,2,3,4].every(i=>m[i][4-i]);
-  return rows||cols||d1||d2;
+  const allRows = () => m.some(r=>r.every(Boolean));
+  const allCols = () => [0,1,2,3,4].some(c=>m.every(r=>r[c]));
+  const diag1 = () => [0,1,2,3,4].every(i=>m[i][i]);
+  const diag2 = () => [0,1,2,3,4].every(i=>m[i][4-i]);
+  const col = c => m.every(r=>r[c]);
+  const row = r => m[r].every(Boolean);
+  const p=state.round.pattern;
+
+  if(p==='full') return m.flat().every(Boolean);
+  if(p==='frame') return row(0)&&row(4)&&col(0)&&col(4);
+  if(p==='corners') return m[0][0]&&m[0][4]&&m[4][0]&&m[4][4];
+  if(p==='x') return diag1()&&diag2();
+  if(p==='plus') return row(2)&&col(2);
+  if(p==='t') return row(0)&&col(2);
+  if(p==='h') return col(0)&&col(4)&&row(2);
+  if(p==='u') return col(0)&&col(4)&&row(4);
+  if(p==='l_left') return col(0)&&row(4);
+  if(p==='l_right') return col(4)&&row(4);
+  if(p==='row') return allRows();
+  if(p==='column') return allCols();
+  if(p==='col_b') return col(0);
+  if(p==='col_i') return col(1);
+  if(p==='col_n') return col(2);
+  if(p==='col_g') return col(3);
+  if(p==='col_o') return col(4);
+  if(p==='diagonal') return diag1()||diag2();
+  // Compatibilidad: línea cualquiera = fila, columna o diagonal.
+  return allRows()||allCols()||diag1()||diag2();
+}
+
+function currentWinningCards(){
+  const roundName=state.round.name;
+  const pattern=state.round.pattern;
+  return state.cards.filter(c=>{
+    if(!['Pagado','Ganador'].includes(c.status)) return false;
+    if(!validatePattern(c)) return false;
+    // Un mismo cartón puede volver a participar en otra ronda, pero no se repite en la misma.
+    return !state.winners.some(w=>w.cardId===c.id && w.roundName===roundName && w.pattern===pattern);
+  });
 }
 
 function renderBoard(targetId, cls='num'){
