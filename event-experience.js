@@ -47,7 +47,7 @@
       @keyframes imaraChannelPulse{from{box-shadow:inset 0 0 10px rgba(255,255,255,.05),0 6px 16px rgba(0,0,0,.18)}to{box-shadow:inset 0 0 22px rgba(141,107,255,.18),0 6px 24px rgba(255,91,143,.12)}}
       @keyframes imaraChannelFlow{0%{transform:translateX(-160%)}100%{transform:translateX(60%)}}
       @keyframes imaraWinnerCard{from{opacity:0;transform:scale(.82) translateY(18px)}to{opacity:1;transform:none}}
-      @keyframes imaraWinnerPulse{0%{transform:scale(.94)}65%{transform:scale(1.035)}100%{transform:scale(1)}}
+      @keyframes imaraWinnerPulse{0%{transform:scale(.94)}65%{transform:scale(1.035)}100%{transform:none}}
       @media(prefers-reduced-motion:reduce){body.roulette-active .dual-ball-stage::before,body.roulette-active .dual-ball-stage::after,.winner-countdown-card{animation:none!important}}
     `;
     document.head.appendChild(style);
@@ -137,4 +137,16 @@
 
   installStyles();
   installWinnerWrapper();
+})();
+
+/* Soundscape 2026: se carga exclusivamente en la pantalla pública.
+   Mantiene completamente aislados login, Admin y sincronización. */
+(function(){
+  if(!location.hash.startsWith('#public'))return;
+  if(document.getElementById('imaraSoundscape2026'))return;
+  const s=document.createElement('script');
+  s.id='imaraSoundscape2026';
+  s.src='soundscape-2026.js?v=20260902-SOUND-1';
+  s.defer=true;
+  document.body.appendChild(s);
 })();
