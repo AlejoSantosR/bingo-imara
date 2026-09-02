@@ -41,6 +41,9 @@
   }
 
   function mount(){
+    const localWipe=document.getElementById('wipeBtn');
+    if(localWipe){localWipe.textContent='🧹 Borrar solo datos locales';localWipe.title='Limpia únicamente este navegador; no borra ventas ni usuarios de la nube.';}
+
     const settings=document.querySelector('#view-settings .grid.two');
     if(!settings)return;
     let card=document.getElementById('factoryResetCard');
