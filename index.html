@@ -112,9 +112,24 @@
             <label>Nombre de la ronda<input class="input" id="roundName" value="Ronda 1"></label>
             <label>Tipo de victoria
               <select class="input" id="roundPattern">
-                <option value="line">Línea</option>
+                <option value="line">Línea cualquiera (fila, columna o diagonal)</option>
+                <option value="row">Una fila horizontal</option>
+                <option value="column">Una columna vertical (cualquiera)</option>
+                <option value="col_b">Columna B</option>
+                <option value="col_i">Columna I</option>
+                <option value="col_n">Columna N</option>
+                <option value="col_g">Columna G</option>
+                <option value="col_o">Columna O</option>
+                <option value="diagonal">Una diagonal</option>
                 <option value="corners">4 esquinas</option>
+                <option value="l_left">L izquierda</option>
+                <option value="l_right">L derecha</option>
                 <option value="x">X completa</option>
+                <option value="plus">Cruz (+)</option>
+                <option value="t">Letra T</option>
+                <option value="h">Letra H</option>
+                <option value="u">Letra U</option>
+                <option value="frame">Marco exterior</option>
                 <option value="full">Cartón lleno</option>
               </select>
             </label>
@@ -128,6 +143,14 @@
           </div>
           <div style="margin-top:12px"><button class="btn good" id="saveRoundBtn">Guardar ronda</button> <button class="btn bad" id="resetDrawBtn">Reiniciar balotas</button></div>
         </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="section-title">
+          <h3>🔎 Detector automático de ganadores</h3>
+          <span class="muted">Solo revisa cartones Pagados / Ganador</span>
+        </div>
+        <div id="autoWinnerStatus" class="muted">Aún no hay un cartón que cumpla la figura activa.</div>
       </div>
 
       <div class="card" style="margin-top:16px">
