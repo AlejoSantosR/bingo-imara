@@ -258,3 +258,13 @@
   renderAll();
   ensureDualBalls();
 })();
+
+/* Carga el modo de prueba jugable sin necesidad de modificar la estructura principal. */
+(function(){
+  if(document.querySelector('script[data-imara-demo-mode]'))return;
+  const s=document.createElement('script');
+  s.src='demo-mode.js';
+  s.dataset.imaraDemoMode='1';
+  s.defer=true;
+  document.body.appendChild(s);
+})();
