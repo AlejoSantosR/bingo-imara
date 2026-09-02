@@ -58,8 +58,8 @@
     const originalRunRoulette=runRouletteAnimation;
     runRouletteAnimation=function(finalNumber,duration,opts){
       let d=Number(duration)||2300;
-      if(d>=2200)d=1350;          // sorteo aleatorio
-      else if(d>=1400&&d<=1500)d=800; // marcación manual
+      if(d>=2200)d=1350;
+      else if(d>=1400&&d<=1500)d=800;
       return originalRunRoulette(finalNumber,d,opts||{});
     };
   }
@@ -130,7 +130,6 @@
     });
   }
 
-  /* Espera a que demo-mode termine de instalar su registerWinner y luego envuelve la versión final. */
   function installWinnerWrapper(attempt=0){
     if(typeof window.registerWinner!=='function'){
       if(attempt<30)setTimeout(()=>installWinnerWrapper(attempt+1),100);
@@ -156,4 +155,18 @@
 
   installStyles();
   installWinnerWrapper();
+})();
+
+/* Acceso privado estable: Usuario + Contraseña. Sin SDK externo ni efectos públicos adicionales. */
+(function(){
+  if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
+  if(document.getElementById('imaraCloudPlatformStable'))return;
+  setTimeout(()=>{
+    if(document.getElementById('imaraCloudPlatformStable'))return;
+    const s=document.createElement('script');
+    s.id='imaraCloudPlatformStable';
+    s.src='cloud-platform.js?v=20260902-stable-login-1';
+    s.defer=true;
+    document.body.appendChild(s);
+  },350);
 })();
