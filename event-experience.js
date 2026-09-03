@@ -140,3 +140,15 @@
   s.defer=true;
   document.body.appendChild(s);
 })();
+
+/* Estabilidad del formulario de creación de Miembros.
+   Se carga solo en la zona privada y no modifica el login. */
+(function(){
+  if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
+  if(document.getElementById('imaraMemberStability'))return;
+  const s=document.createElement('script');
+  s.id='imaraMemberStability';
+  s.src='admin-member-stability.js?v=20260902-MEMBER-1';
+  s.defer=true;
+  document.body.appendChild(s);
+})();
