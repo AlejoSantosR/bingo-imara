@@ -152,3 +152,14 @@
   s.defer=true;
   document.body.appendChild(s);
 })();
+
+/* Finanzas: módulo privado e independiente del login. */
+(function(){
+  if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
+  if(document.getElementById('imaraFinanceCenter'))return;
+  const s=document.createElement('script');
+  s.id='imaraFinanceCenter';
+  s.src='finance-center.js?v=20260902-FIN-1';
+  s.defer=true;
+  document.body.appendChild(s);
+})();
