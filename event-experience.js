@@ -174,3 +174,36 @@
   s.defer=true;
   document.body.appendChild(s);
 })();
+
+/* Trofeo visual del premio: Admin + Pública. */
+(function(){
+  if(location.hash.startsWith('#mobile='))return;
+  if(document.getElementById('imaraPrizeTrophy2026'))return;
+  const s=document.createElement('script');
+  s.id='imaraPrizeTrophy2026';
+  s.src='prize-trophy-2026.js?v=20260903-PRIZE-1';
+  s.defer=true;
+  document.body.appendChild(s);
+})();
+
+/* Toda venta/pago directo de Admin entra a Finanzas. */
+(function(){
+  if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
+  if(document.getElementById('imaraAdminFinanceSync2026'))return;
+  const s=document.createElement('script');
+  s.id='imaraAdminFinanceSync2026';
+  s.src='admin-finance-sync-2026.js?v=20260903-FIN-3';
+  s.defer=true;
+  document.body.appendChild(s);
+})();
+
+/* Ranking y gráfica por vendedor dentro de Finanzas. */
+(function(){
+  if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
+  if(document.getElementById('imaraFinanceSellerPro2026'))return;
+  const s=document.createElement('script');
+  s.id='imaraFinanceSellerPro2026';
+  s.src='finance-seller-pro-2026.js?v=20260903-FIN-3';
+  s.defer=true;
+  document.body.appendChild(s);
+})();
