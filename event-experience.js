@@ -163,3 +163,14 @@
   s.defer=true;
   document.body.appendChild(s);
 })();
+
+/* Controles extendidos de Finanzas. Solo complementan el módulo financiero. */
+(function(){
+  if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
+  if(document.getElementById('imaraFinanceControls2026'))return;
+  const s=document.createElement('script');
+  s.id='imaraFinanceControls2026';
+  s.src='finance-controls-2026.js?v=20260902-FIN-2';
+  s.defer=true;
+  document.body.appendChild(s);
+})();
