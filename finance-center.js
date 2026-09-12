@@ -16,18 +16,18 @@ if(!document.getElementById('imaraPricingConsistencySafe2026')){
  p.defer=true;
  document.body.appendChild(p);
 }
-if(!document.getElementById('imaraUnassignedPriceSafe2026')){
- const u=document.createElement('script');
- u.id='imaraUnassignedPriceSafe2026';
- u.src='unassigned-price-safe-2026.js?v=20260912-UNASSIGNED-1';
- u.defer=true;
- document.body.appendChild(u);
-}
 if(!document.getElementById('imaraReleaseAssignmentSafe2026')){
  const r=document.createElement('script');
  r.id='imaraReleaseAssignmentSafe2026';
  r.src='release-assignment-safe-2026.js?v=20260912-RELEASE-1';
  r.defer=true;
  document.body.appendChild(r);
+}
+if(!document.getElementById('imaraCardsAdminStable2026')){
+ const c=document.createElement('script');
+ c.id='imaraCardsAdminStable2026';
+ c.src='cards-admin-stable-2026.js?v=20260912-CARDS-STABLE-1';
+ c.defer=true;
+ document.body.appendChild(c);
 }
 })();
