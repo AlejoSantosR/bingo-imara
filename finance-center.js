@@ -2,10 +2,18 @@
 (function(){
 'use strict';
 if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
-if(document.getElementById('imaraFinanceSafe2026'))return;
-const s=document.createElement('script');
-s.id='imaraFinanceSafe2026';
-s.src='finance-center-safe-2026.js?v=20260912-STABLE-2';
-s.defer=true;
-document.body.appendChild(s);
+if(!document.getElementById('imaraFinanceSafe2026')){
+ const s=document.createElement('script');
+ s.id='imaraFinanceSafe2026';
+ s.src='finance-center-safe-2026.js?v=20260912-STABLE-2';
+ s.defer=true;
+ document.body.appendChild(s);
+}
+if(!document.getElementById('imaraPricingConsistencySafe2026')){
+ const p=document.createElement('script');
+ p.id='imaraPricingConsistencySafe2026';
+ p.src='pricing-consistency-safe-2026.js?v=20260912-PRICE-SAFE-1';
+ p.defer=true;
+ document.body.appendChild(p);
+}
 })();
