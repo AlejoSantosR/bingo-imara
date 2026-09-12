@@ -16,4 +16,11 @@ if(!document.getElementById('imaraPricingConsistencySafe2026')){
  p.defer=true;
  document.body.appendChild(p);
 }
+if(!document.getElementById('imaraUnassignedPriceSafe2026')){
+ const u=document.createElement('script');
+ u.id='imaraUnassignedPriceSafe2026';
+ u.src='unassigned-price-safe-2026.js?v=20260912-UNASSIGNED-1';
+ u.defer=true;
+ document.body.appendChild(u);
+}
 })();
