@@ -4,9 +4,7 @@
 'use strict';
 if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
 if(document.getElementById('cardsNoMotionCss'))return;
-const s=document.createElement('style');
-s.id='cardsNoMotionCss';
-s.textContent=`
+const s=document.createElement('style');s.id='cardsNoMotionCss';s.textContent=`
 /* La sección Cartones no anima ni se desplaza. */
 body #view-cards,
 body #view-cards *,
@@ -109,14 +107,14 @@ s.defer=true;
 document.body.appendChild(s);
 })();
 
-/* Único ajuste POS: simplifica el desplegable Medio de pago. */
+/* Único ajuste POS: simplifica el desplegable Medio de pago y la tarjeta RappiPay. */
 (function(){
 'use strict';
 if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
 if(document.getElementById('imaraPosPaymentDropdown2026'))return;
 const s=document.createElement('script');
 s.id='imaraPosPaymentDropdown2026';
-s.src='pos-payment-dropdown-2026.js?v=20260912-PAYMENT-DROPDOWN-1';
+s.src='pos-payment-dropdown-2026.js?v=20260912-PAYMENT-DROPDOWN-2';
 s.defer=true;
 document.body.appendChild(s);
 })();
