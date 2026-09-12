@@ -67,21 +67,18 @@
   installStyles();installWinnerWrapper();
 })();
 
-/* Sonido: solo pantalla pública. */
 (function(){
   if(!location.hash.startsWith('#public'))return;
   if(document.getElementById('imaraSoundscape2026'))return;
   const s=document.createElement('script');s.id='imaraSoundscape2026';s.src='soundscape-2026.js?v=20260912-STABLE-1';s.defer=true;document.body.appendChild(s);
 })();
 
-/* Finanzas base: sin observadores globales. */
 (function(){
   if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
   if(document.getElementById('imaraFinanceCenter'))return;
-  const s=document.createElement('script');s.id='imaraFinanceCenter';s.src='finance-center.js?v=20260912-STABLE-1';s.defer=true;document.body.appendChild(s);
+  const s=document.createElement('script');s.id='imaraFinanceCenter';s.src='finance-center.js?v=20260912-STABLE-2';s.defer=true;document.body.appendChild(s);
 })();
 
-/* Trofeo visual del premio: Admin + Pública. */
 (function(){
   if(location.hash.startsWith('#mobile='))return;
   if(document.getElementById('imaraPrizeTrophy2026'))return;
