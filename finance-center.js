@@ -12,7 +12,7 @@ if(!document.getElementById('imaraFinanceSafe2026')){
 if(!document.getElementById('imaraPricingConsistencySafe2026')){
  const p=document.createElement('script');
  p.id='imaraPricingConsistencySafe2026';
- p.src='pricing-consistency-safe-2026.js?v=20260912-PRICE-SAFE-1';
+ p.src='pricing-consistency-safe-2026.js?v=20260912-PRICE-SAFE-2';
  p.defer=true;
  document.body.appendChild(p);
 }
