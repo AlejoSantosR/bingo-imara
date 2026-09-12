@@ -108,3 +108,15 @@ s.src='android-performance-2026.js?v=20260912-ANDROID-PERF-1';
 s.defer=true;
 document.body.appendChild(s);
 })();
+
+/* Único ajuste POS: simplifica el desplegable Medio de pago. */
+(function(){
+'use strict';
+if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
+if(document.getElementById('imaraPosPaymentDropdown2026'))return;
+const s=document.createElement('script');
+s.id='imaraPosPaymentDropdown2026';
+s.src='pos-payment-dropdown-2026.js?v=20260912-PAYMENT-DROPDOWN-1';
+s.defer=true;
+document.body.appendChild(s);
+})();
