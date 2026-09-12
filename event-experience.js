@@ -76,7 +76,7 @@
 (function(){
   if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
   if(document.getElementById('imaraFinanceCenter'))return;
-  const s=document.createElement('script');s.id='imaraFinanceCenter';s.src='finance-center.js?v=20260912-PRICE-SAFE-1';s.defer=true;document.body.appendChild(s);
+  const s=document.createElement('script');s.id='imaraFinanceCenter';s.src='finance-center.js?v=20260912-PRICE-SAFE-2';s.defer=true;document.body.appendChild(s);
 })();
 
 (function(){
