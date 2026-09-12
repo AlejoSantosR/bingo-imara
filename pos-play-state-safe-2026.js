@@ -26,3 +26,13 @@ function wire(){if(wired)return;wired=true;document.addEventListener('click',e=>
 function boot(){css();wire();paint();[600,1800,4000].forEach(ms=>setTimeout(loadAndPaint,ms));}
 boot();
 })();
+
+/* Cargas SAFE adicionales: Inicio personal + inventario secuencial de 20. */
+(function(){
+'use strict';
+if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
+[
+ ['imaraPersonalDashboardSafe','dashboard-personal-safe-2026.js?v=20260912-DASH-SAFE-1'],
+ ['imaraInventoryBatchesSafe','inventory-batches-safe-2026.js?v=20260912-BATCH20-SAFE-1']
+].forEach(([id,src])=>{if(document.getElementById(id))return;const s=document.createElement('script');s.id=id;s.src=src;s.defer=true;document.body.appendChild(s);});
+})();
