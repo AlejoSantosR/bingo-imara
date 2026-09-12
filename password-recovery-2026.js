@@ -54,3 +54,10 @@ css();ensureDialogs();
 setInterval(()=>{mountForgot();mountChip();if(isAdmin())loadRequests(false);else document.getElementById('passwordResetAdminPanel')?.remove();},1500);
 mountForgot();mountChip();
 })();
+
+/* Integridad de pedidos POS: evita aprobaciones parciales y lleva Miembro al POS. */
+(function(){
+ if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
+ if(document.getElementById('imaraPosIntegrity2026'))return;
+ const s=document.createElement('script');s.id='imaraPosIntegrity2026';s.src='pos-integrity-2026.js?v=20260912-POS-1';s.defer=true;document.body.appendChild(s);
+})();
