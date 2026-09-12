@@ -94,3 +94,17 @@ body #view-cards button:hover{
 `;
 document.head.appendChild(s);
 })();
+
+/* Carga adaptativa de rendimiento solo para Android privado. */
+(function(){
+'use strict';
+if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
+if(!/Android/i.test(navigator.userAgent||''))return;
+if(window.matchMedia&&!window.matchMedia('(max-width:820px)').matches)return;
+if(document.getElementById('imaraAndroidPerformance2026'))return;
+const s=document.createElement('script');
+s.id='imaraAndroidPerformance2026';
+s.src='android-performance-2026.js?v=20260912-ANDROID-PERF-1';
+s.defer=true;
+document.body.appendChild(s);
+})();
