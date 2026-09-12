@@ -23,4 +23,11 @@ if(!document.getElementById('imaraUnassignedPriceSafe2026')){
  u.defer=true;
  document.body.appendChild(u);
 }
+if(!document.getElementById('imaraReleaseAssignmentSafe2026')){
+ const r=document.createElement('script');
+ r.id='imaraReleaseAssignmentSafe2026';
+ r.src='release-assignment-safe-2026.js?v=20260912-RELEASE-1';
+ r.defer=true;
+ document.body.appendChild(r);
+}
 })();
