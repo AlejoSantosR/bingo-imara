@@ -1,63 +1,11 @@
-/* Bingo IMARA · Recuperación de contraseña 2026
-   Capa independiente: no modifica el login base ni el juego. */
+/* Bingo IMARA · puente estable de recuperación de contraseña */
 (function(){
 'use strict';
 if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
-const API='https://fpevaukkbtruplwptufu.supabase.co/functions/v1/bingo-password';
-const SESSION_KEY='imaraPrivateSessionV1';
-let lastAdminLoad=0,loadingRequests=false;
-const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[m]));
-
-async function api(action,payload={},auth=true){
-  const headers={'Content-Type':'application/json'};
-  const token=sessionStorage.getItem(SESSION_KEY)||'';
-  if(auth&&token)headers.Authorization='Bearer '+token;
-  const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),12000);
-  try{
-    const r=await fetch(API,{method:'POST',headers,cache:'no-store',signal:ctl.signal,body:JSON.stringify({action,...payload})});
-    let d={};try{d=await r.json()}catch(e){}
-    if(!r.ok)throw new Error(d.error||'No fue posible completar la operación.');
-    return d;
-  }finally{clearTimeout(tm);}
-}
-function css(){if(document.getElementById('imaraPasswordRecoveryCss'))return;const s=document.createElement('style');s.id='imaraPasswordRecoveryCss';s.textContent=`
- .imara-forgot-wrap{margin-top:10px;text-align:center}.imara-forgot-btn{background:none;border:0;color:#cfc6ff;font-weight:800;cursor:pointer;padding:7px 10px}.imara-forgot-btn:hover{text-decoration:underline}
- .password-reset-panel{margin-top:16px}.password-reset-list{display:grid;gap:8px}.password-reset-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:11px;border:1px solid var(--line);border-radius:14px;background:#10182a}.password-reset-row small{color:var(--muted)}
- .password-dialog-note{padding:10px 12px;border-radius:13px;background:rgba(141,107,255,.08);border:1px solid rgba(141,107,255,.22);color:#d8ceff;font-size:12px;margin-top:10px}
- @media(max-width:620px){.password-reset-row{align-items:flex-start;flex-direction:column}}
- `;document.head.appendChild(s);}
-function ensureDialogs(){
- if(!document.getElementById('forgotPasswordDialog')){
-  const d=document.createElement('dialog');d.id='forgotPasswordDialog';d.innerHTML=`<div class="modal-head"><strong>🔑 Restablecer contraseña</strong><button class="mini" data-x>✕</button></div><div class="modal-body"><label>Usuario<input class="input" id="forgotUsername" autocomplete="username" placeholder="Ej: admin_imara"></label><div class="password-dialog-note">No usamos correo. La solicitud llegará a un Admin, quien podrá asignarte una contraseña temporal.</div><div id="forgotStatus" class="imara-auth-error" style="margin-top:10px"></div></div><div class="modal-foot"><button class="btn" data-cancel>Cancelar</button><button class="btn primary" id="forgotSubmit">Enviar solicitud</button></div>`;document.body.appendChild(d);d.querySelector('[data-x]').onclick=()=>d.close();d.querySelector('[data-cancel]').onclick=()=>d.close();d.querySelector('#forgotSubmit').onclick=sendRequest;
- }
- if(!document.getElementById('changePasswordDialog')){
-  const d=document.createElement('dialog');d.id='changePasswordDialog';d.innerHTML=`<div class="modal-head"><strong>🔐 Cambiar mi contraseña</strong><button class="mini" data-x>✕</button></div><div class="modal-body"><div class="form-grid"><label class="full">Contraseña actual<input class="input" id="changeCurrent" type="password" autocomplete="current-password"></label><label>Nueva contraseña<input class="input" id="changeNew" type="password" autocomplete="new-password" minlength="8"></label><label>Confirmar nueva<input class="input" id="changeConfirm" type="password" autocomplete="new-password" minlength="8"></label></div><div class="password-dialog-note">Después del cambio se cerrará tu sesión en todos los dispositivos.</div></div><div class="modal-foot"><button class="btn" data-cancel>Cancelar</button><button class="btn good" id="changeSubmit">Guardar nueva contraseña</button></div>`;document.body.appendChild(d);d.querySelector('[data-x]').onclick=()=>d.close();d.querySelector('[data-cancel]').onclick=()=>d.close();d.querySelector('#changeSubmit').onclick=changePassword;
- }
- if(!document.getElementById('adminResetPasswordDialog')){
-  const d=document.createElement('dialog');d.id='adminResetPasswordDialog';d.innerHTML=`<div class="modal-head"><strong>🛡️ Restablecer acceso</strong><button class="mini" data-x>✕</button></div><div class="modal-body"><div id="adminResetWho" class="notice"></div><label style="display:grid;gap:5px;margin-top:12px">Contraseña temporal<input class="input" id="adminResetNew" type="password" minlength="8" autocomplete="new-password"></label><div class="actions" style="margin-top:8px"><button class="mini" id="generateTempPass">🎲 Generar temporal</button></div><div class="password-dialog-note">La sesión anterior de esa persona se cerrará. Comparte la contraseña temporal por un canal seguro.</div></div><div class="modal-foot"><button class="btn" data-cancel>Cancelar</button><button class="btn good" id="adminResetSubmit">Confirmar restablecimiento</button></div>`;document.body.appendChild(d);d.querySelector('[data-x]').onclick=()=>d.close();d.querySelector('[data-cancel]').onclick=()=>d.close();d.querySelector('#generateTempPass').onclick=()=>{d.querySelector('#adminResetNew').value=tempPassword();d.querySelector('#adminResetNew').type='text';};d.querySelector('#adminResetSubmit').onclick=adminReset;
- }
-}
-function mountForgot(){const auth=document.getElementById('imaraAuth');if(!auth||auth.querySelector('#imaraForgotPassword'))return;const actions=auth.querySelector('.imara-auth-actions');if(!actions)return;const wrap=document.createElement('div');wrap.className='imara-forgot-wrap';wrap.innerHTML='<button type="button" class="imara-forgot-btn" id="imaraForgotPassword">¿Olvidaste tu contraseña?</button>';actions.after(wrap);wrap.querySelector('button').onclick=()=>{ensureDialogs();const d=document.getElementById('forgotPasswordDialog');d.querySelector('#forgotUsername').value=auth.querySelector('#imaraUser')?.value.trim()||'';d.querySelector('#forgotStatus').textContent='';d.showModal();setTimeout(()=>d.querySelector('#forgotUsername').focus(),50);};}
-async function sendRequest(){const d=document.getElementById('forgotPasswordDialog'),u=d.querySelector('#forgotUsername').value.trim(),st=d.querySelector('#forgotStatus'),b=d.querySelector('#forgotSubmit');if(!u){st.textContent='Escribe tu usuario.';return;}b.disabled=true;b.textContent='Enviando…';st.textContent='';try{const r=await api('request-reset',{username:u},false);st.style.color='#9bf4df';st.textContent=r.message||'Solicitud registrada.';setTimeout(()=>d.close(),1800);}catch(e){st.style.color='#ffabb8';st.textContent=e.message;}finally{b.disabled=false;b.textContent='Enviar solicitud';}}
-function mountChip(){const b=document.getElementById('imaraChangePass');if(b)b.textContent='Cambiar clave';}
-function openChange(){ensureDialogs();const d=document.getElementById('changePasswordDialog');d.querySelector('#changeCurrent').value='';d.querySelector('#changeNew').value='';d.querySelector('#changeConfirm').value='';d.showModal();setTimeout(()=>d.querySelector('#changeCurrent').focus(),50);}
-async function changePassword(){const d=document.getElementById('changePasswordDialog'),cur=d.querySelector('#changeCurrent').value,n=d.querySelector('#changeNew').value,c=d.querySelector('#changeConfirm').value,b=d.querySelector('#changeSubmit');if(n.length<8){alert('La nueva contraseña debe tener mínimo 8 caracteres.');return;}if(n!==c){alert('Las dos contraseñas nuevas no coinciden.');return;}b.disabled=true;b.textContent='Guardando…';try{await api('change-password',{current_password:cur,new_password:n});d.close();sessionStorage.removeItem(SESSION_KEY);alert('✅ Contraseña actualizada. Inicia sesión nuevamente.');location.reload();}catch(e){alert(e.message);}finally{b.disabled=false;b.textContent='Guardar nueva contraseña';}}
-function isAdmin(){return !!document.querySelector('#imaraUserChip .imara-role.admin');}
-function ensureAdminPanel(){const dash=document.getElementById('view-dashboard'),ops=document.getElementById('imaraOps');if(!dash||!ops||!isAdmin())return null;let p=document.getElementById('passwordResetAdminPanel');if(!p){p=document.createElement('div');p.id='passwordResetAdminPanel';p.className='card password-reset-panel';ops.after(p);}return p;}
-async function loadRequests(force=false){if(!isAdmin()||loadingRequests)return;const now=Date.now();if(!force&&now-lastAdminLoad<15000)return;const p=ensureAdminPanel();if(!p)return;loadingRequests=true;lastAdminLoad=now;try{const d=await api('list-requests');const list=d.requests||[];p.innerHTML=`<div class="section-title"><div><h3>🔑 Restablecimientos de contraseña</h3><div class="muted">Solicitudes enviadas desde la pantalla de acceso.</div></div><button class="mini" id="refreshPasswordRequests">↻ Actualizar</button></div><div class="password-reset-list">${list.length?list.map(r=>`<div class="password-reset-row"><div><strong>@${esc(r.user?.username||'')}</strong>${r.user?.display_name?` · ${esc(r.user.display_name)}`:''}<br><small>${esc(String(r.user?.role||'').toUpperCase())} · Solicitado ${new Date(r.requested_at).toLocaleString('es-CO')}</small></div><button class="mini" data-reset-request="${esc(r.id)}" data-reset-user="${esc(r.user?.username||'')}">🔐 Restablecer</button></div>`).join(''):'<div class="muted">No hay solicitudes pendientes.</div>'}</div>`;p.querySelector('#refreshPasswordRequests').onclick=()=>loadRequests(true);p.querySelectorAll('[data-reset-request]').forEach(b=>b.onclick=()=>openAdminReset(b.dataset.resetRequest,b.dataset.resetUser));}catch(e){p.innerHTML=`<div class="section-title"><h3>🔑 Restablecimientos de contraseña</h3></div><div class="danger">${esc(e.message)}</div>`;}finally{loadingRequests=false;}}
-function openAdminReset(id,user){ensureDialogs();const d=document.getElementById('adminResetPasswordDialog');d.dataset.requestId=id;d.querySelector('#adminResetWho').innerHTML=`Usuario: <strong>@${esc(user)}</strong>`;d.querySelector('#adminResetNew').value='';d.querySelector('#adminResetNew').type='password';d.showModal();setTimeout(()=>d.querySelector('#adminResetNew').focus(),50);}
-function tempPassword(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';const a=new Uint32Array(14);crypto.getRandomValues(a);return Array.from(a,x=>chars[x%chars.length]).join('');}
-async function adminReset(){const d=document.getElementById('adminResetPasswordDialog'),p=d.querySelector('#adminResetNew').value,b=d.querySelector('#adminResetSubmit');if(p.length<8){alert('La contraseña temporal debe tener mínimo 8 caracteres.');return;}b.disabled=true;b.textContent='Restableciendo…';try{await api('admin-reset',{request_id:d.dataset.requestId,new_password:p});d.close();alert('✅ Contraseña restablecida. La persona ya puede entrar con la nueva clave.');lastAdminLoad=0;await loadRequests(true);}catch(e){alert(e.message);}finally{b.disabled=false;b.textContent='Confirmar restablecimiento';}}
-
-document.addEventListener('click',e=>{const t=e.target.closest?.('#imaraChangePass');if(!t)return;e.preventDefault();e.stopImmediatePropagation();openChange();},true);
-css();ensureDialogs();
-setInterval(()=>{mountForgot();mountChip();if(isAdmin())loadRequests(false);else document.getElementById('passwordResetAdminPanel')?.remove();},1500);
-mountForgot();mountChip();
-})();
-
-/* Integridad de pedidos POS: evita aprobaciones parciales y lleva Miembro al POS. */
-(function(){
- if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
- if(document.getElementById('imaraPosIntegrity2026'))return;
- const s=document.createElement('script');s.id='imaraPosIntegrity2026';s.src='pos-integrity-2026.js?v=20260912-POS-1';s.defer=true;document.body.appendChild(s);
+if(document.getElementById('imaraPasswordRecoverySafe2026'))return;
+const s=document.createElement('script');
+s.id='imaraPasswordRecoverySafe2026';
+s.src='password-recovery-safe-2026.js?v=20260912-STABLE-2';
+s.defer=true;
+document.body.appendChild(s);
 })();
