@@ -1,4 +1,4 @@
-/* Bingo IMARA · BINGO en vivo 2026
+/* Bingo IMARA · BINGO en vivo 2026 · V1.1
    Reclamo móvil -> aviso público -> dashboard -> conteo 1/2/3 -> confirmar/continuar/desempatar.
    Capa aditiva: conserva motor, ganador y desempate existentes. */
 (function(){
@@ -12,7 +12,7 @@ const POLL_MS=850;
 const COUNT_MS=3000;
 let claims=[],candidates=[],liveShow={type:'idle'},lastClaimSig='',publishing=false,watchClaims=true;
 
-const esc=s=>typeof escapeHtml==='function'?escapeHtml(String(s??'')):String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const esc=s=>typeof escapeHtml==='function'?escapeHtml(String(s??'')):String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[m]));
 function token(){return sessionStorage.getItem(SESSION_KEY)||'';}
 function isAdmin(){return !!document.querySelector('#imaraUserChip .imara-role.admin');}
 async function api(action,payload={},auth=true){
