@@ -7,7 +7,9 @@ if(IS_MOBILE)return;
 const esc=s=>typeof escapeHtml==='function'?escapeHtml(String(s??'')):String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[m]));
 const shortMoney=n=>{n=Number(n)||0;return n>=1000?`$${Math.round(n/1000)}K`:`$${n}`;};
 function installCss(){if(document.getElementById('imaraPrizeTrophyCss'))return;const s=document.createElement('style');s.id='imaraPrizeTrophyCss';s.textContent=`
- #publicPrizeGallery{display:none!important}
+ #publicPrizeGallery,#roundPrizePreview{display:none!important}
+ body.public-only .public-prize{background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important}
+ body.public-only .public-prize> .muted:first-child{display:none!important}
  #roundPrizeSelectorWrap{margin-top:12px!important}
  #view-game #roundPrize,#view-game #prizeReveal,#view-game #roundStatus{display:none!important}
  #view-game #roundPrize:where(input),#view-game #prizeReveal:where(select),#view-game #roundStatus:where(select){display:none!important}
