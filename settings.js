@@ -12,6 +12,9 @@ function ensureSettingsExtras(){
   const grid=document.querySelector('#view-settings .grid.two');
   if(!grid) return;
 
+  const legacyPrice=document.getElementById('settingPrice')?.closest('label');
+  if(legacyPrice) legacyPrice.style.display='none';
+
   if(!document.getElementById('prizesConfigCard')){
     const card=document.createElement('div');
     card.className='card';
@@ -21,16 +24,28 @@ function ensureSettingsExtras(){
       <div class="section-title">
         <div>
           <h3>🎁 Premios del evento</h3>
-          <div class="muted" style="margin-top:4px">Organízalos como Primer premio, Segundo premio, Tercer premio… con texto e imagen.</div>
+          <div class="muted" style="margin-top:4px">Este es el catálogo oficial y su orden. En Juego solo seleccionas cuál corresponde a la ronda.</div>
         </div>
         <div class="actions">
           <button class="btn primary" type="button" onclick="addPrize()">➕ Agregar premio</button>
           <button class="btn good" type="button" onclick="savePrizeConfig()">💾 Guardar premios</button>
         </div>
       </div>
-      <div class="notice" style="margin-bottom:14px">Las imágenes de premios se guardan en el navegador y también viajan en el Backup JSON. Usa imágenes livianas (máx. aprox. 350 KB por premio).</div>
+      <div class="form-grid" style="margin-bottom:14px">
+        <label>Precio individual mostrado al público
+          <input class="input" id="publicSinglePrice" type="number" min="0" value="${Number(state.settings.publicSinglePrice||30000)}">
+        </label>
+        <label>Combo de 2 mostrado al público
+          <input class="input" id="publicComboPrice" type="number" min="0" value="${Number(state.settings.publicComboPrice||50000)}">
+        </label>
+      </div>
+      <div class="notice" style="margin-bottom:14px">El orden se controla con ↑ y ↓. Las imágenes se guardan en el navegador y viajan en el Backup JSON. Máx. aprox. 350 KB por premio.</div>
       <div id="prizeList"></div>`;
     grid.appendChild(card);
+  }else{
+    const single=document.getElementById('publicSinglePrice'),combo=document.getElementById('publicComboPrice');
+    if(single && document.activeElement!==single) single.value=Number(state.settings.publicSinglePrice||30000);
+    if(combo && document.activeElement!==combo) combo.value=Number(state.settings.publicComboPrice||50000);
   }
 
   if(!document.getElementById('demoCardsCard')){
@@ -70,6 +85,8 @@ function ensureSettingsExtras(){
 function renderPrizeConfig(){
   ensureSettingsExtras();
   const list=document.getElementById('prizeList'); if(!list)return;
+  const active=document.activeElement;
+  if(active && active.closest && active.closest('#prizeList')) return;
   const prizes=prizesArray();
   if(!prizes.length){
     list.innerHTML='<div class="muted" style="padding:14px 0">Aún no has registrado premios. Pulsa “Agregar premio”.</div>';
@@ -78,8 +95,8 @@ function renderPrizeConfig(){
   list.innerHTML=prizes.map((p,i)=>`
     <div style="display:grid;grid-template-columns:110px 1fr auto;gap:14px;align-items:start;padding:14px 0;border-bottom:1px solid var(--line)">
       <div>
-        ${p.image?`<img src="${p.image}" alt="${escapeHtml(ordinalPrizeLabel(i))}" style="width:100px;height:100px;object-fit:cover;border-radius:16px;border:1px solid var(--line)">`:
-          `<div style="width:100px;height:100px;border-radius:16px;border:1px dashed var(--line);display:grid;place-items:center;font-size:34px">🎁</div>`}
+        ${p.image?`<div style="width:100px;height:100px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 28%,#ffe99a,#e5ad2c 68%,#80530c);overflow:hidden"><img src="${p.image}" alt="${escapeHtml(ordinalPrizeLabel(i))}" style="width:78%;height:78%;object-fit:contain;background:transparent"></div>`:
+          `<div style="width:100px;height:100px;border-radius:50%;display:grid;place-items:center;font-size:34px;background:radial-gradient(circle at 35% 28%,#ffe99a,#e5ad2c 68%,#80530c)">🎁</div>`}
         <label class="mini" style="display:block;text-align:center;margin-top:7px;cursor:pointer">🖼️ Imagen
           <input type="file" accept="image/*" hidden onchange="setPrizeImage('${p.id}',this.files&&this.files[0])">
         </label>
@@ -89,20 +106,19 @@ function renderPrizeConfig(){
         <label>Nombre del premio<input class="input" value="${escapeHtml(p.title||'')}" oninput="updatePrizeField('${p.id}','title',this.value)" placeholder="Ej: Bono de bienestar"></label>
         <label class="full">Descripción<textarea class="input" oninput="updatePrizeField('${p.id}','description',this.value)" placeholder="Ej: Sesión de spa para dos personas">${escapeHtml(p.description||'')}</textarea></label>
         <label class="full" style="display:flex;grid-template-columns:auto 1fr;align-items:center;gap:10px;color:var(--text)">
-          <input type="checkbox" ${p.showPublic?'checked':''} onchange="updatePrizeField('${p.id}','showPublic',this.checked)" style="width:20px;height:20px">
-          Mostrar este premio en la pantalla pública
+          <input type="checkbox" ${p.showPublic!==false?'checked':''} onchange="updatePrizeField('${p.id}','showPublic',this.checked)" style="width:20px;height:20px">
+          Mostrar este premio mientras está en juego en la pantalla pública
         </label>
       </div>
       <div class="mini-actions" style="display:grid">
         <button class="mini" type="button" onclick="movePrize('${p.id}',-1)" ${i===0?'disabled':''}>↑ Subir</button>
         <button class="mini" type="button" onclick="movePrize('${p.id}',1)" ${i===prizes.length-1?'disabled':''}>↓ Bajar</button>
-        <button class="mini" type="button" onclick="usePrizeInRound('${p.id}')">🎱 Usar en ronda</button>
         <button class="mini" type="button" onclick="removePrize('${p.id}')" style="color:#ff9aa6">Eliminar</button>
       </div>
     </div>`).join('');
 }
 window.addPrize=function(){
-  const p={id:'P'+Date.now()+Math.random().toString(16).slice(2),title:'',description:'',image:'',showPublic:false};
+  const p={id:'P'+Date.now()+Math.random().toString(16).slice(2),title:'',description:'',image:'',showPublic:true};
   prizesArray().push(p);
   renderPrizeConfig();
 };
@@ -129,6 +145,8 @@ window.movePrize=function(id,delta){
   renderPrizeConfig();
 };
 window.savePrizeConfig=function(showToast=true){
+  state.settings.publicSinglePrice=Math.max(0,Number(document.getElementById('publicSinglePrice')?.value)||30000);
+  state.settings.publicComboPrice=Math.max(0,Number(document.getElementById('publicComboPrice')?.value)||50000);
   addActivity(`Se configuraron ${prizesArray().length} premios del evento.`);
   saveState();
   if(showToast) toast('🎁 Premios guardados');
@@ -137,32 +155,18 @@ window.usePrizeInRound=function(id){
   const p=prizesArray().find(x=>x.id===id); if(!p)return;
   const i=prizesArray().findIndex(x=>x.id===id);
   const txt=[ordinalPrizeLabel(i),p.title,p.description].filter(Boolean).join(' · ');
+  state.round.prizeId=p.id;
+  state.round.prizeTitle=p.title||'';
+  state.round.prizeDescription=p.description||'';
+  state.round.prizeImage=p.image||'';
   state.round.prize=txt;
+  state.round.reveal=p.showPublic!==false;
   const field=document.getElementById('roundPrize'); if(field)field.value=txt;
   saveState();
   toast('🎁 Premio asignado a la ronda');
 };
 
-function renderPublicPrizeGallery(){
-  const host=document.querySelector('#view-public .public-hero'); if(!host)return;
-  let wrap=document.getElementById('publicPrizeGallery');
-  if(!wrap){
-    wrap=document.createElement('div');
-    wrap.id='publicPrizeGallery';
-    wrap.style.marginTop='16px';
-    host.appendChild(wrap);
-  }
-  const visible=prizesArray().map((p,i)=>({...p,_i:i})).filter(p=>p.showPublic);
-  if(!visible.length){wrap.innerHTML='';wrap.classList.add('hidden');return;}
-  wrap.classList.remove('hidden');
-  wrap.innerHTML=`<div class="public-prize"><div class="muted">PREMIOS IMARA</div>
-    <div style="display:grid;gap:8px;margin-top:9px;max-height:220px;overflow:auto">
-      ${visible.map(p=>`<div style="display:grid;grid-template-columns:${p.image?'54px ':''}1fr;gap:9px;align-items:center;text-align:left;padding:8px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.04)">
-        ${p.image?`<img src="${p.image}" alt="" style="width:54px;height:54px;object-fit:cover;border-radius:10px">`:''}
-        <div><strong>${escapeHtml(ordinalPrizeLabel(p._i))}${p.title?' · '+escapeHtml(p.title):''}</strong>${p.description?`<div class="muted" style="font-size:11px;margin-top:3px">${escapeHtml(p.description)}</div>`:''}</div>
-      </div>`).join('')}
-    </div></div>`;
-}
+function renderPublicPrizeGallery(){ return; }
 
 const _renderSettingsBase=renderSettings;
 renderSettings=function(){
@@ -172,12 +176,12 @@ renderSettings=function(){
 const _renderPublicBase=renderPublic;
 renderPublic=function(){
   _renderPublicBase();
-  renderPublicPrizeGallery();
 };
 
 document.getElementById('saveSettingsBtn').addEventListener('click',async()=>{
   state.settings.title=document.getElementById('settingTitle').value.trim()||'BINGO IMARA';
-  state.settings.price=Math.max(0,Number(document.getElementById('settingPrice').value)||0);
+  state.settings.publicSinglePrice=Math.max(0,Number(document.getElementById('publicSinglePrice')?.value)||30000);
+  state.settings.publicComboPrice=Math.max(0,Number(document.getElementById('publicComboPrice')?.value)||50000);
   const newBallMax=Number(document.getElementById('settingBallMax').value)||99;
   if(newBallMax!==Number(state.settings.ballMax||99) && (state.cards.length||state.drawn.length||state.winners.length)){
     const ok=confirm(`Cambiar de ${state.settings.ballMax} a ${newBallMax} balotas requiere reiniciar cartones, balotas y ganadores para mantener la validación correcta. ¿Continuar?`);
