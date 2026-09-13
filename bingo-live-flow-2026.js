@@ -47,6 +47,7 @@ function css(){
  if(document.getElementById('bingoLiveV3Css'))return;
  const s=document.createElement('style');s.id='bingoLiveV3Css';s.textContent=`
  #bingoControl2026{display:none!important}
+ body.imara-bingo-v3-private #imaraShowOverlay,body.imara-bingo-v3-private #winnerCountdownOverlay{display:none!important}
  .b3-panel{margin-top:16px;padding:16px;border:1px solid rgba(255,208,73,.38);border-radius:20px;background:linear-gradient(145deg,rgba(255,208,73,.08),rgba(141,107,255,.05));box-shadow:0 14px 38px rgba(0,0,0,.16)}
  .b3-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.b3-title{font-weight:1000;font-size:17px;color:#ffe39a}.b3-list{display:grid;gap:8px;margin-top:11px}.b3-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 11px;border:1px solid var(--line);border-radius:14px;background:#10182a}.b3-row small{color:var(--muted)}.b3-actions{display:flex;gap:8px;flex-wrap:wrap}.b3-tie{margin-top:10px;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,179,71,.42);background:rgba(255,179,71,.08);font-weight:900;color:#ffd792}
  .b3-overlay{position:fixed;inset:0;z-index:2147482000;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 50% 42%,rgba(92,66,16,.36),rgba(4,7,13,.95) 68%);backdrop-filter:blur(10px)}.b3-overlay.hidden{display:none!important}.b3-overlay.public{pointer-events:none}.b3-overlay.admin{pointer-events:auto}
@@ -152,6 +153,7 @@ function paint(){
    if(!IS_PUBLIC)resolveTieIfNeeded();return;
  }
  if(s.type==='winner'){
+   if(!IS_PUBLIC){o.classList.add('hidden');document.getElementById('imaraShowOverlay')?.classList.add('hidden');document.getElementById('winnerCountdownOverlay')?.classList.remove('show');return;}
    const w=s.winner||{};o.classList.remove('hidden');o.innerHTML=`<div class="b3-card"><div class="b3-kicker">🏆 GANADOR CONFIRMADO</div><div class="b3-main">¡BINGO!</div><div class="b3-name">${esc(w.buyer_alias||w.card_id||'GANADOR')}</div><div class="b3-sub">${esc(w.card_id||'')}${w.prize?' · '+esc(w.prize):''}</div></div>`;return;
  }
  hideOverlay();
@@ -170,6 +172,6 @@ function wire(){
 }
 async function adminTick(){if(!isAdmin()||!token())return;try{await refreshClaims();await refreshOverview();mountPanels();paint();await resolveTieIfNeeded();}catch(e){console.warn('BINGO V3:',e.message||e);}}
 async function publicTick(){try{await refreshOverview();paint();}catch(e){console.warn('BINGO pública V3:',e.message||e);}}
-function start(){css();wire();paintTimer=setInterval(paint,160);if(IS_PUBLIC){publicTick();publicTimer=setInterval(publicTick,PUBLIC_POLL);return;}const wait=()=>{if(isAdmin()&&token()){adminTick();adminTimer=setInterval(adminTick,ADMIN_POLL);return;}setTimeout(wait,500);};wait();}
+function start(){css();wire();if(!IS_PUBLIC)document.body.classList.add('imara-bingo-v3-private');paintTimer=setInterval(paint,160);if(IS_PUBLIC){publicTick();publicTimer=setInterval(publicTick,PUBLIC_POLL);return;}const wait=()=>{if(isAdmin()&&token()){adminTick();adminTimer=setInterval(adminTick,ADMIN_POLL);return;}setTimeout(wait,500);};wait();}
 start();
 })();
