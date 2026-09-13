@@ -82,7 +82,7 @@
 (function(){
   if(location.hash.startsWith('#mobile='))return;
   if(document.getElementById('imaraPrizeTrophy2026'))return;
-  const s=document.createElement('script');s.id='imaraPrizeTrophy2026';s.src='prize-trophy-2026.js?v=20260912-STABLE-1';s.defer=true;document.body.appendChild(s);
+  const s=document.createElement('script');s.id='imaraPrizeTrophy2026';s.src='prize-trophy-2026.js?v=20260912-STABLE-2';s.defer=true;document.body.appendChild(s);
 })();
 
 /*
