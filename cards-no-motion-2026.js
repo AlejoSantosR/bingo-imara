@@ -126,7 +126,7 @@ if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))ret
 if(document.getElementById('imaraPublicInventorySync2026'))return;
 const s=document.createElement('script');
 s.id='imaraPublicInventorySync2026';
-s.src='public-inventory-sync-2026.js?v=20260914-PUBLIC-INVENTORY-1';
+s.src='public-inventory-sync-2026.js?v=20260914-PUBLIC-INVENTORY-2';
 s.defer=true;
 document.body.appendChild(s);
 })();
