@@ -15,6 +15,7 @@ let busy=false,lastSignature='',timer=null;
 
 function token(){return sessionStorage.getItem(SESSION_KEY)||'';}
 function isAdmin(){return !!document.querySelector('#imaraUserChip .imara-role.admin');}
+function inventoryUrl(){return new URL('inventario.html',location.href).href;}
 function num(id){const m=String(id||'').match(/(\d+)$/);return m?Number(m[1]):Number.MAX_SAFE_INTEGER;}
 function sortCards(a,b){const d=num(a.id)-num(b.id);return d||String(a.id).localeCompare(String(b.id),undefined,{numeric:true});}
 async function post(url,action,payload={},auth=true){
@@ -69,16 +70,31 @@ async function publish(force=false){
  }catch(e){console.warn('Inventario público:',e.message||e);return false;}
  finally{busy=false;}
 }
+function mountPublicInventoryButton(){
+ if(!isAdmin())return;
+ const actions=document.querySelector('#view-cards .section-title .actions');
+ if(!actions||document.getElementById('openPublicInventoryBtn'))return;
+ const btn=document.createElement('button');
+ btn.type='button';
+ btn.className='btn';
+ btn.id='openPublicInventoryBtn';
+ btn.textContent='🌐 Ver inventario público';
+ btn.title='Abrir la página que ven los participantes';
+ btn.addEventListener('click',()=>window.open(inventoryUrl(),'_blank','noopener'));
+ actions.appendChild(btn);
+}
 function schedule(){setTimeout(()=>publish(false),450);setTimeout(()=>publish(false),1700);}
 function wire(){
  document.addEventListener('click',e=>{
   const t=e.target;
   if(t.closest?.('#posCreate,[data-approve-order],[data-pending-order],[data-refund-order],[data-reject-order],[data-release-order],[data-safe-release-order],[data-cv3-release],#cardsV3Generate,#cardsV3ReleaseBatch,#manualCardActivationBtn,[data-manual-off]'))schedule();
-  if(t.closest?.('#imaraLoginBtn')){setTimeout(()=>publish(true),1800);setTimeout(()=>publish(false),3600);}
+  if(t.closest?.('.nav [data-view="cards"]'))setTimeout(mountPublicInventoryButton,60);
+  if(t.closest?.('#imaraLoginBtn')){setTimeout(()=>publish(true),1800);setTimeout(()=>publish(false),3600);setTimeout(mountPublicInventoryButton,1900);}
  },true);
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(()=>publish(false),300);});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden){setTimeout(()=>publish(false),300);setTimeout(mountPublicInventoryButton,350);}});
 }
 function boot(attempt=0){
+ mountPublicInventoryButton();
  if(isAdmin()&&token()){
   publish(true);
   timer=setInterval(()=>publish(false),POLL_MS);
@@ -86,6 +102,6 @@ function boot(attempt=0){
  }
  if(attempt<30)setTimeout(()=>boot(attempt+1),500);
 }
-window.IMARA_PUBLIC_INVENTORY_SYNC={publish,url:()=>new URL('inventario.html',location.href).href};
+window.IMARA_PUBLIC_INVENTORY_SYNC={publish,url:inventoryUrl,open:()=>window.open(inventoryUrl(),'_blank','noopener')};
 wire();boot();
 })();
