@@ -130,3 +130,15 @@ s.src='public-inventory-sync-2026.js?v=20260914-PUBLIC-INVENTORY-2';
 s.defer=true;
 document.body.appendChild(s);
 })();
+
+/* Capa aditiva de estabilidad: sesión, sync recuperable y backup completo. */
+(function(){
+'use strict';
+if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
+if(document.getElementById('imaraOperationalStability2026'))return;
+const s=document.createElement('script');
+s.id='imaraOperationalStability2026';
+s.src='operational-stability-2026.js?v=20260917-STABILITY-1';
+s.defer=true;
+document.body.appendChild(s);
+})();
