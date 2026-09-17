@@ -119,14 +119,14 @@ s.defer=true;
 document.body.appendChild(s);
 })();
 
-/* Publica un inventario sanitizado para la página pública, sin tocar POS/Juego. */
+/* Conserva acceso al inventario público; Supabase calcula los estados directamente. */
 (function(){
 'use strict';
 if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
 if(document.getElementById('imaraPublicInventorySync2026'))return;
 const s=document.createElement('script');
 s.id='imaraPublicInventorySync2026';
-s.src='public-inventory-sync-2026.js?v=20260914-PUBLIC-INVENTORY-2';
+s.src='public-inventory-sync-2026.js?v=20260917-PUBLIC-INVENTORY-3';
 s.defer=true;
 document.body.appendChild(s);
 })();
