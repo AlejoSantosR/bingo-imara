@@ -142,3 +142,61 @@ s.src='operational-stability-2026.js?v=20260917-STABILITY-1';
 s.defer=true;
 document.body.appendChild(s);
 })();
+
+/* Único ajuste de búsqueda en Cartones: ID + comprador + teléfono + No. de pedido. */
+(function(){
+'use strict';
+if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))return;
+if(window.__imaraCardsOrderSearch2026)return;
+window.__imaraCardsOrderSearch2026=true;
+let applying=false;
+
+function input(){return document.getElementById('cardSearch');}
+function body(){return document.getElementById('cardsBody');}
+function setPlaceholder(){const el=input();if(el)el.placeholder='Buscar #, comprador, teléfono o No. de pedido';}
+function applySearch(){
+ if(applying)return;
+ const el=input(),api=window.IMARA_CARDS_ADMIN;
+ if(!el||!api||typeof api.render!=='function')return;
+ const q=(el.value||'').trim().toLowerCase(),original=el.value;
+ applying=true;
+ try{
+  el.value='';
+  api.render();
+  el.value=original;
+  const tb=body();if(!tb)return;
+  tb.querySelector('[data-order-search-empty]')?.remove();
+  let visible=0;
+  [...tb.querySelectorAll('tr')].forEach(row=>{
+   const cells=row.querySelectorAll('td');
+   if(cells.length<3)return;
+   const searchable=[cells[0].textContent||'',cells[1].textContent||'',cells[2].textContent||''].join(' ').toLowerCase();
+   const match=!q||searchable.includes(q);
+   row.style.display=match?'':'none';
+   if(match)visible++;
+  });
+  if(q&&!visible){
+   const tr=document.createElement('tr');tr.dataset.orderSearchEmpty='1';
+   tr.innerHTML='<td colspan="7" class="muted">No hay cartones que coincidan con la búsqueda.</td>';
+   tb.appendChild(tr);
+  }
+ }finally{applying=false;}
+}
+
+document.addEventListener('input',e=>{
+ if(e.target?.id!=='cardSearch')return;
+ e.stopImmediatePropagation();
+ applySearch();
+},true);
+
+document.addEventListener('change',e=>{
+ if(e.target?.id==='statusFilter')setTimeout(applySearch,0);
+},false);
+
+document.addEventListener('click',e=>{
+ if(e.target?.closest?.('.nav [data-view="cards"]'))setTimeout(()=>{setPlaceholder();applySearch();},700);
+ if(e.target?.closest?.('#cardsV3Refresh'))setTimeout(applySearch,1400);
+},false);
+
+setTimeout(setPlaceholder,0);
+})();
