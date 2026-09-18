@@ -65,8 +65,15 @@ function renderHomeFinance(){
  set('kpiIssued',issued);set('kpiPaid',Number(s.approvedCards)||0);set('kpiRevenue',money(s.approvedAmount));set('kpiPending',money(s.pendingAmount));
  const hint=document.getElementById('kpiPriceHint');if(hint)hint.textContent='Recaudo real de ventas aprobadas';
  const total=document.getElementById('totalCardsLabel');if(total)total.textContent=`${Number(s.cards?.total)||0} cartones`;
- const sh=document.getElementById('statusSummary'),statuses=s.cards?.statuses||{};if(sh){const order=['Disponible','Pendiente','Pagado','Anulado','Ganador'];sh.innerHTML=order.map(x=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)"><span><span class="badge ${x==='Pendiente'?'Emitido':x}">${esc(x)}</span></span><strong>${Number(statuses[x])||0}</strong></div>`).join('');}
+ const sh=document.getElementById('statusSummary'),statuses=s.cards?.statuses||{};if(sh){const order=['Disponible','Pendiente','Pagado','Anulado','Ganador'],statusHtml=order.map(x=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)"><span><span class="badge ${x==='Pendiente'?'Emitido':x}">${esc(x)}</span></span><strong>${Number(statuses[x])||0}</strong></div>`).join('');if(sh.dataset.financeStatusHtml!==statusHtml){sh.innerHTML=statusHtml;sh.dataset.financeStatusHtml=statusHtml;}}
+ const sig=JSON.stringify({
+  approvedAmount:Number(s.approvedAmount)||0,pendingAmount:Number(s.pendingAmount)||0,
+  approvedCards:Number(s.approvedCards)||0,pendingCards:Number(s.pendingCards)||0,
+  approved:s.approved||{},pending:s.pending||{},sellers:s.sellers||[]
+ });
+ if(h.dataset.financeSignature===sig&&h.querySelector('#copyFinanceSummary'))return;
  h.innerHTML=`<div class="card"><div class="section-title"><div><h3>📊 Venta real y preventa</h3><div class="muted">Datos directos de Supabase; rechazados y devueltos no inflan el recaudo.</div></div><button class="mini" id="copyFinanceSummary">📋 Copiar resumen</button></div>${analysisHtml(s,true)}</div>`;
+ h.dataset.financeSignature=sig;
  h.querySelector('#copyFinanceSummary')?.addEventListener('click',copySummary);
 }
 async function refreshSummary(showError=false){if(!['admin','finance'].includes(role)||summaryLoading||!token())return;summaryLoading=true;try{const d=await fastApi('finance-summary');summaryData=d.summary||null;renderFinanceAnalysis();renderHomeFinance();renderKpis();}catch(e){if(showError)alert(e.message);else console.warn('Resumen financiero:',e.message);}finally{summaryLoading=false;}}
