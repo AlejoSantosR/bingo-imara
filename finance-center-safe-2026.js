@@ -76,7 +76,7 @@ function renderHomeFinance(){
  h.dataset.financeSignature=sig;
  h.querySelector('#copyFinanceSummary')?.addEventListener('click',copySummary);
 }
-async function refreshSummary(showError=false){if(!['admin','finance'].includes(role)||summaryLoading||!token())return;summaryLoading=true;try{const d=await fastApi('finance-summary');summaryData=d.summary||null;renderFinanceAnalysis();renderHomeFinance();renderKpis();}catch(e){if(showError)alert(e.message);else console.warn('Resumen financiero:',e.message);}finally{summaryLoading=false;}}
+async function refreshSummary(showError=false){if(!['admin','finance'].includes(role)||summaryLoading||!token())return;summaryLoading=true;try{const d=await fastApi('finance-summary');summaryData=d.summary||null;window.__imaraRealFinanceHomeActive=!!summaryData;renderFinanceAnalysis();renderHomeFinance();renderKpis();}catch(e){if(showError)alert(e.message);else console.warn('Resumen financiero:',e.message);}finally{summaryLoading=false;}}
 function copySummary(){
  const s=summaryData;if(!s)return;const a=s.approved||{},p=s.pending||{};
  const sellers=(s.sellers||[]).map(x=>`• ${x.seller_name}: recaudado ${money(x.approvedAmount)} · pendiente ${money(x.pendingAmount)} · ${x.approvedPromoUnits||0} combos + ${x.approvedIndividualCards||0} individuales vendidos`).join('\n');
