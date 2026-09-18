@@ -126,10 +126,16 @@
   function mergeCloudIntoLocal(){
     if(typeof state==='undefined'||!Array.isArray(state.cards))return;
     const current=new Map(state.cards.map(c=>[c.id,c]));
-    const saleMap=new Map(sales.filter(s=>s.payment_status!=='rejected').map(s=>[s.card_id,s]));
+    const saleMap=new Map();
+    for(const s of sales){
+      const st=String(s.payment_status||'').toLowerCase();
+      if(!['pending','approved'].includes(st))continue;
+      if(!saleMap.has(String(s.card_id)))saleMap.set(String(s.card_id),s);
+    }
     for(const c of cloudCards){
-      const old=current.get(c.id)||{}, sale=saleMap.get(c.id);
-      current.set(c.id,{...old,id:c.id,grid:c.grid,ballMax:c.ball_max||old.ballMax||state.settings.ballMax,status:c.status==='Pendiente'?'Emitido':c.status,buyer:sale?.buyer_alias||old.buyer||'',phone:'',paidAt:sale?.approved_at?String(sale.approved_at).slice(0,16):(old.paidAt||''),notes:old.notes||'',image:old.image||'',createdAt:c.created_at||old.createdAt});
+      const old=current.get(c.id)||{}, sale=saleMap.get(String(c.id)), cloudState=String(c.status||'Disponible');
+      const hasActive=!!sale;
+      current.set(c.id,{...old,id:c.id,grid:c.grid,ballMax:c.ball_max||old.ballMax||state.settings.ballMax,status:cloudState==='Pendiente'?'Emitido':cloudState,buyer:hasActive?(sale.buyer_alias||''):(cloudState==='Disponible'?'':(old.buyer||'')),phone:'',paidAt:sale?.approved_at?String(sale.approved_at).slice(0,16):(cloudState==='Disponible'?'':(old.paidAt||'')),notes:old.notes||'',image:old.image||'',createdAt:c.created_at||old.createdAt});
     }
     state.cards=[...current.values()].sort((a,b)=>a.id.localeCompare(b.id,undefined,{numeric:true}));
     try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
