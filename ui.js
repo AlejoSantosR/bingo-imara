@@ -4,9 +4,11 @@ function renderDashboard(){
   const pending=state.cards.filter(c=>c.status==='Emitido').length;
   document.getElementById('kpiIssued').textContent=issued;
   document.getElementById('kpiPaid').textContent=paid;
-  document.getElementById('kpiRevenue').textContent=money(paid*state.settings.price);
-  document.getElementById('kpiPending').textContent=money(pending*state.settings.price);
-  document.getElementById('kpiPriceHint').textContent=`${money(state.settings.price)} por cartón`;
+  if(!window.__imaraRealFinanceDashboardExpected){
+    document.getElementById('kpiRevenue').textContent=money(paid*state.settings.price);
+    document.getElementById('kpiPending').textContent=money(pending*state.settings.price);
+    document.getElementById('kpiPriceHint').textContent=`${money(state.settings.price)} por cartón`;
+  }
   document.getElementById('totalCardsLabel').textContent=`${state.cards.length} cartones`;
   const counts=['Disponible','Emitido','Pagado','Anulado','Ganador'].map(s=>[s,state.cards.filter(c=>c.status===s).length]);
   document.getElementById('statusSummary').innerHTML=counts.map(([s,n])=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)"><span><span class="badge ${s}">${s}</span></span><strong>${n}</strong></div>`).join('');
