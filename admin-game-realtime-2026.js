@@ -11,20 +11,30 @@ const SUPABASE_URL='https://fpevaukkbtruplwptufu.supabase.co';
 const PUBLISHABLE_KEY='sb_publishable_Yol0FuWEAsM01Q75iOUggg_kYyNlknF';
 const REALTIME_AUTH='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZwZXZhdWtrYnRydXBsd3B0dWZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMjA1MTIsImV4cCI6MjEwMzg5NjUxMn0.zEfiiwIBigfCJcV4d_BOnZRp2Qx6SZRdiyfG5Kyp7UQ';
 const TOPIC='imara:game:main';
+const PUBLIC_API='https://fpevaukkbtruplwptufu.supabase.co/functions/v1/bingo-public';
 
-let client=null,channel=null,connected=false,connecting=false,reconnectTimer=null,fallbackTimer=null,reconnectDelay=1800;
+let client=null,channel=null,connected=false,connecting=false,reconnectTimer=null,fallbackTimer=null,reconnectDelay=1800,syncing=false;
 
 function isAdmin(){return !!document.querySelector('#imaraUserChip .imara-role.admin');}
 function emit(name,detail){window.dispatchEvent(new CustomEvent(name,{detail}));}
 function clearTimers(){clearTimeout(reconnectTimer);clearTimeout(fallbackTimer);}
+async function syncOnce(){
+ if(syncing||!navigator.onLine||!isAdmin())return;
+ syncing=true;
+ try{
+   const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),7000);
+   const r=await fetch(PUBLIC_API,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',signal:ctl.signal,body:JSON.stringify({action:'mobile-live'})});
+   clearTimeout(tm);
+   const d=await r.json();
+   if(r.ok&&d?.game)emit('imara-game-realtime',d);
+ }catch(e){console.warn('Admin Realtime fallback:',e);}
+ finally{syncing=false;}
+}
 function scheduleFallback(){
  clearTimeout(fallbackTimer);
  if(connected||document.hidden||!navigator.onLine||!isAdmin())return;
- fallbackTimer=setTimeout(()=>{
-   if(!connected&&isAdmin()){
-     emit('imara-game-sync-request',{reason:'realtime-disconnected',at:Date.now()});
-     scheduleFallback();
-   }
+ fallbackTimer=setTimeout(async()=>{
+   if(!connected&&isAdmin()){await syncOnce();scheduleFallback();}
  },15000+Math.floor(Math.random()*1800));
 }
 function scheduleReconnect(delay=reconnectDelay){
@@ -63,6 +73,7 @@ async function connect(){
       if(status==='SUBSCRIBED'){
         connected=true;connecting=false;reconnectDelay=1800;clearTimers();
         emit('imara-game-realtime-status',{connected:true});
+        syncOnce();
         return;
       }
       if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
@@ -83,9 +94,9 @@ observer.observe(document.documentElement,{childList:true,subtree:true});
 
 document.addEventListener('visibilitychange',()=>{
  if(document.hidden)return;
- if(isAdmin()&&!connected){emit('imara-game-sync-request',{reason:'visible',at:Date.now()});connect();}
+ if(isAdmin()){syncOnce();if(!connected)connect();}
 });
-window.addEventListener('online',()=>{if(isAdmin()){emit('imara-game-sync-request',{reason:'online',at:Date.now()});connect();}});
+window.addEventListener('online',()=>{if(isAdmin()){syncOnce();connect();}});
 window.addEventListener('offline',()=>{connected=false;connecting=false;clearTimers();emit('imara-game-realtime-status',{connected:false,status:'OFFLINE'});});
 window.addEventListener('pagehide',()=>{observer.disconnect();disconnect();});
 
