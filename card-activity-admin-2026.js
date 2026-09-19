@@ -67,13 +67,17 @@ function mount(){
     </div>`;
    document.querySelector('main.content')?.appendChild(view);
  }
- if(!wired){
-   wired=true;
+ if(btn.dataset.imaraActivityWired!=='1'){
+   btn.dataset.imaraActivityWired='1';
    btn.addEventListener('click',()=>showActivity());
+ }
+ if(view.dataset.imaraActivityWired!=='1'){
+   view.dataset.imaraActivityWired='1';
    view.querySelector('#activityRefresh')?.addEventListener('click',()=>load(true));
    view.querySelector('#activitySearch')?.addEventListener('input',render);
    view.querySelector('#activityFilter')?.addEventListener('change',render);
  }
+ wired=true;
  return true;
 }
 function showActivity(){
@@ -124,10 +128,12 @@ async function load(showError){
  }catch(e){if(showError)alert(e.name==='AbortError'?'El servidor tardó demasiado. Intenta nuevamente.':e.message);}
  finally{loading=false;if(b){b.disabled=false;b.textContent=old||'🔄 Actualizar';}}
 }
-function cleanup(){document.getElementById('imaraActivityNav')?.remove();document.getElementById('view-activity')?.remove();}
+function cleanup(){document.getElementById('imaraActivityNav')?.remove();document.getElementById('view-activity')?.remove();wired=false;loading=false;}
 function onAuthReady(e){const r=String(e?.detail?.role||window.__IMARA_AUTH_READY__?.role||'');if(r==='admin')mount();else cleanup();}
 window.addEventListener('imara-auth-ready',onAuthReady);
 window.addEventListener('imara-auth-cleared',cleanup);
+window.addEventListener('pageshow',()=>{if(isAdmin())mount();});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&isAdmin())mount();});
 function boot(n=0){if(mount())return;if(n<20)setTimeout(()=>boot(n+1),400);}
 if(window.__IMARA_AUTH_READY__)onAuthReady({detail:window.__IMARA_AUTH_READY__});else boot();
 })();
