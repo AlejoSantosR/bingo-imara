@@ -136,6 +136,11 @@ const viewMeta={
  game:['Juego','Sorteo de balotas y configuración de rondas.'],
  validate:['Validar ganador','Confirma automáticamente si el cartón realmente cumple.'],
  public:['Pantalla pública','Vista pensada para TV, videobeam o pantalla compartida.'],
+ activity:['Actividad de cartones','Quién abrió su cartón, quién lo está viendo y quién aún no.'],
+ push:['Notificaciones','Recordatorios manuales para participantes que aceptaron Push.'],
+ finance:['Finanzas','Pagos, devoluciones y trazabilidad financiera.'],
+ users:['Usuarios','Accesos, roles, eliminación y restablecimiento de contraseña.'],
+ pos:['POS / Caja','Ventas, promociones, preventas y medios de pago.'],
  settings:['Configuración','Datos del evento, logo y respaldos.']
 };
 function showView(v){
@@ -144,7 +149,11 @@ function showView(v){
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
   const m=viewMeta[v]||['','']; document.getElementById('pageTitle').textContent=m[0]; document.getElementById('pageSubtitle').textContent=m[1];
 }
-document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+document.addEventListener('click',e=>{
+  const b=e.target.closest?.('.nav button[data-view]');
+  if(!b)return;
+  showView(b.dataset.view);
+});
 document.querySelectorAll('[data-view-jump]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.viewJump)));
 document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>document.getElementById(b.dataset.close).close()));
 
