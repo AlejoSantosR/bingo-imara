@@ -4,32 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#111827">
-  <title>Demo desempate · Bingo IMARA</title>
-  <link rel="stylesheet" href="mobile-card-responsive-2026.css?v=20260919-CARD-SCREEN-1">
-  <script>
-  (function(){
-    const sample={
-      v:1,id:'IMARA-DEMO',buyer:'Participante Demo',status:'Pagado',ballMax:99,
-      title:'BINGO IMARA',organizer:'PL4 Tribu IMARA',
-      grid:[
-        [4,23,43,64,84],
-        [8,29,48,70,90],
-        [12,33,'FREE',73,94],
-        [16,36,53,77,97],
-        [20,39,58,80,99]
-      ]
-    };
-    const bytes=new TextEncoder().encode(JSON.stringify(sample));let bin='';
-    bytes.forEach(b=>bin+=String.fromCharCode(b));
-    const code=btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-    history.replaceState(null,'',location.pathname+'#mobile='+code);
-    window.escapeHtml=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-  })();
-  </script>
+  <title>Demo tragamonedas · Bingo IMARA</title>
+  <style>
+    html,body{margin:0;min-height:100%;background:#0d0b0a;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+    body{min-height:100dvh;display:grid;place-items:center}
+    .demo-start{position:fixed;z-index:2147483600;left:50%;top:50%;transform:translate(-50%,-50%);border:0;border-radius:999px;padding:18px 26px;font:900 16px system-ui;background:linear-gradient(135deg,#ffcf58,#8d6bff);color:#17110a;box-shadow:0 18px 55px #0009;cursor:pointer}
+    .demo-note{position:fixed;z-index:2147483599;left:50%;top:calc(50% + 52px);transform:translateX(-50%);color:#e8d9c1;font:700 12px system-ui;text-align:center;width:min(90vw,620px)}
+  </style>
 </head>
 <body>
-  <script src="mobile-card.js?v=20260902-SECURE-3"></script>
-  <script src="mobile-tie-sync-2026.js?v=20260919-TIE-SLOT-1"></script>
+  <button class="demo-start" id="demoStart" type="button">🎰 Ver demo grande con sonido</button>
+  <div class="demo-note" id="demoNote">Simulación aislada · no modifica rondas, cartones ni ganadores reales.</div>
+
+  <script src="bingo-round-upgrades-2026.js?v=20260919-TIE-SLOT-LARGE-1"></script>
   <script>
   (function(){
     const candidates=[
@@ -41,7 +28,7 @@
     let timers=[];
     const later=(fn,ms)=>timers.push(setTimeout(fn,ms));
     function emit(show,roundStatus='open'){
-      window.dispatchEvent(new CustomEvent('imara-mobile-game-state',{detail:{
+      window.dispatchEvent(new CustomEvent('imara-public-game-state',{detail:{
         game:{
           drawn:[4,8,12,16,20,23,29,33,36,39],
           round:{name:'Ronda Demo',pattern:'line',prize:'Premio sorpresa IMARA',status:roundStatus},
@@ -60,13 +47,14 @@
         round_name:'Ronda Demo',
         winner:{card_id:'IMARA-057',buyer_alias:'Camila',position:1,prize:'Premio sorpresa IMARA',round_name:'Ronda Demo'}
       },'closed'),10400);
-      later(()=>emit({type:'idle'},'closed'),17800);
-      later(cycle,19800);
+      later(()=>emit({type:'idle'},'closed'),18000);
+      later(cycle,20000);
     }
-    const start=document.createElement('button');
-    start.type='button';start.textContent='🎡 Ver demo premium con sonido';
-    start.style.cssText='position:fixed;z-index:2147483600;left:50%;top:50%;transform:translate(-50%,-50%);border:0;border-radius:999px;padding:16px 22px;font:900 15px system-ui;background:linear-gradient(135deg,#ffcf58,#8d6bff);color:#17110a;box-shadow:0 18px 55px #0009;';
-    start.onclick=()=>{start.remove();cycle();};document.body.appendChild(start);
+    document.getElementById('demoStart').addEventListener('click',()=>{
+      document.getElementById('demoStart').remove();
+      document.getElementById('demoNote')?.remove();
+      cycle();
+    });
     window.addEventListener('pagehide',()=>timers.forEach(clearTimeout));
   })();
   </script>
