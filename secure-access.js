@@ -239,7 +239,8 @@
     refreshTimer=setInterval(()=>{if(!document.hidden)refresh();},60000);
   }
 
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&me)refresh();});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&me){signalAuthReady();refresh();}});
+window.addEventListener('pageshow',()=>{if(me)signalAuthReady();});
 
   async function init(){
     installStyles();document.body.classList.add('imara-secure-locked');
