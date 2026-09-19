@@ -227,8 +227,10 @@
     mountChip();installGameSync();
     await loadData();
     if(refreshTimer)clearInterval(refreshTimer);
-    refreshTimer=setInterval(refresh,15000);
+    refreshTimer=setInterval(()=>{if(!document.hidden)refresh();},60000);
   }
+
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&me)refresh();});
 
   async function init(){
     installStyles();document.body.classList.add('imara-secure-locked');
