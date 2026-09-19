@@ -168,7 +168,9 @@ function mountFactoryReset(){
 function startAdmin(){if(adminStarted)return;adminStarted=true;mountAdminCenter();mountFactoryReset();ensurePrizeSelector();}
 function init(){
  installStyles();mountMobileBingo();ensurePrizeSelector();
- if(IS_PUBLIC){refreshPublic();setInterval(refreshPublic,1800);}
+ if(IS_PUBLIC){
+   window.addEventListener('imara-public-game-state',e=>{const o=e.detail||{};currentShow=o.game?.show_state||{type:'idle'};syncCloudGame(o);renderShow();});
+ }
  else if(!IS_MOBILE){
    window.addEventListener('imara-game-realtime',e=>applyRealtime(e.detail));
    const wait=setInterval(()=>{if(isAdmin()){clearInterval(wait);startAdmin();}},700);
