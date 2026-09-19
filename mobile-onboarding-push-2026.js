@@ -42,6 +42,11 @@ function css(){
  .imara-welcome-actions{display:grid;gap:9px;margin-top:14px}.imara-welcome-actions button{min-height:50px;border:0;border-radius:14px;font-weight:900;font-size:15px}
  .imara-welcome-primary{background:linear-gradient(135deg,#ff5b8f,#8d6bff);color:#fff}.imara-welcome-secondary{background:#26334f;color:#fff}
  .imara-welcome-note{font-size:12px;color:#9ca9bf;margin-top:10px}.imara-welcome-success{text-align:center;font-size:42px;margin:8px 0}
+ .imara-ios-steps{display:grid;gap:10px;margin:14px 0}
+ .imara-ios-step{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;background:#18243d;border:1px solid #354363;border-radius:14px;padding:12px}
+ .imara-ios-step b{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,#ff5b8f,#8d6bff);color:#fff}
+ .imara-ios-step strong{display:block;margin-bottom:3px}.imara-ios-step span{display:block;color:#cfd7e7;font-size:13px;line-height:1.4}
+ .imara-apple-link{display:block;text-align:center;margin-top:10px;color:#bdaeff;font-weight:800;text-decoration:none}
  `;document.head.appendChild(s);
 }
 function shell(html){
@@ -63,7 +68,22 @@ function showDone(){
 }
 function showIOS(){
  markPermission('ios_install_required');
- const h=shell(`<div class="imara-welcome-logo">IM</div><h2>Un paso más en iPhone 🍎</h2><p>Tu ingreso ya quedó confirmado. Apple permite las notificaciones web cuando Bingo IMARA se abre como app desde la pantalla de inicio.</p><ul><li>Toca <strong>Compartir</strong> en Safari.</li><li>Elige <strong>Agregar a pantalla de inicio</strong>.</li><li>Abre Bingo IMARA desde el nuevo icono.</li><li>Toca <strong>🔔 Recordatorios</strong> y permite las notificaciones.</li></ul><p class="imara-welcome-note">Tu cartón ya está pago y válido. Este paso solo habilita recordatorios.</p><div class="imara-welcome-actions"><button class="imara-welcome-primary" id="imaraIOSOk">Entendido, entrar al cartón</button></div>`);
+ const h=shell(`<div class="imara-welcome-logo">IM</div>
+ <h2>Instala Bingo IMARA en tu iPhone 🍎</h2>
+ <p>Tu ingreso ya quedó confirmado. Para que el iPhone pueda recibir los recordatorios del Bingo, Apple requiere abrir Bingo IMARA como una app desde la pantalla de inicio.</p>
+ <div class="imara-ios-steps">
+  <div class="imara-ios-step"><b>1</b><div><strong>Quédate en Safari</strong><span>Si abriste el enlace desde WhatsApp, Instagram u otra app, usa la opción para abrirlo en Safari.</span></div></div>
+  <div class="imara-ios-step"><b>2</b><div><strong>Toca Compartir ⬆️</strong><span>Busca el botón de compartir de Safari. Puede aparecer en la barra inferior o superior, según tu configuración.</span></div></div>
+  <div class="imara-ios-step"><b>3</b><div><strong>Busca “Agregar a Inicio”</strong><span>Desliza la lista de opciones hacia abajo y toca <strong>Agregar a Inicio</strong>.</span></div></div>
+  <div class="imara-ios-step"><b>4</b><div><strong>Si no aparece</strong><span>Ve hasta el final, toca <strong>Editar acciones</strong> y agrega <strong>Agregar a Inicio</strong>.</span></div></div>
+  <div class="imara-ios-step"><b>5</b><div><strong>Activa “Abrir como app web”</strong><span>Déjalo activado para que Bingo IMARA se abra como una app independiente.</span></div></div>
+  <div class="imara-ios-step"><b>6</b><div><strong>Toca “Agregar”</strong><span>El icono de Bingo IMARA aparecerá en tu pantalla de inicio.</span></div></div>
+  <div class="imara-ios-step"><b>7</b><div><strong>Abre Bingo IMARA desde el nuevo icono</strong><span>No vuelvas a Safari para este paso. Al abrir el icono, detectaremos automáticamente que ya quedó instalado.</span></div></div>
+  <div class="imara-ios-step"><b>8</b><div><strong>Activa las notificaciones</strong><span>Te mostraremos inmediatamente el botón <strong>Activar notificaciones</strong>. Tócalo y luego elige <strong>Permitir</strong> en el aviso oficial del iPhone.</span></div></div>
+ </div>
+ <p class="imara-welcome-note">Tu cartón ya está pago y válido. Instalar Bingo IMARA solo permite usarlo como app y recibir recordatorios del evento.</p>
+ <a class="imara-apple-link" href="https://support.apple.com/es-lamr/guide/iphone/iphea86e5236/ios" target="_blank" rel="noopener"> Ver instrucciones oficiales de Apple</a>
+ <div class="imara-welcome-actions"><button class="imara-welcome-primary" id="imaraIOSOk">Ya entendí los pasos</button></div>`);
  h.querySelector('#imaraIOSOk').onclick=close;
 }
 async function notificationStep(){
@@ -107,7 +127,10 @@ async function init(){
  data=decode();if(!data?.id||!Array.isArray(data.grid))return;css();sw();
  try{statusData=await api('status');}catch(_){mountBell();return;}
  mountBell();
- if(!statusData.confirmed)firstWelcome();
+ if(!statusData.confirmed){firstWelcome();return;}
+ if(isIOS()&&standalone()&&statusData.notification_status==='ios_install_required'){
+   await notificationStep();
+ }
 }
 setTimeout(init,0);
 })();
