@@ -79,7 +79,7 @@ async function send(){
   const r=await api('send',{title,body,target_card_id:target||null});
   if(st)st.textContent=`Intentados: ${r.attempted} · enviados: ${r.sent} · fallidos: ${r.failed}`;
   alert(`✅ Envío terminado\nIntentados: ${r.attempted}\nEnviados: ${r.sent}\nFallidos: ${r.failed}`);
-  await refresh(false);
+  data=await api('overview');render();
  }catch(e){if(st)st.textContent=e.message;alert(e.message);}finally{loading=false;b.disabled=false;b.textContent='🔔 Enviar notificación';}
 }
 function boot(n=0){if(mount())return;if(n<20)setTimeout(()=>boot(n+1),400);}boot();
