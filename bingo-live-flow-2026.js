@@ -179,7 +179,7 @@ function applyRealtime(payload){
    if(['bingo_live_claim','bingo_countdown','tie','winner'].includes(String(next.type||'')))refreshClaims().catch(e=>console.warn('BINGO V3 claims:',e.message||e));
  }
 }
-async function publicTick(){try{await refreshOverview();paint();}catch(e){console.warn('BINGO pública V3:',e.message||e);}}
+async function publicTick(){try{const o=await refreshOverview();window.dispatchEvent(new CustomEvent('imara-public-game-state',{detail:o}));paint();}catch(e){console.warn('BINGO pública V3:',e.message||e);}}
 function start(){
  css();wire();
  if(!IS_PUBLIC)document.body.classList.add('imara-bingo-v3-private');
