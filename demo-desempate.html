@@ -29,7 +29,7 @@
 </head>
 <body>
   <script src="mobile-card.js?v=20260902-SECURE-3"></script>
-  <script src="mobile-tie-sync-2026.js?v=20260919-TIE-SYNC-1"></script>
+  <script src="mobile-tie-sync-2026.js?v=20260919-TIE-PREMIUM-1"></script>
   <script>
   (function(){
     const candidates=[
@@ -60,10 +60,13 @@
         round_name:'Ronda Demo',
         winner:{card_id:'IMARA-057',buyer_alias:'Camila',position:1,prize:'Premio sorpresa IMARA',round_name:'Ronda Demo'}
       },'closed'),10400);
-      later(()=>emit({type:'idle'},'closed'),14800);
-      later(cycle,16400);
+      later(()=>emit({type:'idle'},'closed'),17800);
+      later(cycle,19800);
     }
-    later(cycle,700);
+    const start=document.createElement('button');
+    start.type='button';start.textContent='🎡 Ver demo premium con sonido';
+    start.style.cssText='position:fixed;z-index:2147483600;left:50%;top:50%;transform:translate(-50%,-50%);border:0;border-radius:999px;padding:16px 22px;font:900 15px system-ui;background:linear-gradient(135deg,#ffcf58,#8d6bff);color:#17110a;box-shadow:0 18px 55px #0009;';
+    start.onclick=()=>{start.remove();cycle();};document.body.appendChild(start);
     window.addEventListener('pagehide',()=>timers.forEach(clearTimeout));
   })();
   </script>
