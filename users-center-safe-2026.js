@@ -29,6 +29,6 @@ function showUsers(){if(!ensureView())return;document.querySelectorAll('.view').
 function cleanup(){document.body.classList.remove('imara-users-admin');document.querySelector('.nav [data-view="users"]')?.remove();document.getElementById('view-users')?.remove();users=[];}
 function apply(){if(role()==='admin')return ensureView();cleanup();return false;}
 function wire(){if(wired)return;wired=true;document.addEventListener('click',e=>{if(e.target.closest?.('#imaraLogout'))cleanup();if(e.target.closest?.('#imaraLoginBtn'))[700,1600,3000].forEach(ms=>setTimeout(apply,ms));if(e.target.closest?.('.nav [data-view="users"]'))setTimeout(showUsers,0);},true);}
-function boot(){css();wire();[0,400,1000,2200,5000,9000].forEach(ms=>setTimeout(apply,ms));}
+function boot(){css();wire();window.addEventListener('imara-auth-ready',()=>apply());window.addEventListener('imara-auth-cleared',cleanup);if(window.__IMARA_AUTH_READY__)apply();[0,400,1000,2200,5000,9000].forEach(ms=>setTimeout(apply,ms));}
 boot();
 })();
