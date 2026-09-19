@@ -48,8 +48,8 @@ function showTieWinner(s){
  renderTieWinner(s);
 }
 async function applyGame(o){try{current=o?.game?.show_state||{type:'idle'};if(current.type==='tie'){lastWinner='';await fixDuration(current);draw({...current,duration_ms:TIE_MS});}else if(current.type==='winner'){lastTie='';showTieWinner(current);}else{lastTie='';hide();}}catch(e){console.warn('Desempate',e);}}
-async function banCurrentCards(){if(typeof state==='undefined'||!state.round)return;const ids=[...document.querySelectorAll('#bingoV3Game [data-b3-review],#bingoV3Dash [data-b3-review]')].map(x=>x.dataset.b3Review).filter(Boolean);if(!ids.length)return;const old=Array.isArray(state.round.bannedCards)?state.round.bannedCards:[];state.round={...state.round,bannedCards:[...new Set([...old,...ids])]};try{saveState();await api('game-set',{drawn:state.drawn||[],round:state.round},true);}catch(e){console.warn('Bloqueo ronda',e);}}
-document.addEventListener('click',e=>{if(e.target.closest?.('[data-b3-continue]'))setTimeout(banCurrentCards,0);},false);
+async function banCurrentCards(ids=[]){if(typeof state==='undefined'||!state.round)return;ids=[...new Set((Array.isArray(ids)?ids:[]).map(String).filter(Boolean))];if(!ids.length)return;const old=Array.isArray(state.round.bannedCards)?state.round.bannedCards:[];state.round={...state.round,bannedCards:[...new Set([...old,...ids])]};try{saveState();await api('game-set',{drawn:state.drawn||[],round:state.round},true);}catch(e){console.warn('Bloqueo ronda',e);}}
+window.addEventListener('imara-bingo-continue-complete',e=>{const ids=Array.isArray(e.detail?.card_ids)?e.detail.card_ids:[];if(ids.length)banCurrentCards(ids);});
 window.addEventListener('imara-game-realtime',e=>applyGame(e.detail));
 window.addEventListener('imara-public-game-state',e=>applyGame(e.detail));
 css();
