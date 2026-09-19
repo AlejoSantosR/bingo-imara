@@ -50,6 +50,15 @@
     document.getElementById('imaraUserChip')?.remove();
     document.getElementById('imaraOps')?.remove();
     document.body.classList.remove('imara-member');
+    window.__IMARA_AUTH_READY__=null;
+    try{window.dispatchEvent(new CustomEvent('imara-auth-cleared'));}catch(e){}
+  }
+
+  function signalAuthReady(){
+    if(!me)return;
+    const detail={role:String(me.role||''),user_id:String(me.id||''),username:String(me.username||'')};
+    window.__IMARA_AUTH_READY__=detail;
+    try{window.dispatchEvent(new CustomEvent('imara-auth-ready',{detail}));}catch(e){}
   }
 
   function loginOverlay(initialized=true){
@@ -224,7 +233,7 @@
 
   async function afterLogin(){
     document.body.classList.remove('imara-secure-locked');
-    mountChip();installGameSync();
+    mountChip();installGameSync();signalAuthReady();
     await loadData();
     if(refreshTimer)clearInterval(refreshTimer);
     refreshTimer=setInterval(()=>{if(!document.hidden)refresh();},60000);
