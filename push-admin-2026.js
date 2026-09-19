@@ -53,7 +53,13 @@ function mount(){
   <div class="card" style="margin-top:14px"><div class="section-title"><h3>Historial de envíos</h3></div><div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Título</th><th>Destino</th><th>Intentados</th><th>Enviados</th><th>Fallidos</th></tr></thead><tbody id="pushHistory"><tr><td colspan="6" class="muted">Pulsa Actualizar para consultar.</td></tr></tbody></table></div></div>`;
   document.querySelector('main.content')?.appendChild(view);
  }
- if(!wired){wired=true;btn.onclick=show;view.querySelector('#pushRefresh').onclick=()=>refresh(true);view.querySelector('#pushSend').onclick=send;}
+ if(btn.dataset.imaraPushWired!=='1'){btn.dataset.imaraPushWired='1';btn.onclick=show;}
+ if(view.dataset.imaraPushWired!=='1'){
+  view.dataset.imaraPushWired='1';
+  view.querySelector('#pushRefresh').onclick=()=>refresh(true);
+  view.querySelector('#pushSend').onclick=send;
+ }
+ wired=true;
  return true;
 }
 function show(){
@@ -82,10 +88,12 @@ async function send(){
   data=await api('overview');render();
  }catch(e){if(st)st.textContent=e.message;alert(e.message);}finally{loading=false;b.disabled=false;b.textContent='🔔 Enviar notificación';}
 }
-function cleanup(){document.getElementById('imaraPushNav')?.remove();document.getElementById('view-push')?.remove();}
+function cleanup(){document.getElementById('imaraPushNav')?.remove();document.getElementById('view-push')?.remove();wired=false;loading=false;}
 function onAuthReady(e){const r=String(e?.detail?.role||window.__IMARA_AUTH_READY__?.role||'');if(r==='admin')mount();else cleanup();}
 window.addEventListener('imara-auth-ready',onAuthReady);
 window.addEventListener('imara-auth-cleared',cleanup);
+window.addEventListener('pageshow',()=>{if(isAdmin())mount();});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&isAdmin())mount();});
 function boot(n=0){if(mount())return;if(n<20)setTimeout(()=>boot(n+1),400);}
 if(window.__IMARA_AUTH_READY__)onAuthReady({detail:window.__IMARA_AUTH_READY__});else boot();
 })();
