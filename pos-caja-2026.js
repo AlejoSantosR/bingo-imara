@@ -187,5 +187,6 @@ function preservePaymentConfig(){if(role!=='admin'||typeof state==='undefined')r
 function hookRoundSave(){const b=document.getElementById('saveRoundBtn');if(!b||b.dataset.posPayment)return;b.dataset.posPayment='1';b.addEventListener('click',()=>setTimeout(preservePaymentConfig,80));}
 function hookFinanceRefresh(){const b=document.getElementById('financeRefresh');if(!b||b.dataset.posRefresh)return;b.dataset.posRefresh='1';b.addEventListener('click',()=>setTimeout(()=>load(true),250));}
 function install(){role=currentRole();if(!role||!['admin','member','finance'].includes(role))return false;installCss();ensureView();hookRoundSave();hookFinanceRefresh();installed=true;return true;}
-let tries=0;const boot=setInterval(()=>{tries++;if(install()||tries>40)clearInterval(boot);},500);install();
+window.addEventListener('imara-auth-ready',()=>install());
+let tries=0;const boot=setInterval(()=>{tries++;if(install()||tries>40)clearInterval(boot);},500);if(window.__IMARA_AUTH_READY__)install();else install();
 })();
