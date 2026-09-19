@@ -37,7 +37,7 @@ function css(){
  .imara-mobile-tie-wheel::after{content:"";position:absolute;inset:20%;border-radius:50%;background:#15100b;border:3px solid #ffe08a} .imara-mobile-wheel-name{position:absolute;z-index:2;left:50%;top:50%;width:43%;transform-origin:0 50%;font-size:clamp(7px,2.25vw,10px);font-weight:1000;color:#211406;text-shadow:0 1px 0 rgba(255,255,255,.48);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;padding-right:4px;pointer-events:none} .imara-mobile-wheel-name small{display:block;font-size:6px;opacity:.72}
  .imara-mobile-tie-pointer{position:absolute;z-index:4;left:50%;top:-5px;transform:translateX(-50%);width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-bottom:26px solid #fff0b8;filter:drop-shadow(0 3px 4px #0008)}
  .imara-mobile-tie-person{position:absolute;z-index:5;inset:31%;display:grid;place-items:center;text-align:center;font-size:clamp(13px,4vw,20px);font-weight:1000;line-height:1.05;color:#fff2c4;overflow-wrap:anywhere}
- .imara-mobile-tie-person small{display:block;margin-top:3px;color:#ffc85e;font-size:8px} .imara-mobile-slot{position:absolute;z-index:5;inset:29%;overflow:hidden;border-radius:999px;background:radial-gradient(circle at 38% 28%,#2b1b0c,#120b07 72%);border:3px solid #ffe08a;box-shadow:inset 0 0 18px #0009,0 0 15px rgba(255,214,100,.28)} .imara-mobile-slot-track{position:absolute;left:0;right:0;top:-100%;height:300%;display:grid;grid-template-rows:repeat(3,minmax(0,1fr));align-items:center;text-align:center;color:#fff2c4;font-size:clamp(11px,3.5vw,17px);font-weight:1000;line-height:1.05;will-change:transform,filter} .imara-mobile-slot-track.roll{animation:imaraMobileSlotRoll .15s cubic-bezier(.2,.85,.35,1)} .imara-mobile-slot-row{display:grid;place-items:center;min-width:0;padding:0 3px;opacity:.38;transform:scale(.78)} .imara-mobile-slot-row.current{opacity:1;transform:scale(1);text-shadow:0 0 9px rgba(255,210,90,.34)} .imara-mobile-slot-row small{display:block;margin-top:2px;color:#ffc85e;font-size:7px} @keyframes imaraMobileSlotRoll{from{transform:translateY(18%);filter:blur(1.4px)}to{transform:translateY(0);filter:blur(0)}}
+ .imara-mobile-tie-person small{display:block;margin-top:3px;color:#ffc85e;font-size:8px} .imara-mobile-slot{position:absolute;z-index:5;left:20%;right:20%;top:33%;bottom:33%;overflow:hidden;border-radius:18px;background:radial-gradient(circle at 38% 28%,#2b1b0c,#120b07 72%);border:3px solid #ffe08a;box-shadow:inset 0 0 18px #0009,0 0 15px rgba(255,214,100,.28)} .imara-mobile-slot-track{position:absolute;left:0;right:0;top:-100%;height:300%;display:grid;grid-template-rows:repeat(3,minmax(0,1fr));align-items:center;text-align:center;color:#fff2c4;font-size:clamp(11px,3.5vw,17px);font-weight:1000;line-height:1.05;will-change:transform,filter} .imara-mobile-slot-track.roll{animation:imaraMobileSlotRoll .15s cubic-bezier(.2,.85,.35,1)} .imara-mobile-slot-row{display:grid;place-items:center;min-width:0;padding:0 3px;opacity:.38;transform:scale(.78)} .imara-mobile-slot-row.current{opacity:1;transform:scale(1);text-shadow:0 0 9px rgba(255,210,90,.34)} .imara-mobile-slot-row small{display:block;margin-top:2px;color:#ffc85e;font-size:7px} @keyframes imaraMobileSlotRoll{from{transform:translateY(18%);filter:blur(1.4px)}to{transform:translateY(0);filter:blur(0)}}
  .imara-mobile-tie-list{width:100%;display:flex;gap:5px;justify-content:center;flex-wrap:wrap;max-height:80px;overflow:auto;-webkit-overflow-scrolling:touch;padding:2px 0}
  .imara-mobile-tie-chip{max-width:46%;padding:5px 7px;border-radius:10px;background:#17100c;border:1px solid rgba(255,211,118,.24);font-size:9px;color:#fff1c9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
  .imara-mobile-tie-chip small{display:block;color:#ffc963;font-size:7px;margin-top:1px}
@@ -106,11 +106,6 @@ function tieFrame(s){
  if(currentKey!==key){
    currentKey=key;
    const slice=360/list.length;
-   const labels=list.map((x,i)=>{
-     const a=(i+.5)*slice-90;
-     const short=person(x).length>13?person(x).slice(0,12)+'…':person(x);
-     return `<div class="imara-mobile-wheel-name" style="transform:rotate(${a}deg) translateX(62%) rotate(${-a}deg)"><b>${esc(short)}</b><small>${esc(x.card_id||'')}</small></div>`;
-   }).join('');
    o.innerHTML=`<div class="imara-mobile-tie-card">
      ${DEMO?'<div class="imara-mobile-tie-demo">DEMO · NO AFECTA EL JUEGO REAL</div>':''}
      <div class="imara-mobile-tie-kicker">🔥 EMPATE · ${list.length} BINGOS 🔥</div>
@@ -118,7 +113,7 @@ function tieFrame(s){
      <div class="imara-mobile-tie-timer" data-imara-tie-timer>10s</div>
      <div class="imara-mobile-tie-wheel-wrap">
        <div class="imara-mobile-tie-pointer"></div>
-       <div class="imara-mobile-tie-wheel" data-imara-wheel style="background:${wheelGradient(list.length)}">${labels}</div>
+       <div class="imara-mobile-tie-wheel" data-imara-wheel style="background:${wheelGradient(list.length)}"></div>
        <div class="imara-mobile-slot"><div class="imara-mobile-slot-track" data-imara-tie-person></div></div>
      </div>
      <div class="imara-mobile-tie-list">${list.map(x=>`<div class="imara-mobile-tie-chip"><b>${esc(person(x))}</b><small>${esc(x.card_id||'')}</small></div>`).join('')}</div>
