@@ -82,5 +82,10 @@ async function send(){
   data=await api('overview');render();
  }catch(e){if(st)st.textContent=e.message;alert(e.message);}finally{loading=false;b.disabled=false;b.textContent='🔔 Enviar notificación';}
 }
-function boot(n=0){if(mount())return;if(n<20)setTimeout(()=>boot(n+1),400);}boot();
+function cleanup(){document.getElementById('imaraPushNav')?.remove();document.getElementById('view-push')?.remove();}
+function onAuthReady(e){const r=String(e?.detail?.role||window.__IMARA_AUTH_READY__?.role||'');if(r==='admin')mount();else cleanup();}
+window.addEventListener('imara-auth-ready',onAuthReady);
+window.addEventListener('imara-auth-cleared',cleanup);
+function boot(n=0){if(mount())return;if(n<20)setTimeout(()=>boot(n+1),400);}
+if(window.__IMARA_AUTH_READY__)onAuthReady({detail:window.__IMARA_AUTH_READY__});else boot();
 })();
