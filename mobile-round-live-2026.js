@@ -59,6 +59,9 @@ async function connectRealtime(){
      const payload=msg?.payload;
      if(payload?.game)paint(payload);
    })
+   .on('broadcast',{event:'activity-probe'},msg=>{
+     window.dispatchEvent(new CustomEvent('imara-activity-probe',{detail:msg?.payload||{}}));
+   })
    .subscribe(status=>{
      if(status==='SUBSCRIBED'){
        connected=true;
