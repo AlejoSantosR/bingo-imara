@@ -62,7 +62,7 @@ function mount(){
        <select class="input" id="activityFilter"><option value="">Todos</option><option value="online">🟢 Viendo ahora</option><option value="opened">🟡 Abrió antes</option><option value="never">⚪ Nunca abrió</option></select>
        <span class="muted" id="activityUpdated">Pulsa Actualizar para consultar.</span>
       </div>
-      <div class="notice">🟢 = el cartón está visible y reportó actividad recientemente · 🟡 = fue abierto alguna vez pero no está activo ahora · ⚪ = todavía no tenemos ninguna apertura registrada.</div>
+      <div class="notice">🟢 = respondió al sondeo que acabas de lanzar · 🟡 = fue abierto alguna vez pero no respondió ahora · ⚪ = todavía no tenemos ninguna apertura registrada.</div>
       <div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>Actividad</th><th>Cartón</th><th>Participante</th><th>Venta</th><th>Pedido</th><th>Primera apertura</th><th>Última vez visto</th><th>Sesiones</th></tr></thead><tbody id="activityRows"><tr><td colspan="8" class="muted">Pulsa Actualizar para ver la actividad.</td></tr></tbody></table></div>
     </div>`;
    document.querySelector('main.content')?.appendChild(view);
@@ -101,17 +101,26 @@ function render(){
    <td>${Number(r.sessions)||0}</td>
   </tr>`).join(''):'<tr><td colspan="8" class="muted">No hay cartones que coincidan con el filtro.</td></tr>';
 }
+async function call(action,payload={},timeout=10000){
+ const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),timeout);
+ try{
+  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token()},cache:'no-store',signal:ctl.signal,body:JSON.stringify({action,...payload})});
+  const d=await r.json();if(!r.ok)throw new Error(d.error||'No fue posible consultar actividad.');return d;
+ }finally{clearTimeout(tm);}
+}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
 async function load(showError){
  if(loading||!isAdmin()||!token())return;loading=true;
- const b=document.getElementById('activityRefresh'),old=b?.textContent;if(b){b.disabled=true;b.textContent='⏳ Actualizando…';}
+ const b=document.getElementById('activityRefresh'),old=b?.textContent;if(b){b.disabled=true;b.textContent='📡 Consultando cartones…';}
  try{
-  const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),10000);
-  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token()},cache:'no-store',signal:ctl.signal,body:JSON.stringify({action:'list'})});
-  clearTimeout(tm);const d=await r.json();if(!r.ok)throw new Error(d.error||'No fue posible consultar actividad.');
+  const p=await call('probe');
+  if(!p?.probe_id)throw new Error('No fue posible iniciar el sondeo.');
+  await wait(1800);
+  const d=await call('list',{probe_id:p.probe_id});
   rows=Array.isArray(d.rows)?d.rows:[];summary=d.summary||{};generatedAt=d.generated_at||new Date().toISOString();
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=String(v??0);};
   set('activitySold',summary.sold);set('activityOnline',summary.online);set('activityOpened',summary.opened_offline);set('activityNever',summary.never);set('activityOpenedTotal',summary.opened_total);
-  const up=document.getElementById('activityUpdated');if(up)up.textContent='Actualizado: '+fmt(generatedAt);
+  const up=document.getElementById('activityUpdated');if(up)up.textContent='Actualizado: '+fmt(generatedAt)+' · sondeo manual';
   render();
  }catch(e){if(showError)alert(e.name==='AbortError'?'El servidor tardó demasiado. Intenta nuevamente.':e.message);}
  finally{loading=false;if(b){b.disabled=false;b.textContent=old||'🔄 Actualizar';}}
