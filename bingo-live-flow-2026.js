@@ -13,7 +13,7 @@ const PUBLIC_POLL=800;
 const COUNT_MS=3000;
 const TIE_MS=10000;
 let claims=[],candidates=[],show={type:'idle'};
-let lastClaimSig='',publishing=false,tieStarting=false,tieResolving=false;
+let lastClaimSig='',publishing=false,tieStarting=false,tieResolving=false,continueBusy=false;
 let publicTimer=null,paintTimer=null,lastRealtimeShowSig='';
 
 const esc=s=>typeof escapeHtml==='function'?escapeHtml(String(s??'')):String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[m]));
@@ -58,7 +58,7 @@ function css(){
  `;document.head.appendChild(s);
 }
 function overlay(){let o=document.getElementById('bingoLiveV3Overlay');if(!o){o=document.createElement('div');o.id='bingoLiveV3Overlay';o.className='b3-overlay hidden';document.body.appendChild(o);}o.classList.toggle('public',IS_PUBLIC);o.classList.toggle('admin',!IS_PUBLIC);return o;}
-function hideOverlay(){overlay().classList.add('hidden');}
+function hideOverlay(){const o=overlay();o.classList.add('hidden');delete o.dataset.b3RenderKey;}
 
 function mountPanels(){
  if(IS_PUBLIC||!isAdmin())return;
@@ -102,10 +102,22 @@ async function startCountdown(){
  try{await setShow({type:'bingo_countdown',started_at:new Date().toISOString(),interval_ms:COUNT_MS,round_name:(typeof state!=='undefined'&&state.round?.name)||'Ronda',candidates:list.map(c=>({card_id:c.card_id,buyer_alias:c.buyer_alias||''}))});}
  catch(e){alert(e.message);}
 }
-async function continueGame(){
+async function continueGame(btn){
+ if(continueBusy)return;
+ continueBusy=true;
  const ids=uniq([...(show.candidates||[]),...announced()]).map(c=>c.card_id);
- try{if(ids.length)await api('bingo-reject',{card_ids:ids});await setShow({type:'idle'});claims=[];candidates=[];lastClaimSig='';mountPanels();}
- catch(e){alert(e.message);}
+ const oldText=btn?.textContent||'▶ Continuar juego';
+ if(btn){btn.disabled=true;btn.textContent='⏳ Reanudando…';}
+ try{
+   if(ids.length)await api('bingo-reject',{card_ids:ids});
+   else await setShow({type:'idle'});
+   show={type:'idle'};claims=[];candidates=[];lastClaimSig='';
+   hideOverlay();mountPanels();
+   window.dispatchEvent(new CustomEvent('imara-bingo-continue-complete',{detail:{card_ids:ids}}));
+ }catch(e){
+   if(btn?.isConnected){btn.disabled=false;btn.textContent=oldText;}
+   alert(e.message);
+ }finally{continueBusy=false;}
 }
 async function confirmOne(id){try{await api('winner-confirm',{card_id:id});await refreshOverview();paint();}catch(e){alert(e.message);}}
 async function maybeAutoTie(v=valid()){
@@ -144,7 +156,13 @@ function paint(){
      actions+=`<button class="btn bad" data-b3-continue>▶ Continuar juego</button>`;
    }
    const name=list.length===1?`Bingo de ${esc(person(list[0]))}`:list.length>1?`${list.length} avisos de BINGO`:'';
-   o.classList.remove('hidden');o.innerHTML=`<div class="b3-card"><div class="b3-kicker">BINGO IMARA · LLAMADO DE RONDA</div><div class="b3-main" style="font-size:clamp(44px,8vw,94px)">${labels[inf.stage]}</div>${name?`<div class="b3-name" style="font-size:clamp(20px,3.6vw,38px)">${name}</div>`:''}<div class="b3-clock">${inf.remaining}</div><div class="b3-sub">${inf.ready?'Conteo terminado · valida el resultado o continúa la partida':'3 segundos por llamado'}</div>${actions?`<div class="b3-overlay-actions">${actions}</div>`:''}</div>`;return;
+   const renderKey=['countdown',inf.stage,inf.remaining,inf.ready?1:0,signature(list),signature(v),isAdmin()?1:0].join('|');
+   o.classList.remove('hidden');
+   if(o.dataset.b3RenderKey!==renderKey){
+     o.dataset.b3RenderKey=renderKey;
+     o.innerHTML=`<div class="b3-card"><div class="b3-kicker">BINGO IMARA · LLAMADO DE RONDA</div><div class="b3-main" style="font-size:clamp(44px,8vw,94px)">${labels[inf.stage]}</div>${name?`<div class="b3-name" style="font-size:clamp(20px,3.6vw,38px)">${name}</div>`:''}<div class="b3-clock">${inf.remaining}</div><div class="b3-sub">${inf.ready?'Conteo terminado · valida el resultado o continúa la partida':'3 segundos por llamado'}</div>${actions?`<div class="b3-overlay-actions">${actions}</div>`:''}</div>`;
+   }
+   return;
  }
  if(s.type==='tie'){
    const list=uniq(s.candidates||[]),start=new Date(s.started_at||0).getTime(),elapsed=Math.max(0,Date.now()-start),idx=list.length?Math.floor(elapsed/160)%list.length:0,c=list[idx]||{};
@@ -165,7 +183,7 @@ function wire(){
    if(t.closest?.('[data-b3-count]')){e.preventDefault();startCountdown();return;}
    const r=t.closest?.('[data-b3-review]');if(r){e.preventDefault();review(r.dataset.b3Review);return;}
    const c=t.closest?.('[data-b3-confirm]');if(c){e.preventDefault();confirmOne(c.dataset.b3Confirm);return;}
-   if(t.closest?.('[data-b3-continue]')){e.preventDefault();continueGame();return;}
+   const cont=t.closest?.('[data-b3-continue]');if(cont){e.preventDefault();continueGame(cont);return;}
    if(t.closest?.('[data-b3-tie]')){e.preventDefault();maybeAutoTie(valid());return;}
  },true);
 }
