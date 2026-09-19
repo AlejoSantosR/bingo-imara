@@ -9,13 +9,12 @@ if(window.__imaraBingoLiveV3)return;window.__imaraBingoLiveV3=true;
 const API='https://fpevaukkbtruplwptufu.supabase.co/functions/v1/bingo-private';
 const SESSION_KEY='imaraPrivateSessionV1';
 const IS_PUBLIC=location.hash.startsWith('#public');
-const ADMIN_POLL=850;
 const PUBLIC_POLL=800;
 const COUNT_MS=3000;
 const TIE_MS=7000;
 let claims=[],candidates=[],show={type:'idle'};
 let lastClaimSig='',publishing=false,tieStarting=false,tieResolving=false;
-let adminTimer=null,publicTimer=null,paintTimer=null;
+let publicTimer=null,paintTimer=null,lastRealtimeShowSig='';
 
 const esc=s=>typeof escapeHtml==='function'?escapeHtml(String(s??'')):String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[m]));
 function token(){return sessionStorage.getItem(SESSION_KEY)||'';}
@@ -171,7 +170,24 @@ function wire(){
  },true);
 }
 async function adminTick(){if(!isAdmin()||!token())return;try{await refreshClaims();await refreshOverview();mountPanels();paint();await resolveTieIfNeeded();}catch(e){console.warn('BINGO V3:',e.message||e);}}
+function applyRealtime(payload){
+ if(!isAdmin()||!payload?.game)return;
+ const next=payload.game.show_state||{type:'idle'},sig=JSON.stringify(next);
+ show=next;mountPanels();paint();resolveTieIfNeeded();
+ if(sig!==lastRealtimeShowSig){
+   lastRealtimeShowSig=sig;
+   if(['bingo_live_claim','bingo_countdown','tie','winner'].includes(String(next.type||'')))refreshClaims().catch(e=>console.warn('BINGO V3 claims:',e.message||e));
+ }
+}
 async function publicTick(){try{await refreshOverview();paint();}catch(e){console.warn('BINGO pública V3:',e.message||e);}}
-function start(){css();wire();if(!IS_PUBLIC)document.body.classList.add('imara-bingo-v3-private');paintTimer=setInterval(paint,160);if(IS_PUBLIC){publicTick();publicTimer=setInterval(publicTick,PUBLIC_POLL);return;}const wait=()=>{if(isAdmin()&&token()){adminTick();adminTimer=setInterval(adminTick,ADMIN_POLL);return;}setTimeout(wait,500);};wait();}
+function start(){
+ css();wire();
+ if(!IS_PUBLIC)document.body.classList.add('imara-bingo-v3-private');
+ paintTimer=setInterval(paint,160);
+ if(IS_PUBLIC){publicTick();publicTimer=setInterval(publicTick,PUBLIC_POLL);return;}
+ window.addEventListener('imara-game-realtime',e=>applyRealtime(e.detail));
+ window.addEventListener('imara-game-sync-request',()=>{if(isAdmin()&&token())adminTick();});
+ const wait=()=>{if(isAdmin()&&token()){adminTick();return;}setTimeout(wait,500);};wait();
+}
 start();
 })();
