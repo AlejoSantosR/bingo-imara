@@ -9,10 +9,17 @@ if(window.__imaraMobileTieSync2026)return;
 window.__imaraMobileTieSync2026=true;
 
 const DEFAULT_TIE_MS=10000;
-let raf=0,currentKey='',lockedShell=null,prevInert=false;
+let raf=0,currentKey='',lockedShell=null,prevInert=false,confettiRaf=0,audioCtx=null,lastTieCandidates=[];
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const person=c=>String(c?.buyer_alias||c?.card_id||'Participante').trim()||'Participante';
+const mod=(n,m)=>((n%m)+m)%m;
+function ensureAudio(){try{if(!audioCtx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;audioCtx=new AC();}if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});return true;}catch(_){return false;}}
+function tone(freq,dur=.08,vol=.03,type='triangle',delay=0){if(!audioCtx||audioCtx.state!=='running')return;const t=audioCtx.currentTime+delay,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+dur+.03);}
+function fanfare(){if(!audioCtx||audioCtx.state!=='running')return;[[523.25,0],[659.25,.13],[783.99,.26],[1046.5,.43]].forEach(([f,d],i)=>tone(f,.34,i===3?.055:.038,'triangle',d));tone(130.81,.7,.022,'sine',.02);}
+function wheelGradient(n){const colors=['#f7cf56','#754bd1','#ef8c38','#d64c78','#4fc9b0','#5d8de6'],step=360/Math.max(1,n),p=[];for(let i=0;i<n;i++)p.push(colors[i%colors.length]+' '+(i*step)+'deg '+((i+1)*step)+'deg');return 'conic-gradient(from -90deg,'+p.join(',')+')';}
+function launchConfetti(){cancelAnimationFrame(confettiRaf);const canvas=overlay().querySelector('.imara-mobile-confetti');if(!canvas||window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return;const ctx=canvas.getContext('2d'),dpr=Math.min(2,devicePixelRatio||1);let w=canvas.clientWidth,h=canvas.clientHeight;canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);const colors=['#ffd45b','#fff1b8','#ff6f9f','#8d6bff','#57d8b5','#ffffff'],p=[];for(let i=0;i<100;i++)p.push({x:w/2+(Math.random()-.5)*90,y:h*.2,vx:(Math.random()-.5)*7,vy:-4-Math.random()*7,g:.13+Math.random()*.08,r:Math.random()*Math.PI,s:4+Math.random()*6,c:colors[i%colors.length],spin:(Math.random()-.5)*.24});const st=performance.now();function frame(now){ctx.clearRect(0,0,w,h);for(const a of p){a.vy+=a.g;a.x+=a.vx;a.y+=a.vy;a.r+=a.spin;ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.r);ctx.fillStyle=a.c;ctx.fillRect(-a.s/2,-a.s/3,a.s,a.s*.66);ctx.restore();}if(now-st<4500)confettiRaf=requestAnimationFrame(frame);}confettiRaf=requestAnimationFrame(frame);}
+document.addEventListener('pointerdown',()=>ensureAudio(),{capture:true,once:true});
 
 function css(){
  if(document.getElementById('imaraMobileTieSyncCss'))return;
@@ -39,7 +46,7 @@ function css(){
  .imara-mobile-winner-icon{font-size:46px;line-height:1;margin:8px 0}
  .imara-mobile-winner-name{font-size:clamp(25px,8vw,40px);font-weight:1000;color:#fff3c8;line-height:1.04;overflow-wrap:anywhere}
  .imara-mobile-winner-card{margin-top:7px;font-size:13px;font-weight:900;color:#ffd26f}
- .imara-mobile-winner-prize{margin-top:8px;padding:8px 10px;border-radius:12px;background:rgba(255,211,86,.09);border:1px solid rgba(255,211,86,.22);color:#ffe8a8;font-size:11px}
+ .imara-mobile-winner-prize{margin-top:8px;padding:8px 10px;border-radius:12px;background:rgba(255,211,86,.09);border:1px solid rgba(255,211,86,.22);color:#ffe8a8;font-size:11px} .imara-mobile-tie-wheel-wrap::before{content:"";position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(255,225,137,.78);box-shadow:0 0 18px rgba(255,205,77,.55),inset 0 0 16px rgba(255,205,77,.24);animation:imaraTieGlow .75s ease-in-out infinite alternate;pointer-events:none} .imara-mobile-tie-pointer{animation:imaraTiePointer .16s ease-in-out infinite alternate} .imara-mobile-winner-halo{position:absolute;width:min(420px,90vw);aspect-ratio:1;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgba(255,221,118,.16) 0 5deg,transparent 5deg 12deg);animation:imaraWinnerHalo 18s linear infinite;pointer-events:none} .imara-mobile-winner-ribbon{position:relative;width:min(430px,92%);margin:7px auto 10px;padding:10px 22px;background:linear-gradient(180deg,#ffe38a,#d99b22 52%,#a9660b);color:#291704;font-size:clamp(18px,5.7vw,27px);font-weight:1000;letter-spacing:.8px;text-shadow:0 1px 0 #fff8;box-shadow:0 8px 24px #0006,0 0 30px rgba(255,206,75,.3);clip-path:polygon(0 15%,8% 15%,12% 0,18% 15%,82% 15%,88% 0,92% 15%,100% 15%,96% 50%,100% 85%,92% 85%,88% 100%,82% 85%,18% 85%,12% 100%,8% 85%,0 85%,4% 50%)} .imara-mobile-confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:20} .imara-mobile-sound{position:relative;margin-top:8px;border:1px solid rgba(255,224,141,.25);background:rgba(255,255,255,.06);color:#ffe9af;border-radius:999px;padding:7px 11px;font:800 10px/1 system-ui} @keyframes imaraTieGlow{to{box-shadow:0 0 31px rgba(255,205,77,.85),inset 0 0 23px rgba(255,205,77,.34)}}@keyframes imaraTiePointer{to{transform:translateX(-50%) rotate(4deg)}}@keyframes imaraWinnerHalo{to{transform:rotate(360deg)}}
  body.imara-mobile-tie-active .mobile-card-shell{user-select:none;-webkit-user-select:none}
  @keyframes imaraTieSpin{to{transform:rotate(360deg)}}
  @media(max-height:700px){.imara-mobile-tie-card{padding:12px 11px;border-radius:20px}.imara-mobile-tie-title{font-size:26px}.imara-mobile-tie-timer{width:46px;height:46px;flex-basis:46px;font-size:19px;margin:5px auto}.imara-mobile-tie-wheel-wrap{width:min(190px,45vw,29vh)}.imara-mobile-tie-list{max-height:58px}.imara-mobile-tie-sub{margin-top:5px}}
@@ -82,7 +89,7 @@ function unlock(){
 }
 
 function hide(){
- cancelAnimationFrame(raf);raf=0;currentKey='';
+ cancelAnimationFrame(raf);raf=0;cancelAnimationFrame(confettiRaf);confettiRaf=0;currentKey='';
  overlay().classList.add('hidden');
  overlay().innerHTML='';
  unlock();
@@ -93,7 +100,7 @@ function tieFrame(s){
  const start=new Date(s.started_at||s.at||Date.now()).getTime();
  const dur=Math.max(DEFAULT_TIE_MS,Number(s.duration_ms)||0);
  if(list.length<2||!Number.isFinite(start)){hide();return;}
- const key=`${start}|${dur}|${list.map(x=>x.card_id).join('|')}`;
+ lastTieCandidates=list;const key=`${start}|${dur}|${list.map(x=>x.card_id).join('|')}`;
  currentKey=key;
  lock();
  const o=overlay();o.classList.remove('hidden');
@@ -110,7 +117,7 @@ function tieFrame(s){
      <div class="imara-mobile-tie-timer">${left}s</div>
      <div class="imara-mobile-tie-wheel-wrap">
        <div class="imara-mobile-tie-pointer"></div>
-       <div class="imara-mobile-tie-wheel"></div>
+       <div class="imara-mobile-tie-wheel" data-imara-wheel style="background:${wheelGradient(list.length)}"></div>
        <div class="imara-mobile-tie-person">${esc(person(c))}<small>${esc(c.card_id||'')}</small></div>
      </div>
      <div class="imara-mobile-tie-list">${list.map(x=>`<div class="imara-mobile-tie-chip"><b>${esc(person(x))}</b><small>${esc(x.card_id||'')}</small></div>`).join('')}</div>
@@ -121,23 +128,16 @@ function tieFrame(s){
  cancelAnimationFrame(raf);frame();
 }
 
-function winner(s){
- cancelAnimationFrame(raf);raf=0;currentKey='winner';
- lock();
- const w=s?.winner||{},o=overlay();
- o.classList.remove('hidden');
- o.innerHTML=`<div class="imara-mobile-tie-card">
-   ${DEMO?'<div class="imara-mobile-tie-demo">DEMO · NO AFECTA EL JUEGO REAL</div>':''}
-   <div class="imara-mobile-tie-kicker">BINGO IMARA</div>
-   <div class="imara-mobile-winner-icon">🏆</div>
-   <div class="imara-mobile-tie-title">GANADOR CONFIRMADO</div>
-   <div class="imara-mobile-winner-name">${esc(w.buyer_alias||w.card_id||'Ganador')}</div>
-   <div class="imara-mobile-winner-card">${esc(w.card_id||'')}</div>
-   ${w.prize?`<div class="imara-mobile-winner-prize">🎁 ${esc(w.prize)}</div>`:''}
-   <div class="imara-mobile-tie-sub">La ronda quedó cerrada. Tu cartón volverá a estar disponible cuando se abra la siguiente ronda.</div>
- </div>`;
+function renderWinner(s){
+ cancelAnimationFrame(raf);raf=0;currentKey='winner';lock();const w=s?.winner||{},o=overlay();o.classList.remove('hidden');
+ o.innerHTML=`<canvas class="imara-mobile-confetti"></canvas><div class="imara-mobile-tie-card" style="background:radial-gradient(circle at 50% 20%,rgba(255,211,91,.2),transparent 36%),linear-gradient(155deg,#24190d,#513116 55%,#21150a)"><div class="imara-mobile-winner-halo"></div>${DEMO?'<div class="imara-mobile-tie-demo">DEMO · NO AFECTA EL JUEGO REAL</div>':''}<div class="imara-mobile-tie-kicker">BINGO IMARA · RESULTADO OFICIAL</div><div class="imara-mobile-winner-icon">🏆</div><div class="imara-mobile-winner-ribbon">✨ GANADOR ✨</div><div class="imara-mobile-winner-name">${esc(w.buyer_alias||w.card_id||'Ganador')}</div><div class="imara-mobile-winner-card">${esc(w.card_id||'')}</div>${w.prize?`<div class="imara-mobile-winner-prize">🎁 ${esc(w.prize)}</div>`:''}<div class="imara-mobile-tie-sub">Resultado confirmado por Bingo IMARA. La ronda quedó cerrada.</div><button type="button" class="imara-mobile-sound" id="imaraWinnerSound">🔊 ${audioCtx?.state==='running'?'Sonido activo':'Activar sonido'}</button></div>`;
+ o.querySelector('#imaraWinnerSound')?.addEventListener('click',()=>{ensureAudio();fanfare();});fanfare();launchConfetti();
 }
-
+function winner(s){
+ cancelAnimationFrame(raf);raf=0;currentKey='winner';lock();const w=s?.winner||{},idx=lastTieCandidates.findIndex(x=>String(x.card_id)===String(w.card_id)),wheel=overlay().querySelector('[data-imara-wheel]');
+ if(wheel&&idx>=0&&lastTieCandidates.length){const m=getComputedStyle(wheel).transform;let cur=0;if(m&&m!=='none'){const a=m.match(/matrix\(([^)]+)\)/);if(a){const v=a[1].split(',').map(Number);cur=Math.atan2(v[1],v[0])*180/Math.PI;}}wheel.style.animation='none';const slice=360/lastTieCandidates.length,target=-((idx+.5)*slice),end=cur+1440+mod(target-cur,360),center=overlay().querySelector('.imara-mobile-tie-person'),sub=overlay().querySelector('.imara-mobile-tie-sub');if(center)center.innerHTML=esc(person(lastTieCandidates[idx]))+'<small>'+esc(w.card_id||'')+'</small>';if(sub)sub.textContent='✨ La ruleta está frenando sobre el ganador…';const an=wheel.animate([{transform:'rotate('+cur+'deg)'},{transform:'rotate('+end+'deg)'}],{duration:2200,easing:'cubic-bezier(.12,.8,.18,1)',fill:'forwards'});an.onfinish=()=>{tone(980,.16,.04);setTimeout(()=>renderWinner(s),250);};return;}
+ renderWinner(s);
+}
 function applyGame(payload){
  const s=payload?.game?.show_state||{type:'idle'};
  if(s.type==='tie'){tieFrame(s);return;}
@@ -147,6 +147,6 @@ function applyGame(payload){
 
 css();
 window.addEventListener('imara-mobile-game-state',e=>applyGame(e.detail));
-window.addEventListener('pagehide',()=>{cancelAnimationFrame(raf);raf=0;});
+window.addEventListener('pagehide',()=>{cancelAnimationFrame(raf);cancelAnimationFrame(confettiRaf);raf=0;confettiRaf=0;});
 if(DEMO)window.IMARA_MOBILE_TIE_DEMO={applyGame,hide};
 })();
