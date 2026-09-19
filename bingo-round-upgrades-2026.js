@@ -27,16 +27,15 @@ function draw(s){
  if(o.dataset.tieKey!==key){
    o.dataset.tieKey=key;
    const slice=360/list.length;
-   o.innerHTML=`<div class="tie10-card"><div style="font-size:12px;letter-spacing:3px;font-weight:1000;color:#ffdca0">🔥 EMPATE · ${list.length} BINGOS 🔥</div><div class="tie10-title">RULETA DE DESEMPATE</div><div class="tie10-timer" data-tie10-timer>10s</div><div class="tie10-wheel-wrap"><div class="tie10-wheel" data-tie10-wheel style="background:${wheelGradient(list.length)}"></div><div class="tie10-slot"><div class="tie10-slot-track" data-tie10-person></div></div></div><div class="tie10-list">${list.map(x=>`<div class="tie10-chip"><b>${esc(person(x))}</b><small>${esc(x.card_id||'')}</small></div>`).join('')}</div><div class="tie10-sub" data-tie10-sub>La ruleta está girando con todos los cartones empatados.</div></div>`;
+   o.innerHTML=`<div class="tie10-card"><div style="font-size:12px;letter-spacing:3px;font-weight:1000;color:#ffdca0">🔥 EMPATE · ${list.length} BINGOS 🔥</div><div class="tie10-title">RULETA DE DESEMPATE</div><div class="tie10-timer" data-tie10-timer>10s</div><div class="tie10-casino"><div class="tie10-casino-lights"></div><div class="tie10-reel-window"><div class="tie10-reel-track" data-tie10-reel></div><div class="tie10-reel-marker"></div></div></div><div class="tie10-list">${list.map(x=>`<div class="tie10-chip"><b>${esc(person(x))}</b><small>${esc(x.card_id||'')}</small></div>`).join('')}</div><div class="tie10-sub" data-tie10-sub>La ruleta está girando con todos los cartones empatados.</div></div>`;
  }
- const timer=o.querySelector('[data-tie10-timer]'),center=o.querySelector('[data-tie10-person]'),sub=o.querySelector('[data-tie10-sub]');
+ const timer=o.querySelector('[data-tie10-timer]'),reel=o.querySelector('[data-tie10-reel]'),sub=o.querySelector('[data-tie10-sub]');
  let lastIdx=-1;
  function frame(){
    if(lastTie!==key)return;
    const elapsed=Math.max(0,Date.now()-start),left=Math.max(0,Math.ceil((dur-elapsed)/1000));
    if(timer)timer.textContent=`${left}s`;
-   const rotation=(elapsed/700*360)%360,wheel=o.querySelector('[data-tie10-wheel]');if(wheel){wheel.style.animation='none';wheel.style.transform=`rotate(${rotation}deg)`;}const slice=360/list.length,idx=Math.floor(mod(-rotation+slice/2,360)/slice)%list.length;
-   if(center&&idx!==lastIdx){lastIdx=idx;const prev=list[mod(idx-1,list.length)]||list[0],x=list[idx]||list[0],next=list[(idx+1)%list.length]||list[0];center.innerHTML=`<div class="tie10-slot-row">${esc(person(prev))}</div><div class="tie10-slot-row current">${esc(person(x))}<small>${esc(x.card_id||'')}</small></div><div class="tie10-slot-row">${esc(person(next))}</div>`;center.classList.remove('roll');void center.offsetWidth;center.classList.add('roll');}
+   if(reel){if(!reel.dataset.ready){const items=[];for(let r=0;r<14;r++)for(const x of list)items.push(`<div class="tie10-reel-item"><b>${esc(person(x))}</b><small>${esc(x.card_id||'')}</small></div>`);reel.innerHTML=items.join('');reel.dataset.ready='1';}const first=reel.firstElementChild,step=(first?.getBoundingClientRect().width||180)+14,base=list.length*4,progress=elapsed/155,pos=base+progress;reel.dataset.pos=String(pos);reel.dataset.step=String(step);reel.style.transform=`translate3d(${-(pos*step+step/2)}px,-50%,0)`;const idx=Math.round(pos)%list.length;reel.querySelectorAll('.tie10-reel-item').forEach((el,i)=>{const d=Math.abs(i-pos);el.classList.toggle('current',d<.5);el.classList.toggle('near',d>=.5&&d<1.55);});lastIdx=idx;}
    if(sub&&elapsed>=dur)sub.textContent='✨ Tiempo cumplido · esperando el resultado oficial…';
    raf=requestAnimationFrame(frame);
  }
