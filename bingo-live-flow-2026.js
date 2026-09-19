@@ -11,7 +11,7 @@ const SESSION_KEY='imaraPrivateSessionV1';
 const IS_PUBLIC=location.hash.startsWith('#public');
 const PUBLIC_POLL=800;
 const COUNT_MS=3000;
-const TIE_MS=7000;
+const TIE_MS=10000;
 let claims=[],candidates=[],show={type:'idle'};
 let lastClaimSig='',publishing=false,tieStarting=false,tieResolving=false;
 let publicTimer=null,paintTimer=null,lastRealtimeShowSig='';
