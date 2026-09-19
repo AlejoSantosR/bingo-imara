@@ -33,11 +33,11 @@ function css(){
  .imara-mobile-tie-title{margin:5px 0 2px;font-size:clamp(25px,8vw,42px);font-weight:1000;line-height:.98;color:#fff0bc}
  .imara-mobile-tie-timer{width:56px;height:56px;flex:0 0 56px;margin:8px auto;border-radius:50%;display:grid;place-items:center;border:3px solid #ffc94f;background:#140d07;color:#fff2bf;font-size:22px;font-weight:1000;box-shadow:0 0 28px rgba(255,190,38,.2)}
  .imara-mobile-tie-wheel-wrap{position:relative;width:min(245px,58vw,31vh);aspect-ratio:1;margin:3px auto 7px;flex:0 1 auto}
- .imara-mobile-tie-wheel{position:absolute;inset:0;border-radius:50%;border:8px solid #e4b33e;background:conic-gradient(#f7cf56 0 25%,#754bd1 25% 50%,#ef8c38 50% 75%,#d64c79 75% 100%);box-shadow:0 0 0 4px #4a320c,0 0 48px rgba(255,184,45,.22);animation:imaraTieSpin .7s linear infinite}
+ .imara-mobile-tie-wheel{position:absolute;inset:0;border-radius:50%;border:8px solid #e4b33e;background:conic-gradient(#f7cf56 0 25%,#754bd1 25% 50%,#ef8c38 50% 75%,#d64c79 75% 100%);box-shadow:0 0 0 4px #4a320c,0 0 48px rgba(255,184,45,.22);will-change:transform}
  .imara-mobile-tie-wheel::after{content:"";position:absolute;inset:20%;border-radius:50%;background:#15100b;border:3px solid #ffe08a} .imara-mobile-wheel-name{position:absolute;z-index:2;left:50%;top:50%;width:43%;transform-origin:0 50%;font-size:clamp(7px,2.25vw,10px);font-weight:1000;color:#211406;text-shadow:0 1px 0 rgba(255,255,255,.48);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;padding-right:4px;pointer-events:none} .imara-mobile-wheel-name small{display:block;font-size:6px;opacity:.72}
  .imara-mobile-tie-pointer{position:absolute;z-index:4;left:50%;top:-5px;transform:translateX(-50%);width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-bottom:26px solid #fff0b8;filter:drop-shadow(0 3px 4px #0008)}
  .imara-mobile-tie-person{position:absolute;z-index:5;inset:31%;display:grid;place-items:center;text-align:center;font-size:clamp(13px,4vw,20px);font-weight:1000;line-height:1.05;color:#fff2c4;overflow-wrap:anywhere}
- .imara-mobile-tie-person small{display:block;margin-top:3px;color:#ffc85e;font-size:8px}
+ .imara-mobile-tie-person small{display:block;margin-top:3px;color:#ffc85e;font-size:8px} .imara-mobile-slot{position:absolute;z-index:5;inset:29%;overflow:hidden;border-radius:999px;background:radial-gradient(circle at 38% 28%,#2b1b0c,#120b07 72%);border:3px solid #ffe08a;box-shadow:inset 0 0 18px #0009,0 0 15px rgba(255,214,100,.28)} .imara-mobile-slot-track{position:absolute;left:0;right:0;top:-100%;height:300%;display:grid;grid-template-rows:repeat(3,minmax(0,1fr));align-items:center;text-align:center;color:#fff2c4;font-size:clamp(11px,3.5vw,17px);font-weight:1000;line-height:1.05;will-change:transform,filter} .imara-mobile-slot-track.roll{animation:imaraMobileSlotRoll .15s cubic-bezier(.2,.85,.35,1)} .imara-mobile-slot-row{display:grid;place-items:center;min-width:0;padding:0 3px;opacity:.38;transform:scale(.78)} .imara-mobile-slot-row.current{opacity:1;transform:scale(1);text-shadow:0 0 9px rgba(255,210,90,.34)} .imara-mobile-slot-row small{display:block;margin-top:2px;color:#ffc85e;font-size:7px} @keyframes imaraMobileSlotRoll{from{transform:translateY(18%);filter:blur(1.4px)}to{transform:translateY(0);filter:blur(0)}}
  .imara-mobile-tie-list{width:100%;display:flex;gap:5px;justify-content:center;flex-wrap:wrap;max-height:80px;overflow:auto;-webkit-overflow-scrolling:touch;padding:2px 0}
  .imara-mobile-tie-chip{max-width:46%;padding:5px 7px;border-radius:10px;background:#17100c;border:1px solid rgba(255,211,118,.24);font-size:9px;color:#fff1c9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
  .imara-mobile-tie-chip small{display:block;color:#ffc963;font-size:7px;margin-top:1px}
@@ -119,7 +119,7 @@ function tieFrame(s){
      <div class="imara-mobile-tie-wheel-wrap">
        <div class="imara-mobile-tie-pointer"></div>
        <div class="imara-mobile-tie-wheel" data-imara-wheel style="background:${wheelGradient(list.length)}">${labels}</div>
-       <div class="imara-mobile-tie-person" data-imara-tie-person></div>
+       <div class="imara-mobile-slot"><div class="imara-mobile-slot-track" data-imara-tie-person></div></div>
      </div>
      <div class="imara-mobile-tie-list">${list.map(x=>`<div class="imara-mobile-tie-chip"><b>${esc(person(x))}</b><small>${esc(x.card_id||'')}</small></div>`).join('')}</div>
      <div class="imara-mobile-tie-sub" data-imara-tie-sub>Tu cartón está bloqueado mientras la ruleta gira.</div>
@@ -135,11 +135,15 @@ function tieFrame(s){
    const left=Math.max(0,Math.ceil((dur-elapsed)/1000));
    if(timer)timer.textContent=`${left}s`;
    const rotation=(elapsed/700*360)%360;
+   const wheel=o.querySelector('[data-imara-wheel]');
+   if(wheel){wheel.style.animation='none';wheel.style.transform=`rotate(${rotation}deg)`;}
    const slice=360/list.length;
    const idx=Math.floor(mod(-rotation+slice/2,360)/slice)%list.length;
    if(center&&idx!==lastIdx){
-     lastIdx=idx;const x=list[idx]||list[0];
-     center.innerHTML=`${esc(person(x))}<small>${esc(x.card_id||'')}</small>`;
+     lastIdx=idx;
+     const prev=list[mod(idx-1,list.length)]||list[0],x=list[idx]||list[0],next=list[(idx+1)%list.length]||list[0];
+     center.innerHTML=`<div class="imara-mobile-slot-row">${esc(person(prev))}</div><div class="imara-mobile-slot-row current">${esc(person(x))}<small>${esc(x.card_id||'')}</small></div><div class="imara-mobile-slot-row">${esc(person(next))}</div>`;
+     center.classList.remove('roll');void center.offsetWidth;center.classList.add('roll');
    }
    if(sub&&elapsed>=dur)sub.textContent='✨ Tiempo cumplido · esperando el resultado oficial…';
    raf=requestAnimationFrame(frame);
@@ -153,7 +157,7 @@ function renderWinner(s){
 }
 function winner(s){
  cancelAnimationFrame(raf);raf=0;currentKey='winner';lock();const w=s?.winner||{},idx=lastTieCandidates.findIndex(x=>String(x.card_id)===String(w.card_id)),wheel=overlay().querySelector('[data-imara-wheel]');
- if(wheel&&idx>=0&&lastTieCandidates.length){const m=getComputedStyle(wheel).transform;let cur=0;if(m&&m!=='none'){const a=m.match(/matrix\(([^)]+)\)/);if(a){const v=a[1].split(',').map(Number);cur=Math.atan2(v[1],v[0])*180/Math.PI;}}wheel.style.animation='none';const slice=360/lastTieCandidates.length,target=-((idx+.5)*slice),end=cur+1440+mod(target-cur,360),center=overlay().querySelector('.imara-mobile-tie-person'),sub=overlay().querySelector('.imara-mobile-tie-sub');if(center)center.innerHTML=esc(person(lastTieCandidates[idx]))+'<small>'+esc(w.card_id||'')+'</small>';if(sub)sub.textContent='✨ La ruleta está frenando sobre el ganador…';const an=wheel.animate([{transform:'rotate('+cur+'deg)'},{transform:'rotate('+end+'deg)'}],{duration:2200,easing:'cubic-bezier(.12,.8,.18,1)',fill:'forwards'});an.onfinish=()=>{tone(980,.16,.04);setTimeout(()=>renderWinner(s),250);};return;}
+ if(wheel&&idx>=0&&lastTieCandidates.length){const m=getComputedStyle(wheel).transform;let cur=0;if(m&&m!=='none'){const a=m.match(/matrix\(([^)]+)\)/);if(a){const v=a[1].split(',').map(Number);cur=Math.atan2(v[1],v[0])*180/Math.PI;}}wheel.style.animation='none';const slice=360/lastTieCandidates.length,target=-((idx+.5)*slice),end=cur+1440+mod(target-cur,360),center=overlay().querySelector('[data-imara-tie-person]'),sub=overlay().querySelector('.imara-mobile-tie-sub');if(center){const x=lastTieCandidates[idx];center.innerHTML='<div class="imara-mobile-slot-row">'+esc(person(x))+'</div><div class="imara-mobile-slot-row current">'+esc(person(x))+'<small>'+esc(w.card_id||'')+'</small></div><div class="imara-mobile-slot-row">'+esc(person(x))+'</div>';}if(sub)sub.textContent='✨ La ruleta está frenando sobre el ganador…';const an=wheel.animate([{transform:'rotate('+cur+'deg)'},{transform:'rotate('+end+'deg)'}],{duration:2200,easing:'cubic-bezier(.12,.8,.18,1)',fill:'forwards'});an.onfinish=()=>{tone(980,.16,.04);setTimeout(()=>renderWinner(s),250);};return;}
  renderWinner(s);
 }
 function applyGame(payload){
