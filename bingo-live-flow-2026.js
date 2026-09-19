@@ -186,7 +186,6 @@ function start(){
  paintTimer=setInterval(paint,160);
  if(IS_PUBLIC){publicTick();publicTimer=setInterval(publicTick,PUBLIC_POLL);return;}
  window.addEventListener('imara-game-realtime',e=>applyRealtime(e.detail));
- window.addEventListener('imara-game-sync-request',()=>{if(isAdmin()&&token())adminTick();});
  const wait=()=>{if(isAdmin()&&token()){adminTick();return;}setTimeout(wait,500);};wait();
 }
 start();
