@@ -43,8 +43,8 @@
       <div class="grid kpis">
         <div class="card kpi"><div class="label">Cartones emitidos</div><div class="value" id="kpiIssued">0</div><div class="hint">Incluye pagados</div></div>
         <div class="card kpi"><div class="label">Cartones pagados</div><div class="value" id="kpiPaid">0</div><div class="hint">Habilitados para ganar</div></div>
-        <div class="card kpi"><div class="label">Recaudado</div><div class="value" id="kpiRevenue">$0</div><div class="hint" id="kpiPriceHint">$30.000 por cartón</div></div>
-        <div class="card kpi"><div class="label">Pendiente por cobrar</div><div class="value" id="kpiPending">$0</div><div class="hint">Emitidos aún no pagados</div></div>
+        <div class="card kpi"><div class="label">Recaudado</div><div class="value" id="kpiRevenue">—</div><div class="hint" id="kpiPriceHint">Cargando recaudo real…</div></div>
+        <div class="card kpi"><div class="label">Pendiente por cobrar</div><div class="value" id="kpiPending">—</div><div class="hint">Emitidos aún no pagados</div></div>
       </div>
 
       <div class="grid two" style="margin-top:16px">
@@ -175,9 +175,10 @@
 
 <dialog id="cardDialog"><div class="modal-head"><strong id="cardDialogTitle">Editar cartón</strong><button class="mini" data-close="cardDialog">✕</button></div><div class="modal-body"><input type="hidden" id="editCardId"><div class="form-grid"><label>Comprador<input class="input" id="editBuyer"></label><label>Teléfono<input class="input" id="editPhone"></label><label>Estado<select class="input" id="editStatus"><option>Disponible</option><option>Emitido</option><option>Pagado</option><option>Anulado</option><option>Ganador</option></select></label><label>Fecha de pago<input class="input" id="editPaidAt" type="datetime-local"></label><label class="full">Observaciones<textarea class="input" id="editNotes"></textarea></label><label class="full">Imagen del cartón / comprobante / referencia<input class="input" id="editImage" type="file" accept="image/*"></label><div class="full"><img id="editImagePreview" class="img-preview hidden" alt="Imagen"></div></div></div><div class="modal-foot"><button class="btn" data-close="cardDialog">Cancelar</button><button class="btn good" id="saveCardBtn">Guardar</button></div></dialog>
 
+<script>window.__imaraRealFinanceDashboardExpected=true;</script>
 <script src="logo.js?v=20260902-SECURE-3"></script>
 <script src="core.js?v=20260902-SECURE-3"></script>
-<script src="ui.js?v=20260902-SECURE-3"></script>
+<script src="ui.js?v=20260919-REAL-FINANCE-FIRST-1"></script>
 <script src="game.js?v=20260902-SECURE-3"></script>
 <script src="print.js?v=20260902-SECURE-3"></script>
 <script src="settings.js?v=20260912-PRIZES-2"></script>
