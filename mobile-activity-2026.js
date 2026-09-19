@@ -5,7 +5,7 @@ if(!location.hash.startsWith('#mobile='))return;
 if(window.__imaraMobileActivity2026)return;window.__imaraMobileActivity2026=true;
 
 const API='https://fpevaukkbtruplwptufu.supabase.co/functions/v1/bingo-activity';
-let data=null,busy=false;
+let data=null;
 
 function decode(){
  try{
@@ -23,8 +23,7 @@ function clientId(cardId){
  return id;
 }
 async function ping(event,probeId=''){
- if(!data?.id||!Array.isArray(data.grid)||busy)return;
- busy=true;
+ if(!data?.id||!Array.isArray(data.grid))return;
  try{
   await fetch(API,{
    method:'POST',
@@ -40,7 +39,7 @@ async function ping(event,probeId=''){
    })
   });
  }catch(e){/* La actividad nunca debe interrumpir el cartón. */}
- finally{busy=false;}
+ finally{}
 }
 data=decode();
 if(!data?.id||!Array.isArray(data.grid))return;
