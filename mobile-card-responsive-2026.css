@@ -1,0 +1,440 @@
+/* Bingo IMARA · Cartón participante · una pantalla responsive · 2026
+   Capa exclusivamente visual para #mobile=. No modifica lógica, datos, marcas,
+   Realtime, Push, BINGO, seguridad, ronda ni validación. */
+
+body.imara-mobile-body{
+  min-height:100dvh!important;
+  height:100dvh!important;
+  width:100%!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  padding:
+    max(8px,env(safe-area-inset-top))
+    max(10px,env(safe-area-inset-right))
+    max(8px,env(safe-area-inset-bottom))
+    max(10px,env(safe-area-inset-left))!important;
+}
+
+body.imara-mobile-body .mobile-card-shell{
+  width:min(620px,100%)!important;
+  max-width:100%!important;
+  height:calc(100dvh - max(8px,env(safe-area-inset-top)) - max(8px,env(safe-area-inset-bottom)))!important;
+  min-height:0!important;
+  margin:0 auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:6px!important;
+  overflow:hidden!important;
+}
+
+body.imara-mobile-body .mobile-card-top{
+  flex:0 0 auto!important;
+  min-width:0!important;
+  margin:0!important;
+  gap:8px!important;
+  align-items:center!important;
+}
+
+body.imara-mobile-body .mobile-brand{
+  width:42px!important;
+  height:42px!important;
+  flex:0 0 42px!important;
+  border-radius:13px!important;
+}
+
+body.imara-mobile-body .mobile-card-top>div:last-child{
+  min-width:0!important;
+}
+
+body.imara-mobile-body .mobile-overline{
+  font-size:9px!important;
+  line-height:1.1!important;
+  letter-spacing:.9px!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+body.imara-mobile-body .mobile-card-top h1{
+  margin:2px 0 0!important;
+  font-size:clamp(16px,4.8vw,21px)!important;
+  line-height:1.05!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+body.imara-mobile-body .mobile-person{
+  flex:0 0 auto!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr)!important;
+  gap:6px!important;
+  margin:0!important;
+}
+
+body.imara-mobile-body .mobile-person>div{
+  min-width:0!important;
+  padding:7px 9px!important;
+  border-radius:11px!important;
+}
+
+body.imara-mobile-body .mobile-person span{
+  font-size:8px!important;
+  line-height:1!important;
+  letter-spacing:.7px!important;
+}
+
+body.imara-mobile-body .mobile-person strong{
+  margin-top:2px!important;
+  font-size:clamp(11px,3.4vw,14px)!important;
+  line-height:1.15!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+body.imara-mobile-body #mobileRoundLive,
+body.imara-mobile-body .mobile-round-live{
+  flex:0 0 auto!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:7px 8px!important;
+  gap:5px!important;
+  border-radius:12px!important;
+}
+
+body.imara-mobile-body .mobile-round-top{
+  min-width:0!important;
+  gap:6px!important;
+}
+
+body.imara-mobile-body .mobile-round-top strong{
+  min-width:0!important;
+  font-size:clamp(11px,3.3vw,14px)!important;
+  line-height:1.1!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+body.imara-mobile-body .mobile-round-state{
+  flex:0 0 auto!important;
+  padding:3px 6px!important;
+  font-size:8px!important;
+}
+
+body.imara-mobile-body .mobile-round-grid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:5px!important;
+}
+
+body.imara-mobile-body .mobile-round-grid>div,
+body.imara-mobile-body .mobile-round-prize{
+  min-width:0!important;
+  padding:5px 7px!important;
+  border-radius:9px!important;
+}
+
+body.imara-mobile-body .mobile-round-grid span{
+  font-size:7px!important;
+  line-height:1!important;
+}
+
+body.imara-mobile-body .mobile-round-grid b{
+  margin-top:2px!important;
+  font-size:10px!important;
+  line-height:1.1!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+body.imara-mobile-body .mobile-round-prize{
+  font-size:10px!important;
+  line-height:1.15!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+body.imara-mobile-body .mobile-round-ban{
+  padding:5px 7px!important;
+  border-radius:9px!important;
+  font-size:9px!important;
+  line-height:1.15!important;
+}
+
+body.imara-mobile-body .mobile-help{
+  flex:0 0 auto!important;
+  margin:0!important;
+  padding:5px 8px!important;
+  border-radius:9px!important;
+  font-size:9px!important;
+  line-height:1.15!important;
+  text-align:center!important;
+}
+
+body.imara-mobile-body .mobile-grid{
+  flex:1 1 auto!important;
+  min-height:190px!important;
+  width:100%!important;
+  max-width:100%!important;
+  height:auto!important;
+  margin:0!important;
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  grid-template-rows:repeat(6,minmax(0,1fr))!important;
+  gap:4px!important;
+  overflow:hidden!important;
+}
+
+body.imara-mobile-body .mobile-cell{
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  aspect-ratio:auto!important;
+  border-radius:8px!important;
+  padding:1px!important;
+  font-size:clamp(9px,3.15vw,15px)!important;
+  line-height:1!important;
+}
+
+body.imara-mobile-body .mobile-cell.head{
+  font-size:clamp(14px,4.8vw,20px)!important;
+}
+
+body.imara-mobile-body .mobile-cell.marked::after{
+  font-size:clamp(24px,8vw,46px)!important;
+}
+
+body.imara-mobile-body .mobile-actions{
+  flex:0 0 auto!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:6px!important;
+  margin:0!important;
+}
+
+body.imara-mobile-body .mobile-actions button{
+  min-width:0!important;
+  min-height:34px!important;
+  height:34px!important;
+  padding:5px 7px!important;
+  border-radius:10px!important;
+  font-size:10px!important;
+  line-height:1!important;
+  touch-action:manipulation!important;
+}
+
+body.imara-mobile-body .mobile-bingo-btn,
+body.imara-mobile-body #mobileBingoBtn{
+  flex:0 0 auto!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-height:38px!important;
+  margin:0!important;
+  padding:7px 10px!important;
+  border-radius:11px!important;
+  font-size:12px!important;
+  line-height:1.1!important;
+  touch-action:manipulation!important;
+}
+
+body.imara-mobile-body .mobile-note{
+  flex:0 0 auto!important;
+  margin:0!important;
+  padding:5px 7px!important;
+  border-radius:9px!important;
+  font-size:8px!important;
+  line-height:1.15!important;
+  text-align:center!important;
+}
+
+body.imara-mobile-body #imaraPushBell,
+body.imara-mobile-body .imara-push-bell{
+  flex:0 0 auto!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-height:32px!important;
+  margin:0!important;
+  padding:5px 8px!important;
+  border-radius:10px!important;
+  font-size:10px!important;
+  line-height:1!important;
+  touch-action:manipulation!important;
+}
+
+/* La bienvenida/instalación conserva scroll propio cuando el contenido lo necesita. */
+body.imara-mobile-body .imara-welcome{
+  overflow:auto!important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* Teléfonos de poca altura: se prioriza juego, premio, cartón y acciones. */
+@media (max-height:740px) and (orientation:portrait){
+  body.imara-mobile-body{
+    padding:
+      max(5px,env(safe-area-inset-top))
+      max(8px,env(safe-area-inset-right))
+      max(5px,env(safe-area-inset-bottom))
+      max(8px,env(safe-area-inset-left))!important;
+  }
+
+  body.imara-mobile-body .mobile-card-shell{
+    gap:4px!important;
+    height:calc(100dvh - max(5px,env(safe-area-inset-top)) - max(5px,env(safe-area-inset-bottom)))!important;
+  }
+
+  body.imara-mobile-body .mobile-brand{
+    width:34px!important;
+    height:34px!important;
+    flex-basis:34px!important;
+  }
+
+  body.imara-mobile-body .mobile-overline{
+    display:none!important;
+  }
+
+  body.imara-mobile-body .mobile-card-top h1{
+    font-size:16px!important;
+  }
+
+  body.imara-mobile-body .mobile-person>div{
+    padding:5px 7px!important;
+  }
+
+  body.imara-mobile-body #mobileRoundLive,
+  body.imara-mobile-body .mobile-round-live{
+    padding:5px 6px!important;
+    gap:3px!important;
+  }
+
+  body.imara-mobile-body .mobile-round-grid>div{
+    padding:3px 5px!important;
+  }
+
+  body.imara-mobile-body .mobile-round-prize{
+    padding:4px 5px!important;
+  }
+
+  body.imara-mobile-body .mobile-help,
+  body.imara-mobile-body .mobile-note{
+    display:none!important;
+  }
+
+  body.imara-mobile-body .mobile-actions button{
+    height:31px!important;
+    min-height:31px!important;
+  }
+
+  body.imara-mobile-body .mobile-bingo-btn,
+  body.imara-mobile-body #mobileBingoBtn{
+    min-height:34px!important;
+  }
+
+  body.imara-mobile-body #imaraPushBell,
+  body.imara-mobile-body .imara-push-bell{
+    min-height:30px!important;
+  }
+}
+
+/* Teléfonos muy angostos: mantener legibilidad sin desbordar. */
+@media (max-width:350px) and (orientation:portrait){
+  body.imara-mobile-body .mobile-person{
+    grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)!important;
+  }
+
+  body.imara-mobile-body .mobile-grid{
+    gap:3px!important;
+  }
+
+  body.imara-mobile-body .mobile-cell{
+    font-size:9px!important;
+    border-radius:7px!important;
+  }
+
+  body.imara-mobile-body .mobile-actions button{
+    font-size:9px!important;
+  }
+}
+
+/* Móvil horizontal: información a la izquierda, cartón a la derecha. */
+@media (orientation:landscape) and (max-height:620px) and (max-width:960px){
+  body.imara-mobile-body{
+    padding:
+      max(6px,env(safe-area-inset-top))
+      max(8px,env(safe-area-inset-right))
+      max(6px,env(safe-area-inset-bottom))
+      max(8px,env(safe-area-inset-left))!important;
+  }
+
+  body.imara-mobile-body .mobile-card-shell{
+    width:100%!important;
+    height:calc(100dvh - max(6px,env(safe-area-inset-top)) - max(6px,env(safe-area-inset-bottom)))!important;
+    display:grid!important;
+    grid-template-columns:minmax(210px,.8fr) minmax(300px,1.2fr)!important;
+    grid-template-rows:auto auto auto 1fr auto auto!important;
+    column-gap:8px!important;
+    row-gap:4px!important;
+  }
+
+  body.imara-mobile-body .mobile-card-top{
+    grid-column:1!important;
+    grid-row:1!important;
+  }
+
+  body.imara-mobile-body .mobile-person{
+    grid-column:1!important;
+    grid-row:2!important;
+  }
+
+  body.imara-mobile-body #mobileRoundLive,
+  body.imara-mobile-body .mobile-round-live{
+    grid-column:1!important;
+    grid-row:3!important;
+  }
+
+  body.imara-mobile-body .mobile-help{
+    display:none!important;
+  }
+
+  body.imara-mobile-body .mobile-grid{
+    grid-column:2!important;
+    grid-row:1 / 7!important;
+    min-height:0!important;
+    height:100%!important;
+  }
+
+  body.imara-mobile-body .mobile-actions{
+    grid-column:1!important;
+    grid-row:4!important;
+    align-self:end!important;
+  }
+
+  body.imara-mobile-body .mobile-bingo-btn,
+  body.imara-mobile-body #mobileBingoBtn{
+    grid-column:1!important;
+    align-self:end!important;
+  }
+
+  body.imara-mobile-body .mobile-note{
+    display:none!important;
+  }
+
+  body.imara-mobile-body #imaraPushBell,
+  body.imara-mobile-body .imara-push-bell{
+    grid-column:1!important;
+    align-self:end!important;
+  }
+
+  body.imara-mobile-body .mobile-cell{
+    font-size:clamp(9px,2.1vw,14px)!important;
+  }
+
+  body.imara-mobile-body .mobile-cell.head{
+    font-size:clamp(13px,2.8vw,18px)!important;
+  }
+}
