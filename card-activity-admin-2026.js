@@ -82,7 +82,6 @@ function showActivity(){
  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view==='activity'));
  const t=document.getElementById('pageTitle'),s=document.getElementById('pageSubtitle');
  if(t)t.textContent='Actividad de cartones';if(s)s.textContent='Quién abrió su cartón, quién lo está viendo y quién aún no.';
- if(!generatedAt)load(false);
 }
 function render(){
  const q=(document.getElementById('activitySearch')?.value||'').trim().toLowerCase();
