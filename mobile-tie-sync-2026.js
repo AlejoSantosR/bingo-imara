@@ -34,7 +34,7 @@ function css(){
  .imara-mobile-tie-timer{width:56px;height:56px;flex:0 0 56px;margin:8px auto;border-radius:50%;display:grid;place-items:center;border:3px solid #ffc94f;background:#140d07;color:#fff2bf;font-size:22px;font-weight:1000;box-shadow:0 0 28px rgba(255,190,38,.2)}
  .imara-mobile-tie-wheel-wrap{position:relative;width:min(245px,58vw,31vh);aspect-ratio:1;margin:3px auto 7px;flex:0 1 auto}
  .imara-mobile-tie-wheel{position:absolute;inset:0;border-radius:50%;border:8px solid #e4b33e;background:conic-gradient(#f7cf56 0 25%,#754bd1 25% 50%,#ef8c38 50% 75%,#d64c79 75% 100%);box-shadow:0 0 0 4px #4a320c,0 0 48px rgba(255,184,45,.22);animation:imaraTieSpin .7s linear infinite}
- .imara-mobile-tie-wheel::after{content:"";position:absolute;inset:20%;border-radius:50%;background:#15100b;border:3px solid #ffe08a}
+ .imara-mobile-tie-wheel::after{content:"";position:absolute;inset:20%;border-radius:50%;background:#15100b;border:3px solid #ffe08a} .imara-mobile-wheel-name{position:absolute;z-index:2;left:50%;top:50%;width:43%;transform-origin:0 50%;font-size:clamp(7px,2.25vw,10px);font-weight:1000;color:#211406;text-shadow:0 1px 0 rgba(255,255,255,.48);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;padding-right:4px;pointer-events:none} .imara-mobile-wheel-name small{display:block;font-size:6px;opacity:.72}
  .imara-mobile-tie-pointer{position:absolute;z-index:4;left:50%;top:-5px;transform:translateX(-50%);width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-bottom:26px solid #fff0b8;filter:drop-shadow(0 3px 4px #0008)}
  .imara-mobile-tie-person{position:absolute;z-index:5;inset:31%;display:grid;place-items:center;text-align:center;font-size:clamp(13px,4vw,20px);font-weight:1000;line-height:1.05;color:#fff2c4;overflow-wrap:anywhere}
  .imara-mobile-tie-person small{display:block;margin-top:3px;color:#ffc85e;font-size:8px}
@@ -101,33 +101,51 @@ function tieFrame(s){
  const dur=Math.max(DEFAULT_TIE_MS,Number(s.duration_ms)||0);
  if(list.length<2||!Number.isFinite(start)){hide();return;}
  lastTieCandidates=list;const key=`${start}|${dur}|${list.map(x=>x.card_id).join('|')}`;
- currentKey=key;
  lock();
  const o=overlay();o.classList.remove('hidden');
-
- function frame(){
-   if(currentKey!==key)return;
-   const elapsed=Math.max(0,Date.now()-start);
-   const left=Math.max(0,Math.ceil((dur-elapsed)/1000));
-   const c=list[Math.floor(elapsed/180)%list.length]||list[0];
+ if(currentKey!==key){
+   currentKey=key;
+   const slice=360/list.length;
+   const labels=list.map((x,i)=>{
+     const a=(i+.5)*slice-90;
+     const short=person(x).length>13?person(x).slice(0,12)+'…':person(x);
+     return `<div class="imara-mobile-wheel-name" style="transform:rotate(${a}deg) translateX(62%) rotate(${-a}deg)"><b>${esc(short)}</b><small>${esc(x.card_id||'')}</small></div>`;
+   }).join('');
    o.innerHTML=`<div class="imara-mobile-tie-card">
      ${DEMO?'<div class="imara-mobile-tie-demo">DEMO · NO AFECTA EL JUEGO REAL</div>':''}
      <div class="imara-mobile-tie-kicker">🔥 EMPATE · ${list.length} BINGOS 🔥</div>
      <div class="imara-mobile-tie-title">RULETA DE DESEMPATE</div>
-     <div class="imara-mobile-tie-timer">${left}s</div>
+     <div class="imara-mobile-tie-timer" data-imara-tie-timer>10s</div>
      <div class="imara-mobile-tie-wheel-wrap">
        <div class="imara-mobile-tie-pointer"></div>
-       <div class="imara-mobile-tie-wheel" data-imara-wheel style="background:${wheelGradient(list.length)}"></div>
-       <div class="imara-mobile-tie-person">${esc(person(c))}<small>${esc(c.card_id||'')}</small></div>
+       <div class="imara-mobile-tie-wheel" data-imara-wheel style="background:${wheelGradient(list.length)}">${labels}</div>
+       <div class="imara-mobile-tie-person" data-imara-tie-person></div>
      </div>
      <div class="imara-mobile-tie-list">${list.map(x=>`<div class="imara-mobile-tie-chip"><b>${esc(person(x))}</b><small>${esc(x.card_id||'')}</small></div>`).join('')}</div>
-     <div class="imara-mobile-tie-sub">${elapsed<dur?'Tu cartón está bloqueado mientras se define el desempate.':'✨ Ruleta terminada · esperando confirmación oficial…'}</div>
+     <div class="imara-mobile-tie-sub" data-imara-tie-sub>Tu cartón está bloqueado mientras la ruleta gira.</div>
    </div>`;
+ }
+ const timer=o.querySelector('[data-imara-tie-timer]');
+ const center=o.querySelector('[data-imara-tie-person]');
+ const sub=o.querySelector('[data-imara-tie-sub]');
+ let lastIdx=-1;
+ function frame(){
+   if(currentKey!==key)return;
+   const elapsed=Math.max(0,Date.now()-start);
+   const left=Math.max(0,Math.ceil((dur-elapsed)/1000));
+   if(timer)timer.textContent=`${left}s`;
+   const rotation=(elapsed/700*360)%360;
+   const slice=360/list.length;
+   const idx=Math.floor(mod(-rotation+slice/2,360)/slice)%list.length;
+   if(center&&idx!==lastIdx){
+     lastIdx=idx;const x=list[idx]||list[0];
+     center.innerHTML=`${esc(person(x))}<small>${esc(x.card_id||'')}</small>`;
+   }
+   if(sub&&elapsed>=dur)sub.textContent='✨ Tiempo cumplido · esperando el resultado oficial…';
    raf=requestAnimationFrame(frame);
  }
  cancelAnimationFrame(raf);frame();
 }
-
 function renderWinner(s){
  cancelAnimationFrame(raf);raf=0;currentKey='winner';lock();const w=s?.winner||{},o=overlay();o.classList.remove('hidden');
  o.innerHTML=`<canvas class="imara-mobile-confetti"></canvas><div class="imara-mobile-tie-card" style="background:radial-gradient(circle at 50% 20%,rgba(255,211,91,.2),transparent 36%),linear-gradient(155deg,#24190d,#513116 55%,#21150a)"><div class="imara-mobile-winner-halo"></div>${DEMO?'<div class="imara-mobile-tie-demo">DEMO · NO AFECTA EL JUEGO REAL</div>':''}<div class="imara-mobile-tie-kicker">BINGO IMARA · RESULTADO OFICIAL</div><div class="imara-mobile-winner-icon">🏆</div><div class="imara-mobile-winner-ribbon">✨ GANADOR ✨</div><div class="imara-mobile-winner-name">${esc(w.buyer_alias||w.card_id||'Ganador')}</div><div class="imara-mobile-winner-card">${esc(w.card_id||'')}</div>${w.prize?`<div class="imara-mobile-winner-prize">🎁 ${esc(w.prize)}</div>`:''}<div class="imara-mobile-tie-sub">Resultado confirmado por Bingo IMARA. La ronda quedó cerrada.</div><button type="button" class="imara-mobile-sound" id="imaraWinnerSound">🔊 ${audioCtx?.state==='running'?'Sonido activo':'Activar sonido'}</button></div>`;
