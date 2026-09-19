@@ -165,13 +165,12 @@ function renderShow(){
 function mountFactoryReset(){
  if(!isAdmin()||IS_PUBLIC||IS_MOBILE)return;const grid=document.querySelector('#view-settings .grid.two');if(!grid||document.getElementById('factoryReset2026'))return;const card=document.createElement('div');card.id='factoryReset2026';card.className='card factory-pin-card';card.innerHTML=`<div class="section-title"><div><h3>♻️ Reset de fábrica</h3><div class="muted">Deja el sistema limpio para una nueva entrega sin perder tu Admin actual.</div></div></div><div class="danger" style="margin-bottom:12px"><strong>Elimina:</strong> cartones, ventas, pagos, solicitudes de BINGO, ganadores, balotas y usuarios Miembro. Conserva únicamente el Admin conectado.</div><div class="notice" style="margin-bottom:12px">🔐 Solo Admin + PIN de reset. PIN configurado: <strong>0000</strong>.</div><button class="btn bad" id="factoryReset2026Btn">♻️ Reiniciar desde fábrica</button>`;grid.appendChild(card);card.querySelector('button').onclick=async e=>{const pin=prompt('Ingresa el PIN de reset:','');if(pin!=='0000'){alert('PIN incorrecto. Reset cancelado.');return;}if(!confirm('¿Seguro? Se eliminará toda la operación y los usuarios Miembro. Esta acción es irreversible sin backup.'))return;const token=sessionStorage.getItem(SESSION_KEY)||'';if(!token){alert('Inicia sesión nuevamente como Admin.');return;}const b=e.currentTarget,old=b.textContent;b.disabled=true;b.textContent='♻️ Reiniciando…';try{const r=await fetch(RESET_API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},cache:'no-store',body:JSON.stringify({confirmation:'REINICIAR'})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'No fue posible reiniciar.');const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i)||'';if(k==='bingoImaraStateV2'||k.startsWith('imaraMobileMarks:')||k.startsWith('imaraSound')||k.startsWith('bingoImara'))keys.push(k);}keys.forEach(k=>localStorage.removeItem(k));alert('✅ Bingo IMARA quedó limpio de fábrica. Tu cuenta Admin se conservó.');location.reload();}catch(err){alert(err.message);b.disabled=false;b.textContent=old;}};}
 
-function startAdmin(){if(adminStarted)return;adminStarted=true;mountAdminCenter();mountFactoryReset();ensurePrizeSelector();refreshAdminBingo();}
+function startAdmin(){if(adminStarted)return;adminStarted=true;mountAdminCenter();mountFactoryReset();ensurePrizeSelector();}
 function init(){
  installStyles();mountMobileBingo();ensurePrizeSelector();
  if(IS_PUBLIC){refreshPublic();setInterval(refreshPublic,1800);}
  else if(!IS_MOBILE){
    window.addEventListener('imara-game-realtime',e=>applyRealtime(e.detail));
-   window.addEventListener('imara-game-sync-request',()=>{if(isAdmin())refreshAdminBingo();});
    const wait=setInterval(()=>{if(isAdmin()){clearInterval(wait);startAdmin();}},700);
  }
  showTick=setInterval(renderShow,220);
