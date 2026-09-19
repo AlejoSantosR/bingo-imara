@@ -7,7 +7,7 @@ const RESET_API='https://fpevaukkbtruplwptufu.supabase.co/functions/v1/bingo-res
 const SESSION_KEY='imaraPrivateSessionV1';
 const IS_PUBLIC=location.hash.startsWith('#public');
 const IS_MOBILE=location.hash.startsWith('#mobile=');
-let adminPoll=null,showTick=null,currentShow={type:'idle'},latestCandidates=[],latestClaims=[],lastShowSound='',tieResolving=false,lastCelebratedWinner='';
+let adminStarted=false,showTick=null,currentShow={type:'idle'},latestCandidates=[],latestClaims=[],lastShowSound='',tieResolving=false,lastCelebratedWinner='';
 const esc=s=>typeof escapeHtml==='function'?escapeHtml(String(s??'')):String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 
 async function api(action,payload={},auth=true){
@@ -121,7 +121,22 @@ async function startTie(cands){const show={type:'tie',started_at:new Date().toIS
 async function resolveTie(cands){if(tieResolving)return;tieResolving=true;try{await api('tie-resolve',{card_ids:cands.map(c=>c.card_id)});await refreshAdminBingo();}catch(e){tieResolving=false;alert(e.message);}}
 
 /* ---------- Show público + sincronización nube ---------- */
-function syncCloudGame(o){if(!o?.game||typeof state==='undefined')return;state.drawn=Array.isArray(o.game.drawn)?o.game.drawn.map(Number):state.drawn;state.round=o.game.round||state.round;state.winners=(o.winners||[]).map(w=>({cardId:w.card_id,buyer:w.buyer_alias||'',roundName:w.round_name,pattern:w.pattern,prize:w.prize,position:w.position,at:w.created_at}));if(typeof renderAll==='function')renderAll();}
+function syncCloudGame(o){
+ if(!o?.game||typeof state==='undefined')return;
+ const nextDrawn=Array.isArray(o.game.drawn)?o.game.drawn.map(Number):state.drawn;
+ const nextRound=o.game.round||state.round;
+ const nextWinners=Array.isArray(o.winners)?o.winners.map(w=>({cardId:w.card_id,buyer:w.buyer_alias||'',roundName:w.round_name,pattern:w.pattern,prize:w.prize,position:w.position,at:w.created_at})):state.winners;
+ const changed=JSON.stringify(state.drawn||[])!==JSON.stringify(nextDrawn||[])||JSON.stringify(state.round||{})!==JSON.stringify(nextRound||{})||(Array.isArray(o.winners)&&JSON.stringify(state.winners||[])!==JSON.stringify(nextWinners||[]));
+ if(!changed)return;
+ state.drawn=nextDrawn;state.round=nextRound;state.winners=nextWinners;
+ if(typeof renderAll==='function')renderAll();
+}
+function applyRealtime(o){
+ if(!isAdmin()||!o?.game)return;
+ currentShow=o.game.show_state||{type:'idle'};
+ syncCloudGame(o);
+ renderShow();
+}
 async function refreshPublic(){try{const o=await api('overview',{},false);currentShow=o.game?.show_state||{type:'idle'};syncCloudGame(o);renderShow();}catch(e){console.warn('IMARA pública:',e.message);}}
 function ensureShowOverlay(){let o=document.getElementById('imaraShowOverlay');if(o)return o;o=document.createElement('div');o.id='imaraShowOverlay';o.className='imara-show-overlay hidden';document.body.appendChild(o);return o;}
 function stageFor(show){const interval=Number(show.interval_ms)||4500,started=new Date(show.started_at||0).getTime();if(!started)return 0;return Math.max(0,Math.min(3,Math.floor((Date.now()-started)/interval)));}
@@ -150,7 +165,17 @@ function renderShow(){
 function mountFactoryReset(){
  if(!isAdmin()||IS_PUBLIC||IS_MOBILE)return;const grid=document.querySelector('#view-settings .grid.two');if(!grid||document.getElementById('factoryReset2026'))return;const card=document.createElement('div');card.id='factoryReset2026';card.className='card factory-pin-card';card.innerHTML=`<div class="section-title"><div><h3>♻️ Reset de fábrica</h3><div class="muted">Deja el sistema limpio para una nueva entrega sin perder tu Admin actual.</div></div></div><div class="danger" style="margin-bottom:12px"><strong>Elimina:</strong> cartones, ventas, pagos, solicitudes de BINGO, ganadores, balotas y usuarios Miembro. Conserva únicamente el Admin conectado.</div><div class="notice" style="margin-bottom:12px">🔐 Solo Admin + PIN de reset. PIN configurado: <strong>0000</strong>.</div><button class="btn bad" id="factoryReset2026Btn">♻️ Reiniciar desde fábrica</button>`;grid.appendChild(card);card.querySelector('button').onclick=async e=>{const pin=prompt('Ingresa el PIN de reset:','');if(pin!=='0000'){alert('PIN incorrecto. Reset cancelado.');return;}if(!confirm('¿Seguro? Se eliminará toda la operación y los usuarios Miembro. Esta acción es irreversible sin backup.'))return;const token=sessionStorage.getItem(SESSION_KEY)||'';if(!token){alert('Inicia sesión nuevamente como Admin.');return;}const b=e.currentTarget,old=b.textContent;b.disabled=true;b.textContent='♻️ Reiniciando…';try{const r=await fetch(RESET_API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},cache:'no-store',body:JSON.stringify({confirmation:'REINICIAR'})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'No fue posible reiniciar.');const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i)||'';if(k==='bingoImaraStateV2'||k.startsWith('imaraMobileMarks:')||k.startsWith('imaraSound')||k.startsWith('bingoImara'))keys.push(k);}keys.forEach(k=>localStorage.removeItem(k));alert('✅ Bingo IMARA quedó limpio de fábrica. Tu cuenta Admin se conservó.');location.reload();}catch(err){alert(err.message);b.disabled=false;b.textContent=old;}};}
 
-function startAdmin(){if(adminPoll)return;mountAdminCenter();mountFactoryReset();ensurePrizeSelector();refreshAdminBingo();adminPoll=setInterval(()=>{mountAdminCenter();mountFactoryReset();ensurePrizeSelector();refreshAdminBingo();},5000);}
-function init(){installStyles();mountMobileBingo();ensurePrizeSelector();if(IS_PUBLIC){refreshPublic();setInterval(refreshPublic,1800);}else if(!IS_MOBILE){const wait=setInterval(()=>{if(isAdmin()){clearInterval(wait);startAdmin();}},700);}showTick=setInterval(renderShow,220);if(typeof renderAll==='function')renderAll();}
+function startAdmin(){if(adminStarted)return;adminStarted=true;mountAdminCenter();mountFactoryReset();ensurePrizeSelector();refreshAdminBingo();}
+function init(){
+ installStyles();mountMobileBingo();ensurePrizeSelector();
+ if(IS_PUBLIC){refreshPublic();setInterval(refreshPublic,1800);}
+ else if(!IS_MOBILE){
+   window.addEventListener('imara-game-realtime',e=>applyRealtime(e.detail));
+   window.addEventListener('imara-game-sync-request',()=>{if(isAdmin())refreshAdminBingo();});
+   const wait=setInterval(()=>{if(isAdmin()){clearInterval(wait);startAdmin();}},700);
+ }
+ showTick=setInterval(renderShow,220);
+ if(typeof renderAll==='function')renderAll();
+}
 init();
 })();
