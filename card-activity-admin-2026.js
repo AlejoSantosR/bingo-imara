@@ -124,6 +124,10 @@ async function load(showError){
  }catch(e){if(showError)alert(e.name==='AbortError'?'El servidor tardó demasiado. Intenta nuevamente.':e.message);}
  finally{loading=false;if(b){b.disabled=false;b.textContent=old||'🔄 Actualizar';}}
 }
+function cleanup(){document.getElementById('imaraActivityNav')?.remove();document.getElementById('view-activity')?.remove();}
+function onAuthReady(e){const r=String(e?.detail?.role||window.__IMARA_AUTH_READY__?.role||'');if(r==='admin')mount();else cleanup();}
+window.addEventListener('imara-auth-ready',onAuthReady);
+window.addEventListener('imara-auth-cleared',cleanup);
 function boot(n=0){if(mount())return;if(n<20)setTimeout(()=>boot(n+1),400);}
-boot();
+if(window.__IMARA_AUTH_READY__)onAuthReady({detail:window.__IMARA_AUTH_READY__});else boot();
 })();
