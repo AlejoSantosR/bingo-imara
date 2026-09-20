@@ -127,7 +127,7 @@ function installCss(){
 }
 
 function ensurePublicUi(){
-  if(!IS_PUBLIC)return null;
+  if(IS_MOBILE)return null;
   const main=document.querySelector('#view-public .public-main');if(!main)return null;
   let root=document.getElementById('imaraPrizeExperience');
   if(!root){root=document.createElement('section');root.id='imaraPrizeExperience';main.prepend(root);}
@@ -138,12 +138,19 @@ function winnerPrize(w){
   const title=String(w?.prize_title||w?.prizeTitle||'').trim()||raw.split(' · ')[1]||'Premio entregado';
   return {title,description:String(w?.prize_description||w?.prizeDescription||''),image:String(w?.prize_image||w?.prizeImage||'')};
 }
+function localNextPrize(){
+  const prizes=Array.isArray(state?.prizes)?state.prizes:[],wins=Array.isArray(state?.winners)?state.winners:[];
+  const usedIds=new Set(wins.map(w=>String(w.prizeId||w.prize_id||'')).filter(Boolean));
+  const usedText=wins.map(w=>String(w.prize||'').toLowerCase());
+  const p=prizes.find(x=>x?.title&&!usedIds.has(String(x.id))&&!usedText.some(t=>t.includes(String(x.title).toLowerCase())));
+  return p?{id:p.id,title:p.title,description:p.description||'',image_url:p.image_url||p.image||''}:null;
+}
 function renderPublic(data){
-  if(!IS_PUBLIC)return;
+  if(IS_MOBILE)return;
   latestPublic=data||latestPublic||{};
   const root=ensurePublicUi();if(!root)return;
   const g=latestPublic?.game||{},round=g.round||state?.round||{},show=g.show_state||{},wins=Array.isArray(latestPublic?.winners)?latestPublic.winners:[];
-  const next=latestPublic?.next_prize||null;
+  const next=latestPublic?.next_prize||localNextPrize();
   const delivered=wins.filter(w=>String(w?.prize||w?.prize_title||'').trim()).slice(0,20);
   const currentRoundHasWinner=delivered.some(w=>String(w?.round_name||'')===String(round.name||''));
   const useNext=(show.type==='winner'||currentRoundHasWinner)&&next;
@@ -176,8 +183,8 @@ function startAdminBootstrap(){
 installCss();
 ensureRoundSelector();
 startAdminBootstrap();
-window.addEventListener('imara-prizes-updated',()=>ensureRoundSelector());
-window.addEventListener('imara-game-realtime',()=>ensureRoundSelector());
+window.addEventListener('imara-prizes-updated',()=>{ensureRoundSelector();renderPublic({game:{round:state?.round||{},show_state:{type:'idle'}},winners:state?.winners||[],next_prize:localNextPrize()});});
+window.addEventListener('imara-game-realtime',e=>{ensureRoundSelector();setTimeout(()=>renderPublic({game:{round:state?.round||e.detail?.game?.round||{},show_state:e.detail?.game?.show_state||{type:'idle'}},winners:state?.winners||[],next_prize:localNextPrize()}),0);});
 window.addEventListener('imara-public-game-state',e=>renderPublic(e.detail||{}));
-if(IS_PUBLIC){ensurePublicUi();setTimeout(()=>renderPublic({game:{round:state?.round||{},show_state:{type:'idle'}},winners:state?.winners||[]}),80);}
+if(!IS_MOBILE){ensurePublicUi();setTimeout(()=>renderPublic({game:{round:state?.round||{},show_state:{type:'idle'}},winners:state?.winners||[],next_prize:localNextPrize()}),80);}
 })();
