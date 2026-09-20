@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demo · Ruleta 10 BINGOS · IMARA</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#07090f;color:#fff}
+body{min-height:100vh;display:grid;place-items:center;padding:18px;background:radial-gradient(circle at 50% 20%,#3d2615 0,#141017 40%,#06080d 78%)}
+.demo{width:min(1180px,98vw);position:relative;padding:34px 24px;border-radius:34px;text-align:center;background:linear-gradient(150deg,#21160e,#361f15);border:1px solid rgba(255,201,75,.5);box-shadow:0 35px 120px #000d,0 0 80px rgba(255,151,37,.22);overflow:hidden}
+.demo-badge{position:absolute;right:18px;top:16px;padding:7px 10px;border-radius:999px;background:#5d3ec9;border:1px solid #c5b7ff;font-size:11px;font-weight:1000;letter-spacing:.8px}
+.kicker{font-size:12px;letter-spacing:3px;font-weight:1000;color:#ffdca0}
+h1{margin:8px 0 0;font-size:clamp(42px,6vw,76px);line-height:.95;color:#fff0bd}
+.timer{width:90px;height:90px;margin:14px auto 18px;border-radius:50%;display:grid;place-items:center;border:4px solid #ffc94f;background:#130d08;font-size:28px;font-weight:1000;color:#fff0b5}
+.casino{position:relative;width:min(980px,94vw);height:270px;margin:12px auto 18px;padding:24px 34px;border-radius:34px;background:linear-gradient(180deg,#5a4630,#1f1812 16%,#0f0d0c 50%,#281c11 84%,#66502c);border:3px solid #d9a93b;box-shadow:0 20px 50px #000a,0 0 50px rgba(255,191,55,.22),inset 0 2px 0 rgba(255,244,197,.25)}
+.casino:before,.casino:after{content:"";position:absolute;top:50%;width:28px;height:172px;transform:translateY(-50%);border-radius:14px;background:linear-gradient(90deg,#60421e,#f0c45f 45%,#6b4b21);box-shadow:0 0 18px rgba(255,206,85,.35)}
+.casino:before{left:8px}.casino:after{right:8px}
+.lights{position:absolute;left:70px;right:70px;top:8px;height:8px;background:radial-gradient(circle,#fff1b7 0 3px,transparent 4px) 0 0/28px 7px repeat-x;opacity:.85;animation:blink .75s linear infinite}
+.window{position:relative;width:100%;height:100%;overflow:hidden;border-radius:28px;background:linear-gradient(180deg,#111,#26221d 17%,#090909 50%,#26211c 83%,#111);border:3px solid rgba(255,224,143,.62);box-shadow:inset 0 0 42px #000,0 0 18px rgba(255,211,93,.18);-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.track{position:absolute;left:50%;top:50%;display:flex;align-items:center;gap:14px;will-change:transform;white-space:nowrap}
+.item{flex:0 0 clamp(190px,21vw,260px);height:158px;display:grid;place-items:center;text-align:center;padding:14px 12px;border-radius:20px;background:linear-gradient(180deg,#403428,#16120e 48%,#302419);border:1px solid rgba(255,215,118,.28);color:#fff0bd;font-size:clamp(24px,2.6vw,36px);font-weight:1000;line-height:1.05;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 8px 18px #0008;transform:scale(.8);opacity:.34;filter:blur(.45px)}
+.item small{display:block;margin-top:8px;color:#f0c76a;font-size:14px;font-weight:900;letter-spacing:.35px}
+.item.near{opacity:.82;transform:scale(.92);filter:none}.item.current{opacity:1;transform:scale(1.1);filter:none;color:#fff8d9;border-color:#ffd66f;box-shadow:0 0 34px rgba(255,204,80,.36),inset 0 0 24px rgba(255,203,73,.1)}
+.marker{position:absolute;z-index:6;left:50%;top:12px;bottom:12px;width:clamp(206px,23vw,278px);transform:translateX(-50%);border:3px solid #ffd45d;border-radius:22px;box-shadow:0 0 22px rgba(255,205,76,.48),inset 0 0 18px rgba(255,205,76,.1);pointer-events:none}
+.list{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px}.chip{padding:9px 12px;border-radius:14px;font-size:12px;background:#17100c;border:1px solid rgba(255,211,118,.25);color:#fff1c9}.chip small{display:block;color:#ffc963;font-size:9px;margin-top:3px}
+.sub{margin-top:14px;color:#e4cfb5;font-size:14px;line-height:1.35}
+.actions{display:flex;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap}
+button{border:1px solid rgba(255,224,141,.35);background:#241a10;color:#ffe9af;border-radius:999px;padding:10px 16px;font-weight:900;cursor:pointer}
+button.primary{background:linear-gradient(135deg,#ff5b8f,#8d6bff);color:#fff;border:0}
+.winner{display:none}.demo.done .casino,.demo.done .list,.demo.done .timer,.demo.done .spin-title{display:none}.demo.done .winner{display:block}
+.trophy{font-size:64px;margin-top:22px}.winner-name{font-size:clamp(38px,6vw,68px);font-weight:1000;color:#fff8d7;text-shadow:0 0 28px rgba(255,214,99,.24)}.winner-id{margin-top:8px;font-size:18px;font-weight:900;color:#ffd26f}.ribbon{width:min(520px,92%);margin:12px auto;padding:13px 26px;background:linear-gradient(180deg,#ffe38a,#d99b22 52%,#a9660b);color:#291704;font-size:clamp(22px,4.5vw,38px);font-weight:1000}
+.note{margin-top:14px;font-size:12px;color:#bda98a}
+@keyframes blink{50%{opacity:.25}}
+@media(max-width:700px){.demo{padding:26px 12px}.casino{height:220px;padding:20px 28px}.item{flex-basis:clamp(165px,60vw,220px);height:132px;font-size:24px}.marker{width:clamp(182px,64vw,238px)}}
+</style>
+</head>
+<body>
+<main class="demo" id="demo">
+  <div class="demo-badge">DEMO · NO TOCA EL JUEGO REAL</div>
+  <div class="kicker">🔥 EMPATE · 10 BINGOS VÁLIDOS 🔥</div>
+  <h1 class="spin-title">RULETA DE DESEMPATE</h1>
+  <div class="timer" id="timer">10s</div>
+  <section class="casino">
+    <div class="lights"></div>
+    <div class="window">
+      <div class="track" id="track"></div>
+      <div class="marker"></div>
+    </div>
+  </section>
+  <div class="list" id="list"></div>
+  <div class="sub" id="sub">La ruleta está girando con 10 participantes pagados reales de Bingo IMARA, usados aquí solo como demostración visual.</div>
+  <section class="winner" id="winner">
+    <div class="trophy">🏆</div>
+    <div class="ribbon">✨ GANADOR DEL DEMO ✨</div>
+    <div class="winner-name" id="winnerName"></div>
+    <div class="winner-id" id="winnerId"></div>
+    <div class="sub">Así se vería la revelación final. Este demo no registra ni modifica ningún ganador real.</div>
+  </section>
+  <div class="actions">
+    <button class="primary" id="restart">▶ Repetir demo</button>
+  </div>
+  <div class="note">Participantes tomados de ventas aprobadas del juego real. El resultado de esta página es aleatorio y únicamente demostrativo.</div>
+</main>
+<script>
+const people=[
+ {name:"Alejandra Ochoa",id:"IMARA-084"},
+ {name:"Alejandra Riaño",id:"IMARA-104"},
+ {name:"Alejandro Rodriguez",id:"IMARA-032"},
+ {name:"Alfonso Gómez",id:"IMARA-105"},
+ {name:"Ana Isabel Ramirez",id:"IMARA-067"},
+ {name:"Ana Pico",id:"IMARA-079"},
+ {name:"Angélica Lavandería La Confianza",id:"IMARA-058"},
+ {name:"Arlet Beltran",id:"IMARA-015"},
+ {name:"Bernardo Pinilla",id:"IMARA-076"},
+ {name:"Blanca Amorocho",id:"IMARA-089"}
+];
+const demo=document.getElementById('demo'),track=document.getElementById('track'),list=document.getElementById('list'),timer=document.getElementById('timer'),sub=document.getElementById('sub');
+let raf=0,start=0,winnerIndex=0;
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+function setup(){
+ cancelAnimationFrame(raf);demo.classList.remove('done');track.innerHTML='';list.innerHTML='';
+ const repeated=[];for(let r=0;r<16;r++)people.forEach(p=>repeated.push(p));
+ track.innerHTML=repeated.map(p=>`<div class="item"><div><b>${esc(p.name)}</b><small>${esc(p.id)}</small></div></div>`).join('');
+ list.innerHTML=people.map(p=>`<div class="chip"><b>${esc(p.name)}</b><small>${esc(p.id)}</small></div>`).join('');
+ const a=new Uint32Array(1);crypto.getRandomValues(a);winnerIndex=a[0]%people.length;
+ start=performance.now();frame();
+}
+function frame(now=performance.now()){
+ const elapsed=now-start,dur=10000,left=Math.max(0,Math.ceil((dur-elapsed)/1000));timer.textContent=left+'s';
+ const items=[...track.children],first=items[0],step=(first?.getBoundingClientRect().width||225)+14;
+ const base=people.length*4,progress=elapsed/120,pos=base+progress;
+ track.style.transform=`translate3d(${-(pos*step+step/2)}px,-50%,0)`;
+ items.forEach((el,i)=>{const d=Math.abs(i-pos);el.classList.toggle('current',d<.5);el.classList.toggle('near',d>=.5&&d<1.55)});
+ if(elapsed<dur){raf=requestAnimationFrame(frame);return}
+ const cur=Math.round(pos),curIdx=((cur%people.length)+people.length)%people.length,delta=((winnerIndex-curIdx)%people.length+people.length)%people.length,target=cur+people.length*3+delta;
+ const from=-(pos*step+step/2),to=-(target*step+step/2);
+ sub.textContent='✨ Los rodillos están frenando sobre el ganador del demo…';
+ const an=track.animate([{transform:`translate3d(${from}px,-50%,0)`},{transform:`translate3d(${to}px,-50%,0)`}],{duration:2300,easing:'cubic-bezier(.08,.82,.17,1)',fill:'forwards'});
+ an.onfinish=()=>setTimeout(()=>{
+   const w=people[winnerIndex];
+   document.getElementById('winnerName').textContent=w.name;
+   document.getElementById('winnerId').textContent=w.id;
+   demo.classList.add('done');
+   sub.textContent='';
+ },250);
+}
+document.getElementById('restart').addEventListener('click',setup);
+setup();
+</script>
+</body>
+</html>
