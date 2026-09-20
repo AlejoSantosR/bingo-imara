@@ -16,7 +16,7 @@ function renderDashboard(){
     <div style="font-size:24px;font-weight:900">${escapeHtml(state.round.name)}</div>
     <div class="muted" style="margin-top:4px">Gana: ${patternName(state.round.pattern)}</div>
     <div style="margin-top:10px"><span class="badge ${state.round.status==='open'?'Pagado':'Anulado'}">${state.round.status==='open'?'Abierta':'Cerrada'}</span></div>
-    <div style="margin-top:12px">${state.round.prize ? (state.round.reveal?`🎁 ${escapeHtml(state.round.prize)}`:'🎁 Premio sorpresa') : '🎁 Premio por definir'}</div>`;
+    <div style="margin-top:12px">🎁 ${escapeHtml(state.round.prizeTitle||state.round.prize||'Premio por definir')}</div>`;
   document.getElementById('activityList').innerHTML=state.activity.length?state.activity.slice(0,10).map(a=>`<div style="padding:9px 0;border-bottom:1px solid var(--line)"><strong>${new Date(a.at).toLocaleString('es-CO')}</strong><br><span class="muted">${escapeHtml(a.text)}</span></div>`).join(''):'Aún no hay movimientos.';
 }
 
@@ -85,7 +85,7 @@ function renderWinners(){
   const el=document.getElementById('winnersList');
   el.innerHTML=state.winners.length?state.winners.map(w=>`
     <div style="display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)">
-      <div><strong>🏆 ${escapeHtml(w.cardId)}</strong> · ${escapeHtml(w.buyer||'Sin nombre')}<div class="muted">${escapeHtml(w.roundName)} · ${patternName(w.pattern)}</div></div>
+      <div><strong>🏆 ${escapeHtml(w.cardId)}</strong> · ${escapeHtml(w.buyer||'Sin nombre')}<div class="muted">${escapeHtml(w.roundName)} · ${patternName(w.pattern)}${w.prizeTitle?' · 🎁 '+escapeHtml(w.prizeTitle):''}</div></div>
       <div class="muted">${new Date(w.at).toLocaleString('es-CO')}</div>
     </div>`).join(''):'Aún no hay ganadores.';
 }
@@ -100,7 +100,7 @@ function renderPublic(){
   document.getElementById('publicPattern').textContent=`Gana: ${patternName(state.round.pattern)}`;
   document.getElementById('publicDrawCount').textContent=`${state.drawn.length} balotas llamadas`;
   document.getElementById('publicMode').textContent=`Modo 1–${state.settings.ballMax}`;
-  document.getElementById('publicPrize').textContent=state.round.reveal && state.round.prize ? `🎁 ${state.round.prize}` : '🎁 SORPRESA';
+  const legacyPrize=document.getElementById('publicPrize');if(legacyPrize)legacyPrize.textContent=`🎁 ${state.round.prizeTitle||state.round.prize||'Premio de la ronda'}`;
   renderBoard('publicBoard');
   const latest=state.winners[0];
   document.getElementById('publicWinner').innerHTML=latest?`<div class="winner-banner">🏆 ¡TENEMOS GANADOR! · ${escapeHtml(latest.cardId)} ${latest.buyer?`· ${escapeHtml(latest.buyer)}`:''}</div>`:'';
