@@ -321,6 +321,15 @@ function mount(data,base){
     .imara-player-original-controls .mobile-person>div{
       padding:7px 8px!important;
     }
+    .imara-player-original-controls .mobile-person>div:last-child strong{
+      white-space:normal!important;
+      overflow:visible!important;
+      text-overflow:clip!important;
+      word-break:break-word!important;
+      overflow-wrap:anywhere!important;
+      line-height:1.2!important;
+      font-size:12px!important;
+    }
     .imara-player-original-controls #mobileRoundLive,
     .imara-player-original-controls .mobile-round-live{
       padding:7px!important;
