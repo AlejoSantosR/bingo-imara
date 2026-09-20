@@ -200,11 +200,13 @@ function paint(){
    return;
  }
  if(s.type==='tie'){
+   if(window.__imaraTieVisual2026){hideOverlay();if(!IS_PUBLIC)resolveTieIfNeeded();return;}
    const list=uniq(s.candidates||[]),start=new Date(s.started_at||0).getTime(),elapsed=Math.max(0,Date.now()-start),idx=list.length?Math.floor(elapsed/160)%list.length:0,c=list[idx]||{};
    o.classList.remove('hidden');o.innerHTML=`<div class="b3-card"><div class="b3-kicker">🔥 EMPATE · RULETA IMARA 🔥</div><div class="b3-wheel-wrap"><div class="b3-pointer"></div><div class="b3-wheel"></div><div class="b3-wheel-name">${esc(person(c))}</div></div><div class="b3-tie-list">${list.map(x=>esc(person(x))).join(' · ')}</div><div class="b3-sub">La ruleta está definiendo el ganador del desempate…</div></div>`;
    if(!IS_PUBLIC)resolveTieIfNeeded();return;
  }
  if(s.type==='winner'){
+   if(window.__imaraTieVisual2026){hideOverlay();document.getElementById('imaraShowOverlay')?.classList.add('hidden');document.getElementById('winnerCountdownOverlay')?.classList.remove('show');return;}
    if(!IS_PUBLIC){o.classList.add('hidden');document.getElementById('imaraShowOverlay')?.classList.add('hidden');document.getElementById('winnerCountdownOverlay')?.classList.remove('show');return;}
    const w=s.winner||{};o.classList.remove('hidden');o.innerHTML=`<div class="b3-card"><div class="b3-kicker">🏆 GANADOR CONFIRMADO</div><div class="b3-main">¡BINGO!</div><div class="b3-name">${esc(w.buyer_alias||w.card_id||'GANADOR')}</div><div class="b3-sub">${esc(w.card_id||'')}${w.prize?' · '+esc(w.prize):''}</div></div>`;return;
  }
