@@ -131,6 +131,8 @@ function mount(data,base){
   const others=cards.filter(c=>String(c.id)!==String(base.id));
   if(!others.length)return;
 
+  document.body.classList.add('imara-has-player-cards');
+
   const wrap=document.createElement('section');
   wrap.id='imaraPlayerCards2026';
   wrap.className='imara-player-cards';
@@ -150,14 +152,55 @@ function mount(data,base){
   const style=document.createElement('style');
   style.id='imaraPlayerCards2026Style';
   style.textContent=`
-    .imara-player-cards{margin-top:18px;padding-top:18px;border-top:1px solid #34415f}
+    html{height:auto!important;min-height:100%!important;overflow-y:auto!important;overflow-x:hidden!important}
+    body.imara-mobile-body.imara-has-player-cards{
+      height:auto!important;
+      min-height:100dvh!important;
+      overflow-y:auto!important;
+      overflow-x:hidden!important;
+      overscroll-behavior-y:auto!important;
+      -webkit-overflow-scrolling:touch!important;
+      padding-bottom:max(28px,env(safe-area-inset-bottom))!important;
+    }
+    body.imara-mobile-body.imara-has-player-cards .mobile-card-shell{
+      height:auto!important;
+      min-height:calc(100dvh - 16px)!important;
+      overflow:visible!important;
+      display:flex!important;
+      flex-direction:column!important;
+      grid-template-columns:none!important;
+      grid-template-rows:none!important;
+    }
+    body.imara-mobile-body.imara-has-player-cards .mobile-card-top,
+    body.imara-mobile-body.imara-has-player-cards .mobile-person,
+    body.imara-mobile-body.imara-has-player-cards #mobileRoundLive,
+    body.imara-mobile-body.imara-has-player-cards .mobile-round-live,
+    body.imara-mobile-body.imara-has-player-cards .mobile-actions,
+    body.imara-mobile-body.imara-has-player-cards .mobile-bingo-btn,
+    body.imara-mobile-body.imara-has-player-cards #mobileBingoBtn,
+    body.imara-mobile-body.imara-has-player-cards .mobile-note,
+    body.imara-mobile-body.imara-has-player-cards #imaraPushBell,
+    body.imara-mobile-body.imara-has-player-cards .imara-push-bell{
+      grid-column:auto!important;
+      grid-row:auto!important;
+    }
+    body.imara-mobile-body.imara-has-player-cards .mobile-grid{
+      flex:0 0 auto!important;
+      height:auto!important;
+      min-height:0!important;
+      grid-column:auto!important;
+      grid-row:auto!important;
+      grid-template-rows:repeat(6,minmax(38px,48px))!important;
+      overflow:visible!important;
+    }
+    .imara-player-cards{flex:0 0 auto!important;width:100%;margin-top:18px;padding-top:18px;padding-bottom:18px;border-top:1px solid #34415f}
     .imara-player-cards-title{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:8px}
     .imara-player-cards-title span{display:block;font-size:10px;letter-spacing:1.2px;color:#aeb8ca;font-weight:900}
     .imara-player-cards-title h2{font-size:20px;margin:3px 0 0}
     .imara-player-cards-title>strong{font-size:13px;color:#d8def0;text-align:right}
     .imara-player-cards-help{margin:0 0 12px;padding:10px 12px;border-radius:13px;background:rgba(141,107,255,.10);border:1px solid rgba(141,107,255,.24);font-size:12px;line-height:1.45;color:#dce2ee}
     .imara-player-cards-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-    .imara-player-card{padding:12px;border-radius:16px;background:#141e33;border:1px solid #34415f}
+    .imara-player-card{padding:12px;border-radius:16px;background:#141e33;border:1px solid #34415f}\n    .imara-player-card.current{border-color:#9a78ff;box-shadow:0 0 0 2px rgba(141,107,255,.16)}
     .imara-player-card-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:9px}
     .imara-player-card-head>div span{display:block;font-size:9px;letter-spacing:1px;color:#aeb8ca;text-transform:uppercase}
     .imara-player-card-head>div strong{display:block;font-size:15px;margin-top:2px}
@@ -171,8 +214,14 @@ function mount(data,base){
     .imara-player-mini-cell.free::after{display:none}
     .imara-player-card-actions{display:grid;grid-template-columns:1fr 1.1fr;gap:6px;margin-top:9px}
     .imara-player-card-actions button{min-height:36px;border:1px solid #3a4768;border-radius:10px;background:#1a2540;color:#fff;font-weight:900;font-size:10px}
-    .imara-player-card-actions button.primary{background:linear-gradient(135deg,#ff5b8f,#8d6bff);border:0}
+    .imara-player-card-actions button.primary{background:linear-gradient(135deg,#ff5b8f,#8d6bff);border:0}\n    .imara-player-card-actions button:disabled{opacity:.72;cursor:default;background:#27324b!important;border:1px solid #3a4768!important}
+    @media(min-width:521px){
+      .imara-player-cards-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
     @media(max-width:520px){
+      body.imara-mobile-body.imara-has-player-cards .mobile-grid{
+        grid-template-rows:repeat(6,minmax(34px,44px))!important;
+      }
       .imara-player-cards-grid{grid-template-columns:1fr}
       .imara-player-cards-title{align-items:flex-start;flex-direction:column}
       .imara-player-cards-title>strong{text-align:left}
@@ -181,7 +230,17 @@ function mount(data,base){
   document.head.appendChild(style);
 
   const host=wrap.querySelector('[data-cards]');
-  others.forEach(card=>host.appendChild(buildMiniCard(card,base)));
+  cards.forEach(card=>{
+    const node=buildMiniCard(card,base);
+    if(String(card.id)===String(base.id)){
+      node.classList.add('current');
+      const state=node.querySelector('.imara-player-card-state');
+      if(state)state.textContent='👁 Abierto';
+      const open=node.querySelector('[data-open]');
+      if(open){open.disabled=true;open.textContent='✓ Cartón actual';}
+    }
+    host.appendChild(node);
+  });
   shell.appendChild(wrap);
 }
 
