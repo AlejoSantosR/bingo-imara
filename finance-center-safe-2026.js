@@ -109,9 +109,9 @@ function renderRows(){const host=document.getElementById('financeRows');if(!host
 function historyMeta(e){
  const action=String(e?.action||''),note=String(e?.note||''),low=note.toLowerCase();
  if(low.includes('vendedor'))return {icon:'👤',label:'Cambio de vendedor',money:false,kind:'seller'};
- if(low.includes('medio')||low.includes('nequi')||low.includes('daviplata')||low.includes('rappi')||low.includes('bre-b'))return {icon:'💳',label:action==='payment'?'Abono recibido':'Cambio de medio de pago',money:action==='payment',kind:'method'};
- if(action==='contact_update'||low.includes('comprador')||low.includes('celular'))return {icon:'📱',label:'Datos del comprador corregidos',money:false,kind:'contact'};
- if(action==='payment')return {icon:'💵',label:'Abono recibido',money:true,kind:'payment'};
+ if(low.includes('abono recibido'))return {icon:'💵',label:'Abono recibido',money:true,kind:'payment'};
+ if(low.includes('medio')||low.includes('nequi')||low.includes('daviplata')||low.includes('rappi')||low.includes('bre-b'))return {icon:'💳',label:'Cambio de medio de pago',money:false,kind:'method'};
+ if(low.includes('datos del comprador')||low.includes('comprador')||low.includes('celular'))return {icon:'📱',label:'Datos del comprador corregidos',money:false,kind:'contact'};
  if(action==='approved')return {icon:'✅',label:'Venta saldada',money:true,kind:'approved'};
  if(action==='pending')return {icon:'⏳',label:'Saldo pendiente',money:true,kind:'pending'};
  if(action==='refunded')return {icon:'↩️',label:'Devolución',money:true,kind:'refund'};
