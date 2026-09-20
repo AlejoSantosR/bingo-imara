@@ -66,8 +66,12 @@ function syncCloudGame(o){
  if(!o?.game||typeof state==='undefined')return;
  const nextDrawn=Array.isArray(o.game.drawn)?o.game.drawn.map(Number):state.drawn;
  const nextRound=o.game.round||state.round;
- const nextWinners=Array.isArray(o.winners)?o.winners.map(w=>({cardId:w.card_id,buyer:w.buyer_alias||'',roundName:w.round_name,pattern:w.pattern,prize:w.prize,prizeId:w.prize_id||'',prizeTitle:w.prize_title||'',prizeDescription:w.prize_description||'',prizeImage:w.prize_image||'',position:w.position,at:w.created_at})):state.winners;
- const changed=JSON.stringify(state.drawn||[])!==JSON.stringify(nextDrawn||[])||JSON.stringify(state.round||{})!==JSON.stringify(nextRound||{})||(Array.isArray(o.winners)&&JSON.stringify(state.winners||[])!==JSON.stringify(nextWinners||[]));
+ let nextWinners=Array.isArray(o.winners)?o.winners.map(w=>({cardId:w.card_id,buyer:w.buyer_alias||'',roundName:w.round_name,pattern:w.pattern,prize:w.prize,prizeId:w.prize_id||'',prizeTitle:w.prize_title||'',prizeDescription:w.prize_description||'',prizeImage:w.prize_image||'',position:w.position,at:w.created_at})):state.winners;
+ const sw=o.game?.show_state?.type==='winner'?o.game.show_state.winner:null;
+ if(sw?.card_id&&!nextWinners.some(w=>String(w.cardId)===String(sw.card_id))){
+   nextWinners=[{cardId:sw.card_id,buyer:sw.buyer_alias||'',roundName:sw.round_name||nextRound?.name||'',pattern:nextRound?.pattern||'',prize:sw.prize||nextRound?.prize||'',prizeId:sw.prize_id||nextRound?.prizeId||'',prizeTitle:sw.prize_title||nextRound?.prizeTitle||'',prizeDescription:sw.prize_description||nextRound?.prizeDescription||'',prizeImage:sw.prize_image||nextRound?.prizeImage||'',position:sw.position,at:o.game?.updated_at||new Date().toISOString()},...nextWinners];
+ }
+ const changed=JSON.stringify(state.drawn||[])!==JSON.stringify(nextDrawn||[])||JSON.stringify(state.round||{})!==JSON.stringify(nextRound||{})||JSON.stringify(state.winners||[])!==JSON.stringify(nextWinners||[]);
  if(!changed)return;
  state.drawn=nextDrawn;state.round=nextRound;state.winners=nextWinners;
  if(typeof renderAll==='function')renderAll();
