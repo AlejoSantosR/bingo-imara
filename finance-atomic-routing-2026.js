@@ -7,7 +7,7 @@ if(location.hash.startsWith('#public')||location.hash.startsWith('#mobile='))ret
 if(window.__imaraFinanceAtomicRouting2026)return;window.__imaraFinanceAtomicRouting2026=true;
 const OLD='/functions/v1/bingo-finance';
 const NEW='https://fpevaukkbtruplwptufu.supabase.co/functions/v1/bingo-finance-atomic';
-const ATOMIC=new Set(['finance-update','finance-card-status','admin-sale-record']);
+const ATOMIC=new Set(['finance-update','finance-card-status','admin-sale-record','finance-payment-add','finance-contact-update','finance-bulk-correct']);
 const previousFetch=window.fetch.bind(window);
 window.fetch=function(input,init){
  try{
