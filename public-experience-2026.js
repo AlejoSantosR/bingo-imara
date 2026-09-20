@@ -80,20 +80,34 @@ function installCss(){
  #imaraPublicLiveStatus[data-type="tie"]{background:rgba(141,107,255,.10);border-color:rgba(177,158,255,.34)}
  #imaraPublicLiveStatus[data-type="winner"]{background:rgba(43,212,167,.09);border-color:rgba(43,212,167,.32)}
  .ipl-label{font-size:9px;font-weight:1000;letter-spacing:1.5px;text-transform:uppercase;color:#98a6be}.ipl-main{font-size:13px;font-weight:900;color:#f7f3e9;margin-top:4px;line-height:1.25}.ipl-sub{font-size:10px;color:#aeb8ca;margin-top:4px;line-height:1.3}
- #publicBoard .num.hit{cursor:zoom-in;position:relative}
- #publicBoard .num.hit:hover{transform:translateY(-2px) scale(1.05);filter:brightness(1.14);z-index:2}
- #publicLastBall:not(:empty){cursor:zoom-in}
- #imaraBallFocus{position:fixed;inset:0;z-index:2147483100;display:grid;place-items:center;padding:24px;background:rgba(4,7,14,.46);backdrop-filter:blur(15px) saturate(.72);-webkit-backdrop-filter:blur(15px) saturate(.72);opacity:0;pointer-events:none;transition:opacity .22s ease}
- #imaraBallFocus.open{opacity:1;pointer-events:auto}
- .ibf-stage{position:relative;width:min(520px,88vw);display:grid;justify-items:center;gap:14px;animation:ibfIn .35s cubic-bezier(.16,1.15,.3,1)}
- .ibf-kicker{font-size:11px;letter-spacing:3px;font-weight:1000;color:#ffe18b;text-transform:uppercase;text-shadow:0 3px 12px #000}
- .ibf-ball{width:min(320px,68vw);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;position:relative;background:radial-gradient(circle at 32% 25%,#fff,#edf0f8 47%,#aab6cf 75%,#737f99);color:#10182a;box-shadow:0 34px 90px rgba(0,0,0,.55),inset 0 -26px 46px rgba(0,0,0,.18),0 0 0 9px rgba(255,255,255,.05)}
- .ibf-ball::after{content:"";position:absolute;left:20%;top:13%;width:29%;height:15%;border-radius:50%;background:rgba(255,255,255,.66);filter:blur(2px);transform:rotate(-18deg)}
- .ibf-code{position:relative;z-index:1;text-align:center}.ibf-letter{display:block;font-size:clamp(28px,6vw,48px);font-weight:1000;color:#8d6bff;line-height:1}.ibf-number{display:block;font-size:clamp(92px,20vw,150px);font-weight:1000;line-height:.83;letter-spacing:-7px}
- .ibf-hint{font-size:11px;color:#d1d7e4;text-align:center}.ibf-close{border:1px solid rgba(255,255,255,.16);background:rgba(15,23,40,.78);color:#fff;padding:8px 13px;border-radius:999px;font-size:11px;font-weight:800}
+ #publicBoard{cursor:zoom-in;transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
+ #publicBoard:hover{transform:translateY(-2px);filter:brightness(1.035);box-shadow:0 0 0 1px rgba(255,216,104,.16),0 18px 42px rgba(0,0,0,.22)}
+ #publicBoard::after{content:"🔍 Clic para ampliar tablero";grid-column:1/-1;display:block;margin-top:4px;text-align:center;font-size:10px;font-weight:900;letter-spacing:.8px;color:#8f9cb3;opacity:.82}
+ #imaraBoardFocus{position:fixed;inset:0;z-index:2147483100;display:grid;place-items:center;padding:24px;background:rgba(4,7,14,.52);backdrop-filter:blur(16px) saturate(.7);-webkit-backdrop-filter:blur(16px) saturate(.7);opacity:0;pointer-events:none;transition:opacity .22s ease}
+ #imaraBoardFocus.open{opacity:1;pointer-events:auto}
+ .iboard-stage{width:min(1540px,96vw);max-height:94vh;overflow:auto;padding:22px;border-radius:30px;background:linear-gradient(160deg,rgba(17,25,43,.98),rgba(18,22,38,.98));border:1px solid rgba(255,216,104,.28);box-shadow:0 36px 110px rgba(0,0,0,.68);animation:iboardIn .32s cubic-bezier(.16,1.1,.3,1)}
+ .iboard-top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:15px}
+ .iboard-kicker{font-size:11px;letter-spacing:2.4px;font-weight:1000;color:#ffe18b;text-transform:uppercase}
+ .iboard-title{font-size:clamp(22px,3vw,38px);font-weight:1000;color:#fff3cf;margin-top:3px}
+ .iboard-meta{font-size:11px;color:#aeb8ca;margin-top:4px}
+ .iboard-close{border:1px solid rgba(255,255,255,.15);background:#1c2740;color:#fff;border-radius:999px;padding:9px 14px;font-weight:900}
+ .iboard-clone{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:14px!important;align-items:start!important}
+ .iboard-clone .letter-zone{padding:12px!important;border-radius:18px!important;background:rgba(7,12,22,.48)!important;border:1px solid rgba(91,111,151,.55)!important}
+ .iboard-clone .letter-zone-title{padding:10px 12px!important;margin-bottom:10px!important;border-radius:12px!important}
+ .iboard-clone .letter-zone-title strong{font-size:clamp(22px,2vw,32px)!important}
+ .iboard-clone .letter-zone-title small{font-size:11px!important}
+ .iboard-clone .letter-zone-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important}
+ .iboard-clone .num{min-height:clamp(48px,4.7vw,72px)!important;aspect-ratio:auto!important;border-radius:12px!important;padding:5px!important;cursor:default!important}
+ .iboard-clone .num .ball-letter{font-size:clamp(9px,.8vw,12px)!important}
+ .iboard-clone .num .ball-number{font-size:clamp(17px,1.55vw,25px)!important;line-height:1.05!important}
+ .iboard-clone .num.hit{box-shadow:0 0 0 2px rgba(255,255,255,.08),0 0 28px rgba(255,91,143,.28)!important}
+ .iboard-hint{text-align:center;margin-top:13px;font-size:11px;color:#b4bfd2}
+ @keyframes iboardIn{from{opacity:0;transform:scale(.8) translateY(18px)}to{opacity:1;transform:none}}
+ @media(max-width:980px){.iboard-stage{padding:15px}.iboard-clone{grid-template-columns:repeat(2,minmax(0,1fr))!important}.iboard-clone .num{min-height:52px!important}}
+ @media(max-width:620px){.iboard-clone{grid-template-columns:1fr!important}.iboard-top{align-items:flex-start}.iboard-stage{max-height:92vh}}
  @keyframes ipgTarget{from{filter:brightness(.94);box-shadow:0 0 8px rgba(255,205,74,.12)}to{filter:brightness(1.07);box-shadow:0 0 20px rgba(255,205,74,.32)}}@keyframes ibfIn{from{opacity:0;transform:scale(.72) translateY(15px)}to{opacity:1;transform:none}}
  @media(max-width:1100px){#imaraPublicGuide{max-width:620px;margin:20px auto 0}.ipg-card{max-width:300px}}
- @media(prefers-reduced-motion:reduce){.ipg-cell.target,.ibf-stage{animation:none!important}}
+ @media(prefers-reduced-motion:reduce){.ipg-cell.target,.iboard-stage{animation:none!important}}
  `;document.head.appendChild(s);
 }
 
@@ -146,33 +160,28 @@ function renderLive(show,round){
  el.dataset.type=kind;el.innerHTML=`<div class="ipl-label">${esc(label)}</div><div class="ipl-main">${esc(main)}</div><div class="ipl-sub">${esc(sub)}</div>`;
 }
 
-function ballLetter(n,max){
- n=Number(n);max=Number(max)||99;if(!n)return '';
- if(max===75){return ['B','I','N','G','O'][Math.min(4,Math.floor((n-1)/15))];}
- const size=Math.ceil(max/5);return ['B','I','N','G','O'][Math.min(4,Math.floor((n-1)/size))];
-}
-function focusOverlay(){
- let o=document.getElementById('imaraBallFocus');if(o)return o;
- o=document.createElement('div');o.id='imaraBallFocus';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label','Balota ampliada');
- o.innerHTML='<div class="ibf-stage"><div class="ibf-kicker">BALOTA LLAMADA</div><div class="ibf-ball"><div class="ibf-code"><span class="ibf-letter"></span><span class="ibf-number"></span></div></div><div class="ibf-hint">Clic fuera de la balota o presiona Esc para volver</div><button type="button" class="ibf-close">Cerrar</button></div>';
+function boardFocusOverlay(){
+ let o=document.getElementById('imaraBoardFocus');if(o)return o;
+ o=document.createElement('div');o.id='imaraBoardFocus';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label','Tablero de balotas ampliado');
+ o.innerHTML='<div class="iboard-stage"><div class="iboard-top"><div><div class="iboard-kicker">🔎 TABLERO AMPLIADO</div><div class="iboard-title">Balotas de la ronda</div><div class="iboard-meta"></div></div><button type="button" class="iboard-close">✕ Cerrar</button></div><div class="iboard-clone"></div><div class="iboard-hint">Los números resaltados son los que ya salieron · Clic fuera del tablero o Esc para volver</div></div>';
  document.body.appendChild(o);
- o.addEventListener('click',e=>{if(e.target===o||e.target.closest('.ibf-close'))closeFocus();});
+ o.addEventListener('click',e=>{if(e.target===o||e.target.closest('.iboard-close'))closeBoardFocus();});
  return o;
 }
-function openFocus(n){
- n=Number(String(n).replace(/\D/g,''));if(!n)return;
- const o=focusOverlay(),max=latest?.game?.round?.ballMax||state?.settings?.ballMax||99;
- o.querySelector('.ibf-letter').textContent=ballLetter(n,max);
- o.querySelector('.ibf-number').textContent=String(n).padStart(2,'0');
+function openBoardFocus(){
+ const source=document.getElementById('publicBoard');if(!source)return;
+ const o=boardFocusOverlay(),clone=o.querySelector('.iboard-clone');
+ clone.innerHTML=source.innerHTML;
+ const round=latest?.game?.round||state?.round||{},drawn=latest?.game?.drawn||state?.drawn||[];
+ o.querySelector('.iboard-title').textContent=round.name||'Ronda actual';
+ o.querySelector('.iboard-meta').textContent=(LABELS[round.pattern]||round.pattern||'')+' · '+(Array.isArray(drawn)?drawn.length:0)+' balotas llamadas';
  requestAnimationFrame(()=>o.classList.add('open'));
 }
-function closeFocus(){document.getElementById('imaraBallFocus')?.classList.remove('open');}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeFocus();});
+function closeBoardFocus(){document.getElementById('imaraBoardFocus')?.classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeBoardFocus();});
 VIEW.addEventListener('click',e=>{
- const hit=e.target.closest?.('#publicBoard .num.hit');
- if(hit){e.preventDefault();openFocus(hit.textContent);return;}
- const last=e.target.closest?.('#publicLastBall');
- if(last&&String(last.textContent||'').trim()!=='—'){e.preventDefault();openFocus(last.textContent);}
+ const board=e.target.closest?.('#publicBoard');
+ if(board){e.preventDefault();openBoardFocus();}
 });
 
 function apply(data){
