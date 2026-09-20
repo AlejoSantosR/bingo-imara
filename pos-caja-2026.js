@@ -13,7 +13,7 @@ const SINGLE_PRICE=30000, PROMO_PRICE=50000;
 const METHODS={EF:'Efectivo',NQ:'Nequi',DP:'Daviplata',BR:'Bre-B',RP:'Link de pago · RappiPay',OT:'Otro'};
 const LEGACY_METHODS={PS:'PSE (anterior)'};
 const METHOD_CODES=Object.fromEntries(Object.entries(METHODS).map(([k,v])=>[v,k]));
-let role='',cards=[],sales=[],overview={},payCfg=readLocalPayCfg(),loading=false,installed=false;
+let role='',cards=[],sales=[],overview={},sellers=[],payCfg=readLocalPayCfg(),loading=false,installed=false;
 let participantDraft=[];
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[m]));
@@ -88,6 +88,7 @@ async function load(force=false){
 }
 
 function availableCards(){return cards.filter(c=>c.status==='Disponible').sort((a,b)=>String(a.id).localeCompare(String(b.id),undefined,{numeric:true}));}
+function sellerSelectHtml(){if(!['admin','finance'].includes(role))return '';return `<label class="full">Vendedor de esta venta<select class="input" id="posSeller"><option value="">Yo / usuario actual</option>${sellers.map(s=>`<option value="${esc(s.id)}">${esc(s.name)}${s.role==='admin'?' · Admin':''}</option>`).join('')}</select></label>`;}
 function quantities(){const promos=Math.max(0,Number(document.getElementById('posPromos')?.value)||0),singles=Math.max(0,Number(document.getElementById('posSingles')?.value)||0);return {promos,singles,units:promos*2+singles,total:promos*PROMO_PRICE+singles*SINGLE_PRICE};}
 function captureParticipantDraft(){document.querySelectorAll('#posPeople .pos-person').forEach((row,i)=>{participantDraft[i]={card_id:row.querySelector('[data-p-card]')?.value||'',buyer:row.querySelector('[data-p-name]')?.value||'',phone:row.querySelector('[data-p-phone]')?.value||''};});}
 function participantDescriptors(q){const list=[];for(let p=0;p<q.promos;p++){list.push({kind:'P',label:`Promo ${p+1} · A`,price:PROMO_PRICE/2});list.push({kind:'P',label:`Promo ${p+1} · B`,price:PROMO_PRICE/2});}for(let s=0;s<q.singles;s++)list.push({kind:'S',label:`Individual ${s+1}`,price:SINGLE_PRICE});return list;}
