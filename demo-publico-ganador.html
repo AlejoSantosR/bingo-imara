@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demo · Experiencia pública Bingo IMARA</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:radial-gradient(circle at 10% 0%,#28204a,#0e1320 38%);color:#f7f7fb;min-height:100vh}
+.wrap{width:min(1320px,calc(100% - 32px));margin:24px auto;display:grid;grid-template-columns:330px 1fr;gap:20px}
+.side,.main{background:linear-gradient(160deg,#171e32,#22213d);border:1px solid #3a4260;border-radius:28px;box-shadow:0 20px 60px #0006}
+.side{padding:24px;text-align:center}.logo{width:84px;height:84px;border-radius:26px;margin:0 auto 12px;display:grid;place-items:center;font-size:34px;font-weight:1000;background:linear-gradient(135deg,#ff5b8f,#8d6bff)}
+h1{font-size:28px;margin:7px 0}.muted{color:#aeb8ca}.mode{margin-top:22px;padding:16px;border-radius:20px;background:#0e172a;border:1px solid #34405e;text-align:left}.kicker{font-size:10px;letter-spacing:2px;color:#ffd66d;font-weight:1000}.mode h3{margin:5px 0 6px;font-size:19px}.mini{margin:14px auto 0;max-width:230px;background:#080f1d;border:1px solid #293650;border-radius:15px;padding:8px}.heads,.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}.heads b{height:24px;display:grid;place-items:center;background:#31233e;border-radius:6px;font-size:11px}.cell{aspect-ratio:1;border-radius:6px;background:#121c30;border:1px solid #2c3a58}.cell.on{background:linear-gradient(145deg,#fff0a7,#e6ad2d);border-color:#ffd75c;box-shadow:0 0 13px #f4bf3e45}.live{margin-top:12px;text-align:left;padding:12px;border-radius:15px;background:#ffffff08;border:1px solid #ffffff18}.live strong{display:block;margin-top:4px}.main{padding:22px;position:relative;overflow:hidden}
+.prize{display:grid;grid-template-columns:260px 1fr;gap:24px;align-items:center;padding:20px;border-radius:26px;border:1px solid #b886284d;background:linear-gradient(135deg,#2d2014,#2a1e38)}
+.prize-img{height:220px;border-radius:20px;background:radial-gradient(circle,#523d1a,#17120d);display:grid;place-items:center;font-size:88px}.prize h2{font-size:52px;line-height:.95;margin:7px 0;color:#fff2c5}.prize p{font-size:18px;color:#d8d0c5;line-height:1.4}.stage{display:grid;place-items:center;min-height:430px}.ball{width:230px;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-size:74px;font-weight:1000;color:#10182a;background:radial-gradient(circle at 34% 25%,#fff,#edf0f7 48%,#aeb7cb);box-shadow:0 25px 60px #0007}
+.controls{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:8px;padding:8px;background:#0c1322dd;border:1px solid #34405e;border-radius:999px;backdrop-filter:blur(12px);z-index:20}.controls button{border:1px solid #435273;background:#1d2740;color:#fff;border-radius:999px;padding:9px 13px;font-weight:800;cursor:pointer}.controls button.primary{background:linear-gradient(135deg,#ff5b8f,#8d6bff);border:0}
+.overlay{position:fixed;inset:0;z-index:10;display:grid;place-items:center;background:#06091288;backdrop-filter:blur(12px);opacity:0;pointer-events:none;transition:.25s}.overlay.show{opacity:1;pointer-events:auto}.card{width:min(720px,90vw);padding:28px;border-radius:28px;background:linear-gradient(155deg,#24190d,#513116 55%,#21150a);border:1px solid #ffd45d77;text-align:center;box-shadow:0 35px 100px #0009}.card .trophy{font-size:60px}.card h2{font-size:54px;margin:8px 0;color:#fff5cf}.winner{font-size:34px;font-weight:1000}.carton{color:#ffd26f;font-weight:900;margin-top:6px}.won-prize{display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:center;margin:18px auto 0;max-width:540px;padding:12px;border-radius:18px;background:#ffd35612;border:1px solid #ffd3563d;text-align:left}.won-prize .thumb{height:100px;border-radius:14px;background:#17120d;display:grid;place-items:center;font-size:50px}.won-prize b{color:#ffe9a8;font-size:20px}.won-prize small{display:block;margin-top:4px;color:#d8cfb7}.badge{position:fixed;right:18px;top:18px;z-index:30;padding:8px 12px;border-radius:999px;background:#5b3bd1;border:1px solid #bcaeff;font-size:11px;font-weight:1000}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}.prize{grid-template-columns:1fr}.prize-img{height:170px}.prize h2{font-size:38px}}
+</style>
+</head>
+<body>
+<div class="badge">DEMO · NO TOCA EL JUEGO REAL</div>
+<div class="wrap">
+  <aside class="side">
+    <div class="logo">IM</div><div class="muted">PL4 · TRIBU IMARA</div><h1>BINGO IMARA</h1><div class="muted">Experiencia pública</div>
+    <section class="mode"><div class="kicker">🎯 ASÍ GANAS ESTA RONDA</div><h3>Cartón lleno</h3><div class="muted">Marca todo el cartón. El centro libre ya cuenta.</div><div class="mini"><div class="heads"><b>B</b><b>I</b><b>N</b><b>G</b><b>O</b></div><div class="grid" id="miniGrid"></div></div></section>
+    <section class="live" id="live"><div class="kicker">ESTADO EN VIVO</div><strong>🎱 Ronda en juego</strong><div class="muted" style="font-size:11px;margin-top:4px">Esperando un BINGO.</div></section>
+  </aside>
+  <main class="main">
+    <section class="prize"><div class="prize-img">🎁</div><div><div class="kicker">🎁 PREMIO DE ESTA RONDA</div><h2>El relax te acompaña</h2><p>Te obsequiamos servicios de bienestar para que te regales un momento de equilibrio.</p><div class="muted">Ronda demo · Cartón lleno</div></div></section>
+    <div class="stage"><div class="ball">42</div></div>
+  </main>
+</div>
+<div class="overlay" id="overlay"><div class="card"><div class="kicker">BINGO IMARA · RESULTADO OFICIAL</div><div class="trophy">🏆</div><h2>¡GANADOR!</h2><div class="winner">Participante Demo</div><div class="carton">IMARA-042</div><div class="won-prize"><div class="thumb">🎁</div><div><b>El relax te acompaña</b><small>Premio entregado al ganador de esta ronda.</small></div></div><div class="muted" style="margin-top:14px">Este demo no registra ni modifica ningún ganador real.</div></div></div>
+<div class="controls"><button id="request">📣 BINGO solicitado</button><button id="validate">🎙️ Validando</button><button class="primary" id="winner">🏆 Ganador</button><button id="reset">↺ Reiniciar</button></div>
+<script>
+const grid=document.getElementById('miniGrid');grid.innerHTML=Array.from({length:25},(_,i)=>'<div class="cell on"></div>').join('');
+const live=document.getElementById('live'),ov=document.getElementById('overlay');
+function status(title,sub){live.innerHTML='<div class="kicker">ESTADO EN VIVO</div><strong>'+title+'</strong><div class="muted" style="font-size:11px;margin-top:4px">'+sub+'</div>';}
+document.getElementById('request').onclick=()=>{ov.classList.remove('show');status('📣 BINGO solicitado · Participante Demo','IMARA-042 · Los presentadores están revisando el cartón.');};
+document.getElementById('validate').onclick=()=>{ov.classList.remove('show');status('🎙️ BINGO a la 1, 2 y 3…','Validación oficial en curso.');};
+document.getElementById('winner').onclick=()=>{status('🏆 Participante Demo','IMARA-042 · 🎁 El relax te acompaña');ov.classList.add('show');};
+document.getElementById('reset').onclick=()=>{ov.classList.remove('show');status('🎱 Ronda en juego','Esperando un BINGO.');};
+ov.onclick=e=>{if(e.target===ov)ov.classList.remove('show');};
+</script>
+</body></html>
