@@ -163,7 +163,7 @@
 
     <section class="view hidden" id="view-public">
       <div class="public-shell"><div class="public">
-        <div class="public-hero"><img id="publicLogoImage" class="logo-preview hidden" alt="Logo"><div class="public-logo" id="publicLogoText">IM</div><div class="muted">PL4 · TRIBU IMARA</div><h1 id="publicTitle">BINGO IMARA</h1><div class="subtitle">Una experiencia para compartir, conectar y sorprendernos.</div><div class="price" id="publicPrice">$30.000</div><div class="muted">por cartón</div><div class="public-prize"><div class="muted">PREMIO DE ESTA RONDA</div><div style="font-size:22px;font-weight:1000;margin-top:7px" id="publicPrize">🎁 SORPRESA</div></div><div style="margin-top:16px" class="muted">✨ Bienestar · 💵 Dinero en efectivo · 👨‍👩‍👧‍👦 Familia · 🎉 Y mucho más</div></div>
+        <div class="public-hero"><img id="publicLogoImage" class="logo-preview hidden" alt="Logo"><div class="public-logo" id="publicLogoText">IM</div><div class="muted">PL4 · TRIBU IMARA</div><h1 id="publicTitle">BINGO IMARA</h1><div class="subtitle">Una experiencia para compartir, conectar y sorprendernos.</div><div class="price" id="publicPrice">$30.000</div><div class="muted">por cartón</div><div style="margin-top:16px" class="muted">✨ Bienestar · 💵 Dinero en efectivo · 👨‍👩‍👧‍👦 Familia · 🎉 Y mucho más</div></div>
         <div class="public-main"><div class="public-last"><div class="last-ball" id="publicLastBall">—</div><div class="public-round"><div class="muted">RONDA ACTUAL</div><h2 id="publicRoundName">Ronda 1</h2><div id="publicPattern">Gana: Línea</div><div class="muted" style="margin-top:8px" id="publicDrawCount">0 balotas llamadas</div><div class="muted" id="publicMode">Modo 1–99</div></div></div><div class="public-board" id="publicBoard"></div><div id="publicWinner"></div></div>
       </div></div>
     </section>
@@ -171,7 +171,7 @@
     <section class="view hidden" id="view-settings">
       <div class="grid two">
         <div class="card"><div class="section-title"><h3>Datos del evento</h3></div><div class="form-grid"><label>Nombre del evento<input class="input" id="settingTitle"></label><label>Valor del cartón<input class="input" id="settingPrice" type="number" min="0"></label><label>Modo de balotas<select class="input" id="settingBallMax"><option value="75">1–75 (clásico)</option><option value="90">1–90</option><option value="99">1–99 (IMARA)</option></select></label><label class="full">Texto organizador<input class="input" id="settingOrganizer"></label><label class="full">Mensaje público<textarea class="input" id="settingMessage"></textarea></label><label class="full">Logo / imagen del evento<input class="input" id="settingLogo" type="file" accept="image/*"></label><div class="full"><img id="logoPreview" class="logo-preview hidden" alt="Logo del evento"></div></div><div style="margin-top:12px"><button class="btn good" id="saveSettingsBtn">Guardar configuración</button></div></div>
-        <div class="card"><div class="section-title"><h3>Datos y respaldo</h3></div><div class="notice">Las imágenes se guardan dentro del almacenamiento local del navegador. Para evitar que se llene, cada imagen se limita a aprox. 450 KB.</div><div class="actions" style="margin-top:14px"><button class="btn" id="exportBtn">⬇️ Exportar backup JSON</button><label class="btn">⬆️ Importar backup<input id="importFile" type="file" accept=".json,application/json" hidden></label><button class="btn bad" id="wipeBtn">🗑️ Borrar todo</button></div><div class="footer-note">Haz un backup antes y después del evento. Así puedes recuperar cartones, pagos, balotas y ganadores.</div></div>
+        <div class="card"><div class="section-title"><h3>Datos y respaldo</h3></div><div class="notice">El logo y los archivos locales del respaldo se conservan en este navegador. Las imágenes de premios se optimizan y guardan en la nube desde la sección “Premios del evento”.</div><div class="actions" style="margin-top:14px"><button class="btn" id="exportBtn">⬇️ Exportar backup JSON</button><label class="btn">⬆️ Importar backup<input id="importFile" type="file" accept=".json,application/json" hidden></label><button class="btn bad" id="wipeBtn">🗑️ Borrar todo</button></div><div class="footer-note">Haz un backup antes y después del evento. Así puedes recuperar cartones, pagos, balotas y ganadores.</div></div>
       </div>
     </section>
   </main>
@@ -184,10 +184,10 @@
 <script>window.__imaraRealFinanceDashboardExpected=true;</script>
 <script src="logo.js?v=20260902-SECURE-3"></script>
 <script src="core.js?v=20260902-SECURE-3"></script>
-<script src="ui.js?v=20260919-IOS-NAV-1"></script>
+<script src="ui.js?v=20260920-PRIZE-2"></script>
 <script src="game.js?v=20260902-SECURE-3"></script>
 <script src="print.js?v=20260902-SECURE-3"></script>
-<script src="settings.js?v=20260912-PRIZES-2"></script>
+<script src="settings.js?v=20260920-PRIZE-CLOUD-3"></script>
 <script src="ball-codes.js?v=20260902-SECURE-3"></script>
 <script id="imaraCardsAdminStable2026" src="cards-admin-stable-2026.js?v=20260918-ACTIVE-PARTICIPANT-1"></script>
 <script src="cards-no-motion-2026.js?v=20260917-CARDS-NOMOTION-4"></script>
@@ -215,13 +215,14 @@
 <script id="imaraBatchResetSafe"></script>
 <script src="pos-play-state-safe-2026.js?v=20260912-PLAYSTATE-SAFE-2"></script>
 <script src="admin-game-realtime-2026.js?v=20260919-PHASE2-RT-2"></script>
-<script src="round-control-2026.js?v=20260920-LEAN-3"></script>
+<script src="round-control-2026.js?v=20260920-LEAN-PRIZE-4"></script>
+<script src="prize-experience-2026.js?v=20260920-CLOUD-PUBLIC-1"></script>
 <script src="mobile-bingo-security-2026.js?v=20260917-MOBILE-BINGO-1"></script>
-<script src="round-lifecycle-2026.js?v=20260920-NOBAN-4"></script>
-<script src="bingo-live-flow-2026.js?v=20260920-MANUAL-TIE-5"></script>
-<script src="bingo-round-upgrades-2026.js?v=20260920-WINNER-CENTER-5"></script>
+<script src="round-lifecycle-2026.js?v=20260920-PRIZE-NEXT-5"></script>
+<script src="bingo-live-flow-2026.js?v=20260920-PRIZE-WINNER-6"></script>
+<script src="bingo-round-upgrades-2026.js?v=20260920-PRIZE-WINNER-6"></script>
 <script src="mobile-tie-sync-2026.js?v=20260919-TIE-SLOT-1"></script>
-<script src="mobile-round-live-2026.js?v=20260920-BINGO-UNLOCK-4"></script>
+<script src="mobile-round-live-2026.js?v=20260920-PRIZE-5"></script>
 <script src="mobile-private-optimization-2026.js?v=20260912-MOBILE-1"></script>
 </body>
 </html>
