@@ -63,6 +63,7 @@ function targetCells(pattern){
 function installCss(){
  if(document.getElementById('imaraPublicExperienceCss'))return;
  const s=document.createElement('style');s.id='imaraPublicExperienceCss';s.textContent=`
+ .imara-public-prices{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:18px 0 4px}.imara-public-price-card{padding:11px 8px;border-radius:16px;background:rgba(8,14,27,.46);border:1px solid rgba(255,255,255,.10);text-align:center}.imara-public-price-card.promo{background:linear-gradient(145deg,rgba(255,211,84,.11),rgba(141,107,255,.10));border-color:rgba(255,211,84,.26)}.imara-public-price-card span{display:block;font-size:8px;font-weight:1000;letter-spacing:1px;color:#9eabc0;text-transform:uppercase}.imara-public-price-card strong{display:block;margin-top:4px;font-size:21px;line-height:1;color:#fff5d2}.imara-public-price-card small{display:block;margin-top:5px;font-size:9px;color:#aeb8ca}.imara-public-price-card.promo strong{color:#ffe07d}
  #imaraPublicGuide{margin-top:22px;padding:17px;border-radius:22px;background:linear-gradient(145deg,rgba(8,14,27,.58),rgba(141,107,255,.08));border:1px solid rgba(164,147,255,.22);text-align:left;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}
  .ipg-kicker{font-size:10px;font-weight:1000;letter-spacing:2px;color:#ffd96f;text-transform:uppercase}
  .ipg-title{font-size:20px;font-weight:1000;margin-top:5px;color:#fff3cf;line-height:1.05}
@@ -111,6 +112,24 @@ function installCss(){
  `;document.head.appendChild(s);
 }
 
+function moneyPublic(v){
+ const n=Math.max(0,Number(v)||0);
+ try{return new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(n).replace('COP','$');}catch(_){return '$ '+n.toLocaleString('es-CO');}
+}
+function ensurePublicPricing(){
+ const hero=VIEW.querySelector('.public-hero');if(!hero)return;
+ const oldPrice=document.getElementById('publicPrice');
+ if(oldPrice){oldPrice.style.display='none';const lab=oldPrice.nextElementSibling;if(lab&&String(lab.textContent||'').toLowerCase().includes('por cart'))lab.style.display='none';}
+ let box=document.getElementById('imaraPublicPricing');
+ if(!box){
+   box=document.createElement('div');box.id='imaraPublicPricing';box.className='imara-public-prices';
+   const anchor=hero.querySelector('[style*="margin-top:16px"]')||document.getElementById('imaraPublicGuide');
+   if(anchor)hero.insertBefore(box,anchor);else hero.appendChild(box);
+ }
+ const single=Number(state?.settings?.publicSinglePrice||state?.settings?.price||30000);
+ const combo=Number(state?.settings?.publicComboPrice||50000);
+ box.innerHTML=`<div class="imara-public-price-card"><span>Individual</span><strong>${esc(moneyPublic(single))}</strong><small>1 cartón</small></div><div class="imara-public-price-card promo"><span>Promo</span><strong>${esc(moneyPublic(combo))}</strong><small>2 cartones</small></div>`;
+}
 function guideRoot(){
  const hero=VIEW.querySelector('.public-hero');if(!hero)return null;
  let root=document.getElementById('imaraPublicGuide');
@@ -187,10 +206,11 @@ VIEW.addEventListener('click',e=>{
 function apply(data){
  latest=data||latest||{};
  const game=latest?.game||{},round=game.round||state?.round||{},show=game.show_state||{type:'idle'};
- renderGuide(round);renderLive(show,round);
+ ensurePublicPricing();renderGuide(round);renderLive(show,round);
 }
 
 installCss();
+ensurePublicPricing();
 renderGuide(state?.round||{});
 renderLive({type:'idle'},state?.round||{});
 window.addEventListener('imara-public-game-state',e=>apply(e.detail||{}));
