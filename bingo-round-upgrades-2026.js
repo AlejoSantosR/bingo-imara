@@ -32,7 +32,7 @@ function draw(s){
    if(lastTie!==key)return;
    const elapsed=Math.max(0,Date.now()-start),left=Math.max(0,Math.ceil((dur-elapsed)/1000));
    if(timer)timer.textContent=`${left}s`;
-   if(reel){if(!reel.dataset.ready){const items=[];for(let r=0;r<14;r++)for(const x of list)items.push(`<div class="tie10-reel-item"><b>${esc(person(x))}</b><small>${esc(x.card_id||'')}</small></div>`);reel.innerHTML=items.join('');reel.dataset.ready='1';}const first=reel.firstElementChild,step=(first?.getBoundingClientRect().width||225)+14,base=list.length*4,progress=elapsed/155,pos=base+progress;reel.dataset.pos=String(pos);reel.dataset.step=String(step);reel.style.transform=`translate3d(${-(pos*step+step/2)}px,-50%,0)`;const idx=Math.round(pos)%list.length;reel.querySelectorAll('.tie10-reel-item').forEach((el,i)=>{const d=Math.abs(i-pos);el.classList.toggle('current',d<.5);el.classList.toggle('near',d>=.5&&d<1.55);});lastIdx=idx;}
+   if(reel){if(!reel.dataset.ready){const items=[];for(let r=0;r<14;r++)for(const x of list)items.push(`<div class="tie10-reel-item" data-card-id="${esc(x.card_id||'')}"><b>${esc(person(x))}</b><small>${esc(x.card_id||'')}</small></div>`);reel.innerHTML=items.join('');reel.dataset.ready='1';}const first=reel.firstElementChild,itemW=first?.getBoundingClientRect().width||225,step=itemW+14,base=list.length*4,progress=elapsed/155,pos=base+progress,x=-(pos*step+itemW/2);reel.dataset.pos=String(pos);reel.dataset.step=String(step);reel.dataset.x=String(x);reel.style.transform=`translate3d(${x}px,-50%,0)`;const idx=Math.round(pos)%list.length;reel.querySelectorAll('.tie10-reel-item').forEach((el,i)=>{const d=Math.abs(i-pos);el.classList.toggle('current',d<.5);el.classList.toggle('near',d>=.5&&d<1.55);});lastIdx=idx;}
    if(sub&&elapsed>=dur)sub.textContent='✨ Tiempo cumplido · esperando el resultado oficial…';
    raf=requestAnimationFrame(frame);
  }
@@ -40,8 +40,32 @@ function draw(s){
 }
 function renderTieWinner(s){const w=s?.winner||{},key=String(w.card_id||'')+'|'+String(s.at||'');if(lastWinner===key)return;lastWinner=key;const o=overlay();o.classList.remove('hidden');o.innerHTML='<canvas class="tie10-confetti"></canvas><div class="tie10-card tie10-winner-card"><div class="tie10-halo"></div><div style="position:relative;font-size:12px;letter-spacing:3px;font-weight:1000;color:#ffdca0">BINGO IMARA · RESULTADO OFICIAL</div><div class="tie10-trophy">🏆</div><div class="tie10-ribbon">✨ GANADOR ✨</div><div class="tie10-winner-name">'+esc(w.buyer_alias||w.card_id||'GANADOR')+'</div><div class="tie10-winner-cardid">'+esc(w.card_id||'')+'</div>'+(w.prize?'<div class="tie10-winner-prize">🎁 '+esc(w.prize)+'</div>':'')+'<div class="tie10-sub">Resultado confirmado. La ronda quedó cerrada.</div><button type="button" class="tie10-sound" id="tie10Sound">🔊 '+(audioCtx?.state==='running'?'Sonido activo':'Activar sonido')+'</button></div>';o.querySelector('#tie10Sound')?.addEventListener('click',()=>{ensureAudio();fanfare();});fanfare();celebrate();}
 function showTieWinner(s){
- cancelAnimationFrame(raf);raf=0;const w=s?.winner||{},idx=lastCandidates.findIndex(x=>String(x.card_id)===String(w.card_id)),reel=overlay().querySelector('[data-tie10-reel]');
- if(reel&&idx>=0&&lastCandidates.length){const step=Number(reel.dataset.step)||((reel.firstElementChild?.getBoundingClientRect().width||225)+14),cur=Number(reel.dataset.pos)||0,curIdx=mod(Math.round(cur),lastCandidates.length),delta=mod(idx-curIdx,lastCandidates.length),target=Math.round(cur)+lastCandidates.length*3+delta,from=-(cur*step+step/2),to=-(target*step+step/2),sub=overlay().querySelector('.tie10-sub');if(sub)sub.textContent='✨ Los rodillos están frenando sobre el ganador…';const items=[...reel.querySelectorAll('.tie10-reel-item')];items.forEach(x=>x.classList.remove('current','near'));const targetEl=items[Math.round(target)];if(targetEl)targetEl.classList.add('current');const an=reel.animate([{transform:'translate3d('+from+'px,-50%,0)'},{transform:'translate3d('+to+'px,-50%,0)'}],{duration:2300,easing:'cubic-bezier(.08,.82,.17,1)',fill:'forwards'});an.onfinish=()=>{tone(980,.16,.04);setTimeout(()=>renderTieWinner(s),250);};return;}
+ cancelAnimationFrame(raf);raf=0;
+ const w=s?.winner||{},winnerId=String(w.card_id||''),reel=overlay().querySelector('[data-tie10-reel]');
+ const winnerExists=lastCandidates.some(x=>String(x.card_id)===winnerId);
+ if(reel&&winnerId&&winnerExists&&lastCandidates.length){
+   const items=[...reel.querySelectorAll('.tie10-reel-item')],cur=Number(reel.dataset.pos)||0,minIndex=Math.ceil(cur)+lastCandidates.length*2;
+   let pick=items.map((el,i)=>({el,i})).find(x=>x.i>=minIndex&&String(x.el.dataset.cardId||'')===winnerId);
+   if(!pick)pick=items.map((el,i)=>({el,i})).find(x=>x.i>cur&&String(x.el.dataset.cardId||'')===winnerId);
+   if(!pick)pick=items.map((el,i)=>({el,i})).find(x=>String(x.el.dataset.cardId||'')===winnerId);
+   if(pick){
+     const from=Number(reel.dataset.x)||0,to=-(pick.el.offsetLeft+pick.el.offsetWidth/2),sub=overlay().querySelector('.tie10-sub');
+     if(sub)sub.textContent='✨ Los rodillos están frenando sobre el ganador oficial…';
+     items.forEach(x=>x.classList.remove('current','near'));
+     const an=reel.animate([{transform:'translate3d('+from+'px,-50%,0)'},{transform:'translate3d('+to+'px,-50%,0)'}],{duration:2300,easing:'cubic-bezier(.08,.82,.17,1)',fill:'forwards'});
+     an.onfinish=()=>{
+       reel.style.transform='translate3d('+to+'px,-50%,0)';
+       reel.dataset.x=String(to);
+       an.cancel();
+       items.forEach(x=>x.classList.remove('current','near'));
+       pick.el.classList.add('current');
+       if(sub)sub.textContent='🎯 Seleccionado: '+person(w)+' · '+winnerId;
+       tone(980,.16,.04);
+       setTimeout(()=>renderTieWinner(s),1200);
+     };
+     return;
+   }
+ }
  renderTieWinner(s);
 }
 async function applyGame(o){try{current=o?.game?.show_state||{type:'idle'};if(current.type==='tie'){lastWinner='';draw({...current,duration_ms:Math.max(TIE_MS,Number(current.duration_ms)||0)});}else if(current.type==='winner'){lastTie='';showTieWinner(current);}else{lastTie='';hide();}}catch(e){console.warn('Desempate',e);}}
