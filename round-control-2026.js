@@ -98,8 +98,8 @@ if(typeof renderPublic==='function'){const basePublic=renderPublic;renderPublic=
 function mountMobileBingo(){
  if(!IS_MOBILE)return;const actions=document.querySelector('.mobile-actions');if(!actions||document.getElementById('mobileBingoBtn'))return;
  const btn=document.createElement('button');btn.id='mobileBingoBtn';btn.className='mobile-bingo-btn';btn.type='button';btn.textContent='📣 ¡BINGO!';actions.appendChild(btn);
- const st=document.createElement('div');st.id='mobileBingoStatus';st.className='mobile-bingo-status';st.textContent='Si completas la figura de la ronda, pulsa BINGO para avisar a los presentadores.';actions.after(st);
- btn.onclick=async()=>{const id=document.querySelector('.mobile-person>div:first-child strong')?.textContent.trim();if(!id)return;btn.disabled=true;btn.textContent='📣 Enviando…';try{const d=await api('bingo-claim',{card_id:id},false);st.innerHTML=`✅ <strong>¡BINGO enviado!</strong><br>Los presentadores ya recibieron tu aviso. Espera la validación oficial.`;btn.textContent=d.already?'✅ BINGO ya enviado':'✅ BINGO enviado';navigator.vibrate?.([120,70,160]);}catch(e){st.innerHTML=`⚠️ ${esc(e.message)}`;btn.disabled=false;btn.textContent='📣 ¡BINGO!';}};
+ const st=document.createElement('div');st.id='mobileBingoStatus';st.className='mobile-bingo-status';st.textContent='';st.style.display='none';actions.after(st);
+ btn.onclick=async()=>{const id=document.querySelector('.mobile-person>div:first-child strong')?.textContent.trim();if(!id)return;btn.disabled=true;btn.textContent='📣 Enviando…';try{const d=await api('bingo-claim',{card_id:id},false);st.style.display='block';st.innerHTML=`✅ <strong>¡BINGO enviado!</strong><br>Los presentadores ya recibieron tu aviso. Espera la validación oficial.`;btn.textContent=d.already?'✅ BINGO ya enviado':'✅ BINGO enviado';navigator.vibrate?.([120,70,160]);}catch(e){st.style.display='block';st.innerHTML=`⚠️ ${esc(e.message)}`;btn.disabled=false;btn.textContent='📣 ¡BINGO!';}};
 }
 
 /* ---------- Centro de BINGO del presentador ---------- */
