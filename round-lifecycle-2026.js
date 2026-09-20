@@ -13,8 +13,8 @@ function isAdmin(){return !!document.querySelector('#imaraUserChip .imara-role.a
 function token(){return sessionStorage.getItem(SESSION)||'';}
 function nextName(name){const m=String(name||'').match(/^(.*?)(\d+)\s*$/);return m?`${m[1]}${Number(m[2])+1}`:'Ronda 2';}
 function orderedPrizes(){return Array.isArray(state?.prizes)?state.prizes:[];}
-function nextPrize(){const used=(state.winners||[]).map(w=>String(w.prize||'').toLowerCase());return orderedPrizes().find(p=>p.title&&!used.some(t=>t.includes(String(p.title).toLowerCase())))||orderedPrizes()[0]||null;}
-function prizePayload(p){if(!p)return {prize:'',prizeTitle:'',prizeDescription:'',prizeImage:'',prizeId:'',reveal:false};const i=orderedPrizes().findIndex(x=>x.id===p.id),ord=typeof ordinalPrizeLabel==='function'?ordinalPrizeLabel(i):`Premio ${i+1}`;return {prize:[ord,p.title,p.description].filter(Boolean).join(' · '),prizeTitle:p.title||'',prizeDescription:p.description||'',prizeImage:p.image||'',prizeId:p.id,reveal:p.showPublic!==false};}
+function nextPrize(){const wins=state.winners||[],usedIds=new Set(wins.map(w=>String(w.prizeId||w.prize_id||'')).filter(Boolean)),usedText=wins.map(w=>String(w.prize||'').toLowerCase());return orderedPrizes().find(p=>p.title&&!usedIds.has(String(p.id))&&!usedText.some(t=>t.includes(String(p.title).toLowerCase())))||null;}
+function prizePayload(p){if(!p)return {prize:'',prizeTitle:'',prizeDescription:'',prizeImage:'',prizeId:'',reveal:true};const i=orderedPrizes().findIndex(x=>x.id===p.id),ord=typeof ordinalPrizeLabel==='function'?ordinalPrizeLabel(i):`Premio ${i+1}`;return {prize:[ord,p.title,p.description].filter(Boolean).join(' · '),prizeTitle:p.title||'',prizeDescription:p.description||'',prizeImage:p.image_url||p.image||'',prizeId:p.id,reveal:true};}
 async function stability(action,payload){
  const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),12000);
  try{
@@ -22,7 +22,7 @@ async function stability(action,payload){
   const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'No fue posible sincronizar la ronda.');return d;
  }finally{clearTimeout(tm);}
 }
-function readForm(){return {name:document.getElementById('roundName')?.value.trim()||state.round?.name||'Ronda',pattern:document.getElementById('roundPattern')?.value||state.round?.pattern||'line',prize:document.getElementById('roundPrize')?.value.trim()||state.round?.prize||'',reveal:document.getElementById('prizeReveal')?.value==='yes'};}
+function readForm(){return {name:document.getElementById('roundName')?.value.trim()||state.round?.name||'Ronda',pattern:document.getElementById('roundPattern')?.value||state.round?.pattern||'line',prize:document.getElementById('roundPrize')?.value.trim()||state.round?.prize||'',reveal:true};}
 function syncForm(){const r=state.round||{};const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v;};set('roundName',r.name||'Ronda');set('roundPattern',r.pattern||'line');set('roundPrize',r.prize||'');set('prizeReveal',r.reveal?'yes':'no');set('roundStatus',r.status||'closed');const sel=document.getElementById('roundPrizeSelect');if(sel&&r.prizeId)sel.value=r.prizeId;}
 function labelPattern(p){return typeof patternName==='function'?patternName(p):p;}
 function panel(){let p=document.getElementById('roundLifecycle2026');if(p)return p;const game=document.getElementById('view-game');if(!game)return null;p=document.createElement('div');p.id='roundLifecycle2026';p.className='card';p.style.marginBottom='16px';game.prepend(p);return p;}
