@@ -2,6 +2,7 @@
    La lógica oficial vive en bingo-live-flow-2026.js; este archivo solo pinta la ruleta/resultado. */
 (function(){
 'use strict';
+window.__imaraTieVisual2026=true;
 if(location.hash.startsWith('#mobile='))return;
 const TIE_MS=10000;
 let current={type:'idle'},raf=0,lastTie='',confettiRaf=0,audioCtx=null,lastCandidates=[],lastWinner='';
