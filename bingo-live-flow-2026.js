@@ -152,12 +152,24 @@ async function continueGame(btn){
  }finally{continueBusy=false;}
 }
 async function confirmOne(id){try{await api('winner-confirm',{card_id:id});await refreshOverview();paint();}catch(e){alert(e.message);}}
-async function startTie(v=valid()){
- if(v.length<2||tieStarting||tieResolving)return;
+async function startTie(){
+ if(tieStarting||tieResolving)return;
  if(['tie','winner'].includes(show?.type))return;
  tieStarting=true;
- try{await setShow({type:'tie',started_at:new Date().toISOString(),duration_ms:TIE_MS,round_name:(typeof state!=='undefined'&&state.round?.name)||'Ronda',candidates:v.map(c=>({card_id:c.card_id,buyer_alias:c.buyer_alias||''}))});}
- catch(e){console.warn('BINGO V3 empate:',e.message||e);}finally{tieStarting=false;}
+ try{
+   const b=await api('bingo-claims');
+   claims=Array.isArray(b.claims)?b.claims:[];
+   candidates=Array.isArray(b.candidates)?b.candidates:[];
+   const v=valid();
+   mountPanels();
+   if(v.length<2){alert('Ya no hay al menos dos BINGOS válidos para iniciar el desempate. Revisa nuevamente los cartones.');return;}
+   const ok=confirm('Vas a iniciar el desempate entre '+v.length+' BINGOS válidos. ¿Continuar?');
+   if(!ok)return;
+   await setShow({type:'tie',started_at:new Date().toISOString(),duration_ms:TIE_MS,round_name:(typeof state!=='undefined'&&state.round?.name)||'Ronda',candidates:v.map(c=>({card_id:c.card_id,buyer_alias:c.buyer_alias||''}))});
+ }catch(e){
+   console.warn('BINGO V3 empate:',e.message||e);
+   alert(e.message||'No fue posible iniciar el desempate.');
+ }finally{tieStarting=false;}
 }
 async function resolveTieIfNeeded(){
  if(show?.type!=='tie'||tieResolving||!isAdmin())return;
@@ -222,7 +234,7 @@ function wire(){
    const c=t.closest?.('[data-b3-confirm]');if(c){e.preventDefault();confirmOne(c.dataset.b3Confirm);return;}
    const cont=t.closest?.('[data-b3-continue]');if(cont){e.preventDefault();continueGame(cont);return;}
    const resume=t.closest?.('[data-b3-resume]');if(resume){e.preventDefault();continueGame(resume);return;}
-   if(t.closest?.('[data-b3-tie]')){e.preventDefault();startTie(valid());return;}
+   if(t.closest?.('[data-b3-tie]')){e.preventDefault();startTie();return;}
  },true);
 }
 async function adminTick(){if(!isAdmin()||!token())return;try{await refreshClaims();await refreshOverview();mountPanels();paint();await resolveTieIfNeeded();}catch(e){console.warn('BINGO V3:',e.message||e);}}
