@@ -7,6 +7,24 @@ if(!location.hash.startsWith('#mobile='))return;
 if(window.__imaraPlayerCards2026)return;
 window.__imaraPlayerCards2026=true;
 
+document.body.classList.add('imara-player-resolving');
+(function(){
+  const s=document.createElement('style');
+  s.id='imaraPlayerResolveCss';
+  s.textContent=`
+    body.imara-player-resolving .mobile-card-shell{visibility:hidden!important;opacity:0!important}
+    body.imara-player-resolving::after{
+      content:"Preparando tus cartones…";
+      position:fixed;inset:0;z-index:2147481500;
+      display:grid;place-items:center;
+      background:radial-gradient(circle at 18% 0%,#302450,#111827 48%,#0d1320);
+      color:#e9edff;font:800 14px/1.2 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+      letter-spacing:.2px
+    }
+  `;
+  document.head.appendChild(s);
+})();
+
 const API='https://fpevaukkbtruplwptufu.supabase.co/functions/v1/bingo-player-cards';
 const LETTERS=['B','I','N','G','O'];
 
@@ -846,6 +864,7 @@ async function load(){
     console.warn('Mis cartones:',e?.message||e);
   }finally{
     clearTimeout(tm);
+    document.body.classList.remove('imara-player-resolving');
   }
 }
 
