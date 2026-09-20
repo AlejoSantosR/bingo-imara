@@ -145,7 +145,7 @@ function mount(data,base){
       <strong>${esc(data.player_name||base.buyer||'Participante')}</strong>
     </div>
     <p class="imara-player-cards-help">
-      El cartón de arriba es el que abriste con tu enlace. Aquí tienes los demás asociados al mismo participante para verlos y marcarlos en esta misma pantalla.
+      El cartón de arriba es el que abriste con tu enlace. Abajo puedes ver todos tus cartones, incluido el actual, y marcarlos sin salir de esta pantalla.
     </p>
     <div class="imara-player-cards-grid" data-cards></div>`;
 
