@@ -48,9 +48,9 @@ async function commit(action,nextDrawn,nextRound,successText){
   return false;
  }finally{busy=false;render();}
 }
-async function openRound(){const f=readForm(),next={...(state.round||{}),...f,status:'open',startedAt:new Date().toISOString(),endedAt:null,bannedCards:[]};await commit('round-commit',[...(state.drawn||[])],next,`▶ ${next.name} abierta`);}
+async function openRound(){const f=readForm(),next={...(state.round||{}),...f,status:'open',startedAt:new Date().toISOString(),endedAt:null};await commit('round-commit',[...(state.drawn||[])],next,`▶ ${next.name} abierta`);}
 async function closeRound(){const next={...(state.round||{}),status:'closed',endedAt:new Date().toISOString()};await commit('round-commit',[...(state.drawn||[])],next,`⏹ ${next.name} cerrada`);}
-async function prepareNext(){if(state.round?.status==='open'&&!confirm('La ronda actual está abierta. ¿Quieres cerrarla y preparar la siguiente?'))return;const p=nextPrize(),next={name:nextName(state.round?.name),pattern:state.round?.pattern||'line',...prizePayload(p),status:'closed',startedAt:null,endedAt:null,bannedCards:[]};await commit('round-commit',[],next,`✨ ${next.name} preparada${p?.title?' · '+p.title:''}`);}
+async function prepareNext(){if(state.round?.status==='open'&&!confirm('La ronda actual está abierta. ¿Quieres cerrarla y preparar la siguiente?'))return;const p=nextPrize(),next={name:nextName(state.round?.name),pattern:state.round?.pattern||'line',...prizePayload(p),status:'closed',startedAt:null,endedAt:null};await commit('round-commit',[],next,`✨ ${next.name} preparada${p?.title?' · '+p.title:''}`);}
 async function saveConfiguredRound(){
  const f=readForm(),status=document.getElementById('roundStatus')?.value||state.round?.status||'closed';
  const next={...(state.round||{}),...f,status};
