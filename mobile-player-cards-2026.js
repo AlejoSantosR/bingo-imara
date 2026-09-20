@@ -157,10 +157,7 @@ function mount(data,base){
 
         <div class="imara-player-original-controls" data-original-controls></div>
 
-        <div class="imara-player-control-block imara-player-side-note">
-          <span class="imara-control-label">Participante</span>
-          <strong class="imara-side-participant">${esc(data.player_name||base.buyer||'Participante')}</strong>
-        </div>
+
       </aside>
 
       <div class="imara-player-stage" data-stage>
