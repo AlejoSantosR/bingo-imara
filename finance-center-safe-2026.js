@@ -139,6 +139,7 @@ async function refundSale(id){const r=rows.find(x=>x.id===id);if(!r)return;const
 function paymentUnitFor(row){
  if(!row)return {rows:[],label:'',kind:'other',index:1,total:1};
  const p=productInfo(row.payment_method),order=p.order;
+ if(!['pending','approved'].includes(String(row.payment_status||'')))return {rows:[row],label:row.card_id,kind:p.kind==='promo'?'promo':'individual',index:1,total:1};
  if(!order||order==='—'||p.kind==='other')return {rows:[row],label:row.card_id,kind:'individual',index:1,total:1};
  const same=rows.filter(x=>{const px=productInfo(x.payment_method);return px.order===order&&px.kind===p.kind&&['pending','approved'].includes(x.payment_status);})
    .sort((a,b)=>String(a.submitted_at||'').localeCompare(String(b.submitted_at||''))||String(a.id).localeCompare(String(b.id)));
