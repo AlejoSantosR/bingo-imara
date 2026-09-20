@@ -67,21 +67,29 @@ function showTieWinner(s){
    if(!pick)pick=items.map((el,i)=>({el,i})).find(x=>String(x.el.dataset.cardId||'')===winnerId);
    if(pick){
      const marker=overlay().querySelector('.tie10-reel-marker'),from=Number(reel.dataset.x)||0,sub=overlay().querySelector('.tie10-sub');
-     fitWinnerTarget(pick.el,marker);
-     const to=-(pick.el.offsetLeft+pick.el.offsetWidth/2);
-     if(sub)sub.textContent='✨ Los rodillos están frenando sobre el ganador oficial…';
+     if(reel.dataset.finalizing===winnerId)return;
+     reel.dataset.finalizing=winnerId;
+     if(sub)sub.textContent='✨ Ajustando el selector al ganador oficial…';
      items.forEach(x=>x.classList.remove('current','near'));
-     const an=reel.animate([{transform:'translate3d('+from+'px,-50%,0)'},{transform:'translate3d('+to+'px,-50%,0)'}],{duration:2300,easing:'cubic-bezier(.08,.82,.17,1)',fill:'forwards'});
-     an.onfinish=()=>{
-       reel.style.transform='translate3d('+to+'px,-50%,0)';
-       reel.dataset.x=String(to);
-       an.cancel();
-       items.forEach(x=>x.classList.remove('current','near'));
-       pick.el.classList.add('current');
-       if(sub)sub.textContent='🎯 Seleccionado: '+person(w)+' · '+winnerId;
-       tone(980,.16,.04);
-       setTimeout(()=>renderTieWinner(s),1200);
-     };
+     fitWinnerTarget(pick.el,marker);
+
+     setTimeout(()=>{
+       requestAnimationFrame(()=>requestAnimationFrame(()=>{
+         const to=-(pick.el.offsetLeft+pick.el.offsetWidth/2);
+         if(sub)sub.textContent='✨ Los rodillos están frenando sobre el ganador oficial…';
+         const an=reel.animate([{transform:'translate3d('+from+'px,-50%,0)'},{transform:'translate3d('+to+'px,-50%,0)'}],{duration:2300,easing:'cubic-bezier(.08,.82,.17,1)',fill:'forwards'});
+         an.onfinish=()=>{
+           reel.style.transform='translate3d('+to+'px,-50%,0)';
+           reel.dataset.x=String(to);
+           an.cancel();
+           items.forEach(x=>x.classList.remove('current','near'));
+           pick.el.classList.add('current');
+           if(sub)sub.textContent='🎯 Seleccionado: '+person(w)+' · '+winnerId;
+           tone(980,.16,.04);
+           setTimeout(()=>renderTieWinner(s),1200);
+         };
+       }));
+     },460);
      return;
    }
  }
