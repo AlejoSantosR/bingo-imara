@@ -195,7 +195,8 @@ async function resolveTieIfNeeded(){
  const list=uniq(show.candidates||[]);if(list.length<2)return;
  tieResolving=true;
  try{await api('tie-resolve',{card_ids:list.map(c=>c.card_id)});await refreshOverview();paint();}
- catch(e){console.warn('BINGO V3 resolución:',e.message||e);tieResolving=false;}
+ catch(e){console.warn('BINGO V3 resolución:',e.message||e);}
+ finally{tieResolving=false;}
 }
 
 function countdownInfo(s){const start=new Date(s.started_at||0).getTime(),elapsed=Math.max(0,Date.now()-start),interval=Number(s.interval_ms)||COUNT_MS;return {elapsed,stage:Math.min(2,Math.floor(elapsed/interval)),ready:elapsed>=interval*3,remaining:elapsed>=interval*3?0:Math.max(1,3-Math.floor((elapsed%interval)/1000))};}
@@ -263,6 +264,7 @@ function queueClaimsRefresh(){
 function applyRealtime(payload){
  if(!isAdmin()||!payload?.game)return;
  const next=payload.game.show_state||{type:'idle'},sig=JSON.stringify(next);
+ if(next.type!=='tie')tieResolving=false;
  show=next;mountPanels();paint();resolveTieIfNeeded();
  if(sig!==lastRealtimeShowSig)lastRealtimeShowSig=sig;
  queueClaimsRefresh();
