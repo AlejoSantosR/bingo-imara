@@ -124,19 +124,7 @@ function buildMiniCard(card,base){
 }
 
 function readViewPrefs(){
-  const fallback={layout:matchMedia('(max-width:640px)').matches?'vertical':'horizontal',fit:true,focus:false,zoom:1};
-  try{
-    const x=JSON.parse(localStorage.getItem('imaraPlayerCardsView:v2')||'{}');
-    return {
-      layout:x.layout==='vertical'||x.layout==='horizontal'?x.layout:fallback.layout,
-      fit:x.fit===undefined?fallback.fit:x.fit!==false,
-      focus:x.focus===undefined?fallback.focus:!!x.focus,
-      zoom:Math.min(1.35,Math.max(.78,Number(x.zoom)||fallback.zoom))
-    };
-  }catch(e){return fallback;}
-}
-function saveViewPrefs(p){
-  try{localStorage.setItem('imaraPlayerCardsView:v2',JSON.stringify(p));}catch(e){}
+  return {layout:'horizontal',fit:true,focus:true,zoom:1};
 }
 function clamp(n,a,b){return Math.max(a,Math.min(b,n));}
 
@@ -164,37 +152,15 @@ function mount(data,base){
             <span>VISTA DE JUEGO</span>
             <h2>🎟️ Mis cartones · ${cards.length}</h2>
           </div>
-          <strong>${esc(data.player_name||base.buyer||'Participante')}</strong>
+    
         </div>
 
         <div class="imara-player-original-controls" data-original-controls></div>
 
-        <div class="imara-player-control-block">
-          <span class="imara-control-label">Distribución</span>
-          <div class="imara-layout-toggle">
-            <button type="button" data-layout="horizontal">↔ Horizontal</button>
-            <button type="button" data-layout="vertical">↕ Vertical</button>
-          </div>
+        <div class="imara-player-control-block imara-player-side-note">
+          <span class="imara-control-label">Participante</span>
+          <strong class="imara-side-participant">${esc(data.player_name||base.buyer||'Participante')}</strong>
         </div>
-
-        <div class="imara-player-control-block">
-          <span class="imara-control-label">Tamaño</span>
-          <div class="imara-zoom-row">
-            <button type="button" data-zoom="-1" aria-label="Reducir cartones">−</button>
-            <strong data-zoom-label>100%</strong>
-            <button type="button" data-zoom="1" aria-label="Ampliar cartones">+</button>
-          </div>
-          <button type="button" class="imara-side-action" data-fit>▦ Ajustar todos</button>
-        </div>
-
-        <div class="imara-player-control-block">
-          <button type="button" class="imara-side-action primary" data-focus>⤢ Vista juego</button>
-          <button type="button" class="imara-side-action" data-scroll-top>↑ Cartón principal</button>
-        </div>
-
-        <p class="imara-player-cards-help">
-          Puedes marcar cualquiera de tus cartones aquí. En PC la vista se reorganiza sola si reduces la ventana para dejar YouTube al lado.
-        </p>
       </aside>
 
       <div class="imara-player-stage" data-stage>
@@ -334,6 +300,9 @@ function mount(data,base){
       grid-template-columns:1fr!important;
       gap:5px!important;
     }
+    .imara-player-original-controls .mobile-person>div:first-child{
+      display:none!important;
+    }
     .imara-player-original-controls .mobile-person>div{
       padding:7px 8px!important;
     }
@@ -364,6 +333,16 @@ function mount(data,base){
       min-height:34px!important;
       height:auto!important;
       font-size:10px!important;
+    }
+    .imara-player-side-note{
+      padding-top:8px!important;
+    }
+    .imara-side-participant{
+      display:block;
+      font-size:12px;
+      line-height:1.25;
+      color:#fff;
+      overflow-wrap:anywhere;
     }
     .imara-player-control-block{
       display:grid;
@@ -768,96 +747,70 @@ function mount(data,base){
   });
 
   const stage=wrap.querySelector('[data-stage]');
-  const zoomLabel=wrap.querySelector('[data-zoom-label]');
   const viewStatus=wrap.querySelector('[data-view-status]');
-  const focusBtn=wrap.querySelector('[data-focus]');
-  const fitBtn=wrap.querySelector('[data-fit]');
+
+  function cleanupSide(){
+    const person=document.querySelector('.imara-player-original-controls .mobile-person');
+    if(person){
+      const first=person.children?.[0];
+      if(first)first.style.setProperty('display','none','important');
+    }
+
+    const warning=/si completas la figura de la ronda.*pulsa bingo/i;
+    const nodes=[...originalSlot.querySelectorAll('*')];
+    for(const el of nodes){
+      const txt=String(el.textContent||'').replace(/\s+/g,' ').trim();
+      if(!warning.test(txt))continue;
+      const childMatches=[...el.children].some(ch=>warning.test(String(ch.textContent||'').replace(/\s+/g,' ').trim()));
+      if(!childMatches)el.style.setProperty('display','none','important');
+    }
+
+    const push=document.getElementById('imaraPushBell');
+    if(push&&/recordatorios activos/i.test(String(push.textContent||''))){
+      push.style.setProperty('display','none','important');
+    }
+  }
 
   function computeDesktopFit(){
-    const width=Math.max(280,stage.clientWidth||window.innerWidth-220);
+    const width=Math.max(280,stage.clientWidth||window.innerWidth-240);
     const gap=10;
     const count=cards.length;
-    if(prefs.layout==='vertical'||matchMedia('(max-width:640px)').matches){
+
+    wrap.classList.add('layout-horizontal');
+    wrap.classList.remove('layout-vertical');
+    document.body.classList.add('imara-multi-focus');
+
+    if(matchMedia('(max-width:640px)').matches){
+      wrap.style.setProperty('--ui-scale','1');
       wrap.style.setProperty('--card-cols','1');
-      wrap.style.setProperty('--ui-scale',String(prefs.zoom));
+      if(viewStatus)viewStatus.textContent='Desliza ↔ para ver todos tus cartones';
       return;
     }
 
-    if(!prefs.fit){
-      const target=clamp(300*prefs.zoom,230,420);
-      const cols=clamp(Math.floor((width+gap)/(target+gap)),1,Math.min(count,5));
-      wrap.style.setProperty('--card-cols',String(cols));
-      wrap.style.setProperty('--ui-scale',String(prefs.zoom));
-      return;
-    }
-
-    const availH=prefs.focus
-      ? Math.max(360,stage.clientHeight-34)
-      : Math.max(520,Math.min(window.innerHeight*.88,900));
-
+    const availH=Math.max(360,stage.clientHeight-34);
     let best={cols:1,scale:.78,score:-Infinity};
-    const maxCols=Math.min(count,width>1450?5:width>1050?4:width>760?3:2);
+    const maxCols=Math.min(count,width>1500?5:width>1120?4:width>820?3:2);
+
     for(let cols=1;cols<=maxCols;cols++){
       const rows=Math.ceil(count/cols);
       const cardW=(width-gap*(cols-1))/cols;
       const byW=cardW/300;
       const byH=(availH-gap*(rows-1))/(rows*245);
-      const scale=clamp(Math.min(byW,byH)*prefs.zoom,.68,1.28);
-      const readable=scale>=.78?1:0;
+      const scale=clamp(Math.min(byW,byH),.74,1.22);
+      const readable=scale>=.82?1:0;
       const fitPenalty=Math.max(0,(rows*245*scale+gap*(rows-1))-availH);
       const score=readable*100+scale*25+cols-fitPenalty/100;
       if(score>best.score)best={cols,scale,score};
     }
+
     wrap.style.setProperty('--card-cols',String(best.cols));
     wrap.style.setProperty('--ui-scale',String(best.scale));
+    if(viewStatus)viewStatus.textContent='Tus cartones de juego';
   }
 
-  function applyView(){
-    wrap.classList.toggle('layout-horizontal',prefs.layout==='horizontal');
-    wrap.classList.toggle('layout-vertical',prefs.layout==='vertical');
-    document.body.classList.toggle('imara-multi-focus',prefs.focus);
-    wrap.querySelectorAll('[data-layout]').forEach(b=>b.classList.toggle('active',b.dataset.layout===prefs.layout));
-    fitBtn.classList.toggle('active',prefs.fit);
-    fitBtn.textContent=prefs.fit?'✓ Ajustando todos':'▦ Ajustar todos';
-    focusBtn.textContent=prefs.focus?'↩ Salir de vista juego':'⤢ Vista juego';
-    zoomLabel.textContent=`${Math.round(prefs.zoom*100)}%`;
-    viewStatus.textContent=prefs.layout==='horizontal'
-      ? (matchMedia('(max-width:640px)').matches?'Desliza ↔ para ver tus cartones':(prefs.fit?'Vista horizontal · ajustando todos':'Vista horizontal'))
-      : 'Vista vertical · cartones grandes';
-    saveViewPrefs(prefs);
-    requestAnimationFrame(computeDesktopFit);
-  }
-
-  wrap.querySelectorAll('[data-layout]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      prefs.layout=btn.dataset.layout==='vertical'?'vertical':'horizontal';
-      applyView();
-    });
-  });
-  wrap.querySelectorAll('[data-zoom]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      prefs.zoom=clamp(Math.round((prefs.zoom+(btn.dataset.zoom==='1'?.1:-.1))*100)/100,.78,1.35);
-      prefs.fit=false;
-      applyView();
-    });
-  });
-  fitBtn.addEventListener('click',()=>{
-    prefs.fit=!prefs.fit;
-    if(prefs.fit)prefs.zoom=1;
-    applyView();
-  });
-  focusBtn.addEventListener('click',()=>{
-    prefs.focus=!prefs.focus;
-    applyView();
-    if(prefs.focus)wrap.scrollIntoView({block:'start'});
-  });
-  wrap.querySelector('[data-scroll-top]').addEventListener('click',()=>{
-    if(prefs.focus){
-      prefs.focus=false;
-      applyView();
-    }
-    window.scrollTo({top:0,behavior:'smooth'});
-  });
+  cleanupSide();
+  const sideObserver=new MutationObserver(()=>cleanupSide());
+  sideObserver.observe(originalSlot,{subtree:true,childList:true,characterData:true});
 
   let raf=0;
   const recalc=()=>{
@@ -870,7 +823,7 @@ function mount(data,base){
     ro.observe(stage);
   }
 
-  applyView();
+  computeDesktopFit();
 }
 
 async function load(){
