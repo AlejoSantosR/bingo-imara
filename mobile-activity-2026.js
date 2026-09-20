@@ -17,9 +17,12 @@ function decode(){
  }catch{return null;}
 }
 function clientId(cardId){
- const key='imaraActivityClient:'+cardId;
- let id=sessionStorage.getItem(key)||'';
- if(!id){id=crypto.randomUUID();sessionStorage.setItem(key,id);}
+ const deviceKey='imaraActivityDeviceV1';
+ let id=localStorage.getItem(deviceKey)||'';
+ if(!id){
+   id=sessionStorage.getItem('imaraActivityClient:'+cardId)||crypto.randomUUID();
+   try{localStorage.setItem(deviceKey,id);}catch(_){sessionStorage.setItem(deviceKey,id);}
+ }
  return id;
 }
 async function ping(event,probeId=''){
