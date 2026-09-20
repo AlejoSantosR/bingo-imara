@@ -126,10 +126,10 @@ function readViewPrefs(){
   try{
     const x=JSON.parse(localStorage.getItem('imaraPlayerCardsView:v2')||'{}');
     return {
-      layout:x.layout==='vertical'?'vertical':'horizontal',
-      fit:x.fit!==false,
-      focus:!!x.focus,
-      zoom:Math.min(1.35,Math.max(.78,Number(x.zoom)||1))
+      layout:x.layout==='vertical'||x.layout==='horizontal'?x.layout:fallback.layout,
+      fit:x.fit===undefined?fallback.fit:x.fit!==false,
+      focus:x.focus===undefined?fallback.focus:!!x.focus,
+      zoom:Math.min(1.35,Math.max(.78,Number(x.zoom)||fallback.zoom))
     };
   }catch(e){return fallback;}
 }
