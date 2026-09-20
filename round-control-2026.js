@@ -38,7 +38,18 @@ if(typeof currentWinningCards==='function'){
  const baseCandidates=currentWinningCards;currentWinningCards=function(){const won=new Set((state.winners||[]).map(w=>w.cardId));return baseCandidates().filter(c=>c.status==='Pagado'&&!won.has(c.id));};
 }
 if(typeof window.registerWinner==='function'){
- const baseRegister=window.registerWinner;window.registerWinner=function(id){if((state.winners||[]).some(w=>w.cardId===id)){alert('Este cartón ya fue ganador y no puede volver a participar.');return;}const c=findCard(id);if(c?.status==='Ganador'){alert('Este cartón ya ganó anteriormente.');return;}return baseRegister(id);};
+ window.registerWinner=async function(id){
+  if((state.winners||[]).some(w=>w.cardId===id)){alert('Este cartón ya fue ganador y no puede volver a participar.');return;}
+  const c=findCard(id);if(c?.status==='Ganador'){alert('Este cartón ya ganó anteriormente.');return;}
+  try{
+   await api('winner-add',{card_id:id});
+   const o=await api('overview',{},false);
+   syncCloudGame(o);
+   celebrate?.();
+   toast?.(`🏆 ${id} registrado como ganador oficial`);
+   const box=document.getElementById('validationResult');if(box)box.innerHTML=`<div class="success">🏆 Ganador oficial registrado: <strong>${esc(id)}</strong>. El premio quedó guardado en el historial.</div>`;
+  }catch(e){alert(e.message||'No fue posible registrar el ganador.');}
+ };
 }
 document.getElementById('validateBtn')?.addEventListener('click',e=>{const c=findCard(document.getElementById('winnerInput')?.value);if(c&&(state.winners||[]).some(w=>w.cardId===c.id)){e.stopImmediatePropagation();document.getElementById('validationResult').innerHTML=`<div class="danger">⛔ <strong>${esc(c.id)}</strong> ya fue ganador y quedó retirado de las rondas siguientes.</div>`;}},true);
 
