@@ -74,13 +74,15 @@ function buildMiniCard(card,base){
   box.className='imara-player-card';
   box.innerHTML=`
     <div class="imara-player-card-head">
-      <div><span>Cartón</span><strong>${esc(card.id)}</strong></div>
-      <span class="imara-player-card-state">${esc(statusLabel(card))}</span>
+      <div class="imara-player-card-id"><span>Cartón</span><strong>${esc(card.id)}</strong></div>
+      <div class="imara-player-card-tools">
+        <span class="imara-player-card-state">${esc(statusLabel(card))}</span>
+        <button type="button" class="imara-card-open" data-open>↗ Abrir</button>
+      </div>
     </div>
     <div class="imara-player-mini-grid" data-grid></div>
-    <div class="imara-player-card-actions">
+    <div class="imara-player-card-foot">
       <button type="button" data-clear>↩ Limpiar marcas</button>
-      <button type="button" class="primary" data-open>🎟️ Abrir este cartón</button>
     </div>`;
 
   const grid=box.querySelector('[data-grid]');
@@ -165,6 +167,8 @@ function mount(data,base){
           <strong>${esc(data.player_name||base.buyer||'Participante')}</strong>
         </div>
 
+        <div class="imara-player-original-controls" data-original-controls></div>
+
         <div class="imara-player-control-block">
           <span class="imara-control-label">Distribución</span>
           <div class="imara-layout-toggle">
@@ -209,18 +213,26 @@ function mount(data,base){
     body.imara-mobile-body.imara-has-player-cards{
       height:auto!important;
       min-height:100dvh!important;
+      width:100%!important;
+      max-width:none!important;
       overflow-y:auto!important;
       overflow-x:hidden!important;
       overscroll-behavior-y:auto!important;
       -webkit-overflow-scrolling:touch!important;
-      padding-bottom:max(28px,env(safe-area-inset-bottom))!important;
+      padding:
+        max(8px,env(safe-area-inset-top))
+        max(10px,env(safe-area-inset-right))
+        max(24px,env(safe-area-inset-bottom))
+        max(10px,env(safe-area-inset-left))!important;
     }
     body.imara-mobile-body.imara-has-player-cards .mobile-card-shell{
+      width:min(1760px,100%)!important;
+      max-width:none!important;
       height:auto!important;
       min-height:calc(100dvh - 16px)!important;
       overflow:visible!important;
-      display:flex!important;
-      flex-direction:column!important;
+      margin:0 auto!important;
+      display:block!important;
       grid-template-columns:none!important;
       grid-template-rows:none!important;
     }
@@ -259,8 +271,8 @@ function mount(data,base){
     }
     .imara-player-workspace{
       display:grid;
-      grid-template-columns:190px minmax(0,1fr);
-      gap:12px;
+      grid-template-columns:clamp(220px,18vw,285px) minmax(0,1fr);
+      gap:14px;
       align-items:start;
       width:100%;
       min-width:0;
@@ -297,6 +309,61 @@ function mount(data,base){
       font-size:11px;
       color:#d8def0;
       line-height:1.25;
+    }
+    .imara-player-original-controls{
+      display:grid;
+      gap:6px;
+      width:100%;
+      min-width:0;
+      margin:2px 0 8px;
+    }
+    .imara-player-original-controls>*{
+      width:100%!important;
+      max-width:100%!important;
+      min-width:0!important;
+      margin:0!important;
+    }
+    .imara-player-original-controls .mobile-card-top{
+      display:flex!important;
+      align-items:center!important;
+      gap:8px!important;
+      padding-bottom:3px!important;
+    }
+    .imara-player-original-controls .mobile-person{
+      display:grid!important;
+      grid-template-columns:1fr!important;
+      gap:5px!important;
+    }
+    .imara-player-original-controls .mobile-person>div{
+      padding:7px 8px!important;
+    }
+    .imara-player-original-controls #mobileRoundLive,
+    .imara-player-original-controls .mobile-round-live{
+      padding:7px!important;
+    }
+    .imara-player-original-controls .mobile-actions{
+      display:grid!important;
+      grid-template-columns:1fr 1fr!important;
+      gap:5px!important;
+    }
+    .imara-player-original-controls .mobile-actions button{
+      min-height:32px!important;
+      height:auto!important;
+      font-size:9px!important;
+    }
+    .imara-player-original-controls .mobile-help,
+    .imara-player-original-controls .mobile-note{
+      font-size:8px!important;
+      line-height:1.25!important;
+      padding:6px 7px!important;
+    }
+    .imara-player-original-controls .mobile-bingo-btn,
+    .imara-player-original-controls #mobileBingoBtn,
+    .imara-player-original-controls #imaraPushBell,
+    .imara-player-original-controls .imara-push-bell{
+      min-height:34px!important;
+      height:auto!important;
+      font-size:10px!important;
     }
     .imara-player-control-block{
       display:grid;
@@ -425,17 +492,24 @@ function mount(data,base){
       align-items:center;
       margin-bottom:calc(7px * var(--ui-scale));
     }
-    .imara-player-card-head>div span{
+    .imara-player-card-id span{
       display:block;
       font-size:calc(8px * var(--ui-scale));
       letter-spacing:.8px;
       color:#aeb8ca;
       text-transform:uppercase;
     }
-    .imara-player-card-head>div strong{
+    .imara-player-card-id strong{
       display:block;
       font-size:calc(14px * var(--ui-scale));
       margin-top:2px;
+    }
+    .imara-player-card-tools{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:5px;
+      min-width:0;
     }
     .imara-player-card-state{
       font-size:calc(9px * var(--ui-scale));
@@ -492,31 +566,39 @@ function mount(data,base){
       transform:rotate(-9deg);
     }
     .imara-player-mini-cell.free::after{display:none}
-    .imara-player-card-actions{
-      display:grid;
-      grid-template-columns:1fr 1.1fr;
-      gap:5px;
-      margin-top:calc(7px * var(--ui-scale));
-    }
-    .imara-player-card-actions button{
-      min-height:calc(31px * var(--ui-scale));
+    .imara-card-open,
+    .imara-player-card-foot button{
       border:1px solid #3a4768;
-      border-radius:9px;
+      border-radius:8px;
       background:#1a2540;
       color:#fff;
       font-weight:900;
-      font-size:clamp(8px,calc(9px * var(--ui-scale)),11px);
       cursor:pointer;
     }
-    .imara-player-card-actions button.primary{
+    .imara-card-open{
+      min-height:25px;
+      padding:3px 7px;
+      font-size:calc(8px * var(--ui-scale));
       background:linear-gradient(135deg,#ff5b8f,#8d6bff);
-      border:0;
+      border-color:transparent;
+      white-space:nowrap;
     }
-    .imara-player-card-actions button:disabled{
+    .imara-card-open:disabled{
       opacity:.72;
       cursor:default;
       background:#27324b!important;
       border:1px solid #3a4768!important;
+    }
+    .imara-player-card-foot{
+      display:flex;
+      justify-content:flex-end;
+      margin-top:calc(5px * var(--ui-scale));
+    }
+    .imara-player-card-foot button{
+      min-height:24px;
+      padding:3px 7px;
+      font-size:calc(8px * var(--ui-scale));
+      color:#cbd4e5;
     }
 
     body.imara-mobile-body.imara-multi-focus{
@@ -565,8 +647,8 @@ function mount(data,base){
       -webkit-overflow-scrolling:touch;
     }
 
-    @media(max-width:900px){
-      .imara-player-workspace{grid-template-columns:160px minmax(0,1fr)}
+    @media(max-width:1100px){
+      .imara-player-workspace{grid-template-columns:210px minmax(0,1fr);gap:10px}
       .imara-player-side{padding:10px}
       .imara-layout-toggle{grid-template-columns:1fr}
       .imara-player-cards-title h2{font-size:16px}
@@ -590,6 +672,10 @@ function mount(data,base){
       .imara-player-cards-title{
         grid-column:1/-1;
         margin:0;
+      }
+      .imara-player-original-controls{
+        grid-column:1/-1;
+        grid-template-columns:1fr;
       }
       .imara-player-control-block{
         padding:6px 0 0;
@@ -664,11 +750,22 @@ function mount(data,base){
       const state=node.querySelector('.imara-player-card-state');
       if(state)state.textContent='👁 Abierto';
       const open=node.querySelector('[data-open]');
-      if(open){open.disabled=true;open.textContent='✓ Cartón actual';}
+      if(open){open.disabled=true;open.textContent='✓ Actual';}
     }
     host.appendChild(node);
   });
   shell.appendChild(wrap);
+
+  const originalSlot=wrap.querySelector('[data-original-controls]');
+  Array.from(shell.children).forEach(node=>{
+    if(node===wrap)return;
+    if(node.classList?.contains('mobile-grid')){
+      node.style.setProperty('display','none','important');
+      node.setAttribute('aria-hidden','true');
+      return;
+    }
+    originalSlot.appendChild(node);
+  });
 
   const stage=wrap.querySelector('[data-stage]');
   const zoomLabel=wrap.querySelector('[data-zoom-label]');
