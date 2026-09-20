@@ -119,24 +119,30 @@ function frame(now=performance.now()){
  if(!pick)return;
 
  const marker=document.querySelector('.marker');
- fitWinnerTarget(pick.el,marker);
- const to=-(pick.el.offsetLeft+pick.el.offsetWidth/2);
- sub.textContent='✨ Los rodillos están frenando sobre el ganador real del demo…';
+ sub.textContent='✨ Ajustando el selector al ganador real del demo…';
  items.forEach(x=>x.classList.remove('current','near'));
- const an=track.animate([{transform:`translate3d(${from}px,-50%,0)`},{transform:`translate3d(${to}px,-50%,0)`}],{duration:2300,easing:'cubic-bezier(.08,.82,.17,1)',fill:'forwards'});
- an.onfinish=()=>{
-   track.style.transform=`translate3d(${to}px,-50%,0)`;
-   an.cancel();
-   items.forEach(x=>x.classList.remove('current','near'));
-   pick.el.classList.add('current');
-   sub.textContent=`🎯 Seleccionado: ${selectedWinner.name} · ${selectedWinner.id}`;
-   setTimeout(()=>{
-     document.getElementById('winnerName').textContent=selectedWinner.name;
-     document.getElementById('winnerId').textContent=selectedWinner.id;
-     demo.classList.add('done');
-     sub.textContent='';
-   },1200);
- };
+ fitWinnerTarget(pick.el,marker);
+
+ setTimeout(()=>{
+   requestAnimationFrame(()=>requestAnimationFrame(()=>{
+     const to=-(pick.el.offsetLeft+pick.el.offsetWidth/2);
+     sub.textContent='✨ Los rodillos están frenando sobre el ganador real del demo…';
+     const an=track.animate([{transform:`translate3d(${from}px,-50%,0)`},{transform:`translate3d(${to}px,-50%,0)`}],{duration:2300,easing:'cubic-bezier(.08,.82,.17,1)',fill:'forwards'});
+     an.onfinish=()=>{
+       track.style.transform=`translate3d(${to}px,-50%,0)`;
+       an.cancel();
+       items.forEach(x=>x.classList.remove('current','near'));
+       pick.el.classList.add('current');
+       sub.textContent=`🎯 Seleccionado: ${selectedWinner.name} · ${selectedWinner.id}`;
+       setTimeout(()=>{
+         document.getElementById('winnerName').textContent=selectedWinner.name;
+         document.getElementById('winnerId').textContent=selectedWinner.id;
+         demo.classList.add('done');
+         sub.textContent='';
+       },1200);
+     };
+   }));
+ },460);
 }
 document.getElementById('restart').addEventListener('click',setup);
 setup();
