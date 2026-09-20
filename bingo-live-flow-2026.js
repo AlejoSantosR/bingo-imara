@@ -76,6 +76,12 @@ function mountPanels(){
  if(game){let p=document.getElementById('bingoV3Game');if(!p){p=document.createElement('div');p.id='bingoV3Game';p.className='b3-panel';const auto=document.getElementById('autoWinnerStatus')?.closest('.card');(auto||game.firstElementChild)?.after(p);}renderPanel(p,list,wins,'Juego');}
 }
 function renderAdminAlert(box,list,wins){
+ if(show?.type==='winner'){
+   const w=show.winner||{};
+   box.className='b3-admin-alert';
+   box.innerHTML=`<div class="b3-alert-top"><div><div class="b3-alert-title">🏆 Ganador confirmado</div><div class="b3-alert-sub">${esc(person(w))}${w.card_id?' · '+esc(w.card_id):''} · listo para continuar</div></div></div><div class="b3-alert-actions"><button class="btn good" data-b3-next-round>➡️ Continuar a siguiente ronda</button></div>`;
+   return;
+ }
  if(!list.length){box.innerHTML='';box.className='';return;}
  const manual=new Set(announced().map(c=>String(c.card_id)));
  const autoOnly=list.filter(c=>!manual.has(String(c.card_id))&&c.valid===true);
@@ -95,7 +101,7 @@ function renderAdminAlert(box,list,wins){
 }
 function renderPanel(p,list,wins,where){
  const claimIds=new Set(announced().map(c=>String(c.card_id)));
- p.innerHTML=`<div class="b3-head"><div><div class="b3-title">📣 Centro de BINGO · ${where}</div><div class="muted" style="margin-top:3px">Avisos del cartón digital y ganadores detectados por el sistema.</div></div><div class="b3-actions"><button class="btn" data-b3-refresh>↻ Actualizar</button><button class="btn primary" data-b3-count>🎙️ BINGO · 1, 2 y 3</button>${wins.length>=2?'<button class="btn warn" data-b3-tie>🔥 Iniciar desempate</button>':''}${list.length?'<button class="btn bad" data-b3-resume>▶ Reanudar juego</button>':''}</div></div>${wins.length>1?`<div class="b3-tie">🔥 Empate válido detectado entre ${wins.length} cartones. Revísalos y, cuando estés listo, inicia el desempate manualmente.</div>`:''}<div class="b3-list">${list.length?list.map(c=>`<div class="b3-row"><div><strong>${claimIds.has(String(c.card_id))?'📱':'✨'} ${esc(person(c))}</strong><br><small>${esc(c.card_id)} · ${c.valid===true?'BINGO válido':'BINGO anunciado · pendiente de validación'}</small></div><button class="mini" data-b3-review="${esc(c.card_id)}">🔎 Revisar cartón</button></div>`).join(''):'<div class="muted">Todavía no hay avisos de BINGO. Puedes usar “BINGO · 1, 2 y 3” para hacer el llamado final.</div>'}</div>`;
+ p.innerHTML=`<div class="b3-head"><div><div class="b3-title">📣 Centro de BINGO · ${where}</div><div class="muted" style="margin-top:3px">Avisos del cartón digital y ganadores detectados por el sistema.</div></div><div class="b3-actions"><button class="btn" data-b3-refresh>↻ Actualizar</button><button class="btn primary" data-b3-count>🎙️ BINGO · 1, 2 y 3</button>${show?.type==='winner'?'<button class="btn good" data-b3-next-round>➡️ Continuar a siguiente ronda</button>':''}${wins.length>=2?'<button class="btn warn" data-b3-tie>🔥 Iniciar desempate</button>':''}${list.length?'<button class="btn bad" data-b3-resume>▶ Reanudar juego</button>':''}</div></div>${wins.length>1?`<div class="b3-tie">🔥 Empate válido detectado entre ${wins.length} cartones. Revísalos y, cuando estés listo, inicia el desempate manualmente.</div>`:''}<div class="b3-list">${list.length?list.map(c=>`<div class="b3-row"><div><strong>${claimIds.has(String(c.card_id))?'📱':'✨'} ${esc(person(c))}</strong><br><small>${esc(c.card_id)} · ${c.valid===true?'BINGO válido':'BINGO anunciado · pendiente de validación'}</small></div><button class="mini" data-b3-review="${esc(c.card_id)}">🔎 Revisar cartón</button></div>`).join(''):'<div class="muted">Todavía no hay avisos de BINGO. Puedes usar “BINGO · 1, 2 y 3” para hacer el llamado final.</div>'}</div>`;
 }
 function review(id){const nav=document.querySelector('.nav [data-view="validate"]');if(nav)nav.click();else if(typeof showView==='function')showView('validate');setTimeout(()=>{const i=document.getElementById('winnerInput');if(i)i.value=id;document.getElementById('validateBtn')?.click();},100);}
 
@@ -140,16 +146,29 @@ async function continueGame(btn){
  if(btn){btn.disabled=true;btn.textContent='⏳ Reanudando…';}
  try{
    if(ids.length)await api('bingo-reject',{card_ids:ids});
-   else await setShow({type:'idle'});
+   await setShow({type:'idle'});
    show={type:'idle'};claims=[];candidates=[];lastClaimSig='';lastAdminAlertSig='';
    hideOverlay();mountPanels();
    window.dispatchEvent(new CustomEvent('imara-bingo-continue-complete',{detail:{card_ids:ids}}));
+   return true;
  }catch(e){
    if(btn?.isConnected){btn.disabled=false;btn.textContent=oldText;}
    alert(e.message);
+   return false;
  }finally{continueBusy=false;}
 }
-async function confirmOne(id){try{await api('winner-confirm',{card_id:id});await refreshOverview();paint();}catch(e){alert(e.message);}}
+async function confirmOne(id){try{await api('winner-confirm',{card_id:id});await refreshOverview();mountPanels();paint();}catch(e){alert(e.message);}}
+async function nextRoundAfterWinner(btn){
+ const ok=await continueGame(btn);
+ if(!ok)return;
+ const nav=document.querySelector('.nav [data-view="game"],[data-view="game"]');
+ nav?.click();
+ setTimeout(()=>{
+   const next=document.getElementById('roundPrepare2026');
+   if(next&&!next.disabled){next.click();return;}
+   if(typeof toast==='function')toast('✅ Ganador cerrado. Ve a Juego y prepara la siguiente ronda.');
+ },180);
+}
 async function startTie(){
  if(tieStarting||tieResolving)return;
  if(['tie','winner'].includes(show?.type))return;
@@ -231,6 +250,7 @@ function wire(){
    const c=t.closest?.('[data-b3-confirm]');if(c){e.preventDefault();confirmOne(c.dataset.b3Confirm);return;}
    const cont=t.closest?.('[data-b3-continue]');if(cont){e.preventDefault();continueGame(cont);return;}
    const resume=t.closest?.('[data-b3-resume]');if(resume){e.preventDefault();continueGame(resume);return;}
+   const next=t.closest?.('[data-b3-next-round]');if(next){e.preventDefault();nextRoundAfterWinner(next);return;}
    if(t.closest?.('[data-b3-tie]')){e.preventDefault();startTie();return;}
  },true);
 }
