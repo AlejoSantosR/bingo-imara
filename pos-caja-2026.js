@@ -150,6 +150,7 @@ function wireView(groups){
  document.querySelectorAll('#view-pos [data-refund-order]').forEach(b=>b.onclick=()=>setOrderStatus(groups.find(g=>g.code===b.dataset.refundOrder),'refunded','Devolución de venta POS'));
  document.querySelectorAll('#view-pos [data-edit-person]').forEach(b=>b.onclick=()=>editPeople(groups.find(g=>g.code===b.dataset.editPerson)));
  document.querySelectorAll('#view-pos [data-edit-method]').forEach(b=>b.onclick=()=>editMethod(groups.find(g=>g.code===b.dataset.editMethod)));
+ document.querySelectorAll('#view-pos [data-edit-seller]').forEach(b=>b.onclick=()=>editOrderSeller(groups.find(g=>g.code===b.dataset.editSeller)));
  calcForm();
 }
 
