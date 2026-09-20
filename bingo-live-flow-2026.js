@@ -13,7 +13,7 @@ const PUBLIC_POLL=800;
 const COUNT_MS=3000;
 const TIE_MS=10000;
 let claims=[],candidates=[],show={type:'idle'};
-let lastClaimSig='',publishing=false,tieStarting=false,tieResolving=false,continueBusy=false;
+let lastClaimSig='',lastAdminAlertSig='',publishing=false,tieStarting=false,tieResolving=false,continueBusy=false,refreshQueued=false;
 let publicTimer=null,paintTimer=null,lastRealtimeShowSig='';
 
 const esc=s=>typeof escapeHtml==='function'?escapeHtml(String(s??'')):String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[m]));
@@ -64,36 +64,68 @@ function mountPanels(){
  if(IS_PUBLIC||!isAdmin())return;
  const list=allVisible(),wins=valid();
  const dash=document.getElementById('view-dashboard');
- if(dash){let p=document.getElementById('bingoV3Dash');if(!p){p=document.createElement('div');p.id='bingoV3Dash';p.className='b3-panel';dash.querySelector('.grid.kpis')?.after(p);}renderPanel(p,list,wins,'Inicio');}
+ if(dash){
+   let alertBox=document.getElementById('bingoV3AdminAlert');
+   if(!alertBox){alertBox=document.createElement('div');alertBox.id='bingoV3AdminAlert';dash.querySelector('.grid.kpis')?.after(alertBox);}
+   renderAdminAlert(alertBox,list,wins);
+   let p=document.getElementById('bingoV3Dash');
+   if(!p){p=document.createElement('div');p.id='bingoV3Dash';p.className='b3-panel';alertBox.after(p);}
+   renderPanel(p,list,wins,'Inicio');
+ }
  const game=document.getElementById('view-game');
  if(game){let p=document.getElementById('bingoV3Game');if(!p){p=document.createElement('div');p.id='bingoV3Game';p.className='b3-panel';const auto=document.getElementById('autoWinnerStatus')?.closest('.card');(auto||game.firstElementChild)?.after(p);}renderPanel(p,list,wins,'Juego');}
 }
+function renderAdminAlert(box,list,wins){
+ if(!list.length){box.innerHTML='';box.className='';return;}
+ const manual=new Set(announced().map(c=>String(c.card_id)));
+ const autoOnly=list.filter(c=>!manual.has(String(c.card_id))&&c.valid===true);
+ const title=autoOnly.length&&manual.size===0
+   ? `✨ BINGO detectado automáticamente`
+   : `📣 Solicitud de BINGO recibida`;
+ const detail=list.length===1
+   ? `${person(list[0])} · ${list[0].card_id}`
+   : `${list.length} cartones requieren revisión`;
+ box.className='b3-admin-alert';
+ box.innerHTML=`<div class="b3-alert-top"><div><div class="b3-alert-title">${title}</div><div class="b3-alert-sub">${esc(detail)}${wins.length?' · '+wins.length+' válido'+(wins.length===1?'':'s'):''}</div></div></div><div class="b3-alert-actions">${list.slice(0,4).map(c=>`<button class="btn primary" data-b3-review="${esc(c.card_id)}">🔎 Revisar ${esc(c.card_id)}</button>`).join('')}<button class="btn bad" data-b3-resume>▶ Reanudar juego</button></div>`;
+ const sig=(show?.source||'')+'|'+list.map(c=>c.card_id+':'+(c.valid===true?'1':'0')).sort().join('|');
+ if(sig&&sig!==lastAdminAlertSig){
+   lastAdminAlertSig=sig;
+   if(typeof toast==='function')toast(autoOnly.length&&manual.size===0?'✨ BINGO detectado automáticamente':'📣 Nueva solicitud de BINGO');
+ }
+}
 function renderPanel(p,list,wins,where){
  const claimIds=new Set(announced().map(c=>String(c.card_id)));
- p.innerHTML=`<div class="b3-head"><div><div class="b3-title">📣 Centro de BINGO · ${where}</div><div class="muted" style="margin-top:3px">Avisos del cartón digital y ganadores detectados por el sistema.</div></div><div class="b3-actions"><button class="btn" data-b3-refresh>↻ Actualizar</button><button class="btn primary" data-b3-count>🎙️ BINGO · 1, 2 y 3</button></div></div>${wins.length>1?`<div class="b3-tie">🔥 Empate válido detectado entre ${wins.length} cartones. La ruleta se abrirá automáticamente.</div>`:''}<div class="b3-list">${list.length?list.map(c=>`<div class="b3-row"><div><strong>${claimIds.has(String(c.card_id))?'📱':'✨'} ${esc(person(c))}</strong><br><small>${esc(c.card_id)} · ${c.valid===true?'BINGO válido':'BINGO anunciado · pendiente de validación'}</small></div><button class="mini" data-b3-review="${esc(c.card_id)}">🔎 Revisar cartón</button></div>`).join(''):'<div class="muted">Todavía no hay avisos de BINGO. Puedes usar “BINGO · 1, 2 y 3” para hacer el llamado final.</div>'}</div>`;
+ p.innerHTML=`<div class="b3-head"><div><div class="b3-title">📣 Centro de BINGO · ${where}</div><div class="muted" style="margin-top:3px">Avisos del cartón digital y ganadores detectados por el sistema.</div></div><div class="b3-actions"><button class="btn" data-b3-refresh>↻ Actualizar</button><button class="btn primary" data-b3-count>🎙️ BINGO · 1, 2 y 3</button>${list.length?'<button class="btn bad" data-b3-resume>▶ Reanudar juego</button>':''}</div></div>${wins.length>1?`<div class="b3-tie">🔥 Empate válido detectado entre ${wins.length} cartones. La ruleta se abrirá automáticamente.</div>`:''}<div class="b3-list">${list.length?list.map(c=>`<div class="b3-row"><div><strong>${claimIds.has(String(c.card_id))?'📱':'✨'} ${esc(person(c))}</strong><br><small>${esc(c.card_id)} · ${c.valid===true?'BINGO válido':'BINGO anunciado · pendiente de validación'}</small></div><button class="mini" data-b3-review="${esc(c.card_id)}">🔎 Revisar cartón</button></div>`).join(''):'<div class="muted">Todavía no hay avisos de BINGO. Puedes usar “BINGO · 1, 2 y 3” para hacer el llamado final.</div>'}</div>`;
 }
 function review(id){const nav=document.querySelector('.nav [data-view="validate"]');if(nav)nav.click();else if(typeof showView==='function')showView('validate');setTimeout(()=>{const i=document.getElementById('winnerInput');if(i)i.value=id;document.getElementById('validateBtn')?.click();},100);}
 
 async function setShow(next){const d=await api('show-set',{show_state:next});show=d.show_state||next;paint();return show;}
 async function refreshOverview(){const o=await api('overview',{},false);show=o.game?.show_state||{type:'idle'};return o;}
 async function refreshClaims(){
- const b=await api('bingo-claims');claims=Array.isArray(b.claims)?b.claims:[];candidates=Array.isArray(b.candidates)?b.candidates:[];mountPanels();
- const a=announced(),sig=signature(a),v=valid();
- if(a.length&&sig&&sig!==lastClaimSig&&!publishing){
-   lastClaimSig=sig;await publishClaim(a);
+ const b=await api('bingo-claims');
+ claims=Array.isArray(b.claims)?b.claims:[];
+ candidates=Array.isArray(b.candidates)?b.candidates:[];
+ const a=announced(),v=valid(),list=allVisible();
+ const manualIds=new Set(a.map(c=>String(c.card_id)));
+ const source=a.length&&v.some(c=>!manualIds.has(String(c.card_id)))?'mixed':a.length?'manual':v.length?'automatic':'';
+ const sig=source+'|'+list.map(c=>String(c.card_id)+':'+(c.valid===true?'1':'0')).sort().join('|');
+ mountPanels();
+ if(list.length&&sig!==lastClaimSig&&!publishing){
+   lastClaimSig=sig;
+   await publishClaim(list,source);
    if(v.length>=2)setTimeout(()=>maybeAutoTie(v),1600);
    return;
  }
  if(v.length>=2){await maybeAutoTie(v);return;}
- if(!a.length)lastClaimSig='';
+ if(!list.length){lastClaimSig='';lastAdminAlertSig='';}
 }
-async function publishClaim(list){
+async function publishClaim(list,source='manual'){
  if(publishing)return;publishing=true;
  try{
    const o=await refreshOverview(),cur=o.game?.show_state||{type:'idle'};
-   if(['winner','tie'].includes(cur.type))return;
+   if(['winner','tie','bingo_countdown'].includes(cur.type))return;
    const merged=uniq([...(cur.type==='bingo_live_claim'?(cur.candidates||[]):[]),...list]);
-   await setShow({type:'bingo_live_claim',at:new Date().toISOString(),round_name:o.game?.round?.name||'Ronda',candidates:merged});
+   await setShow({type:'bingo_live_claim',source,at:new Date().toISOString(),round_name:o.game?.round?.name||'Ronda',candidates:merged});
  }catch(e){console.warn('BINGO V3 aviso:',e.message||e);}finally{publishing=false;}
 }
 async function startCountdown(){
@@ -111,7 +143,7 @@ async function continueGame(btn){
  try{
    if(ids.length)await api('bingo-reject',{card_ids:ids});
    else await setShow({type:'idle'});
-   show={type:'idle'};claims=[];candidates=[];lastClaimSig='';
+   show={type:'idle'};claims=[];candidates=[];lastClaimSig='';lastAdminAlertSig='';
    hideOverlay();mountPanels();
    window.dispatchEvent(new CustomEvent('imara-bingo-continue-complete',{detail:{card_ids:ids}}));
  }catch(e){
@@ -142,10 +174,13 @@ function paint(){
  const o=overlay(),s=show||{type:'idle'};
  if(s.type==='idle'||!s.type){hideOverlay();return;}
  if(s.type==='bingo_live_claim'){
-   const list=uniq(s.candidates||[]),names=list.map(person);
-   const who=names.length===1?`BINGO DE ${esc(names[0])}`:names.length===2?`BINGO DE ${esc(names[0])} Y ${esc(names[1])}`:`${names.length} PERSONAS ANUNCIAN BINGO`;
+   const list=uniq(s.candidates||[]),names=list.map(person),source=String(s.source||'manual');
+   const who=names.length===1?esc(names[0]):names.length===2?`${esc(names[0])} Y ${esc(names[1])}`:`${names.length} CARTONES`;
    if(!IS_PUBLIC){o.classList.add('hidden');return;}
-   o.classList.remove('hidden');o.innerHTML=`<div class="b3-card"><div class="b3-kicker">BINGO IMARA</div><div class="b3-main">¡BINGO!</div><div class="b3-name">${who}</div></div>`;return;
+   const automatic=source==='automatic';
+   const mixed=source==='mixed';
+   o.classList.remove('hidden');
+   o.innerHTML=`<div class="b3-card"><div class="b3-kicker">${automatic?'✨ BINGO DETECTADO POR EL SISTEMA':mixed?'📣 BINGO DETECTADO Y ANUNCIADO':'📣 ALGUIEN CANTÓ BINGO'}</div><div class="b3-main">${automatic?'¡HAY BINGO!':'¡BINGO!'}</div><div class="b3-name">${who}</div><div class="b3-sub">${automatic?'El sistema encontró un cartón ganador. Validación en curso.':'Los presentadores están revisando el cartón.'}</div></div>`;return;
  }
  if(s.type==='bingo_countdown'){
    const inf=countdownInfo(s),labels=['BINGO A LA 1','BINGO A LAS 2','BINGO A LAS 3'],list=uniq(s.candidates||[]),v=valid();
@@ -184,18 +219,22 @@ function wire(){
    const r=t.closest?.('[data-b3-review]');if(r){e.preventDefault();review(r.dataset.b3Review);return;}
    const c=t.closest?.('[data-b3-confirm]');if(c){e.preventDefault();confirmOne(c.dataset.b3Confirm);return;}
    const cont=t.closest?.('[data-b3-continue]');if(cont){e.preventDefault();continueGame(cont);return;}
+   const resume=t.closest?.('[data-b3-resume]');if(resume){e.preventDefault();continueGame(resume);return;}
    if(t.closest?.('[data-b3-tie]')){e.preventDefault();maybeAutoTie(valid());return;}
  },true);
 }
 async function adminTick(){if(!isAdmin()||!token())return;try{await refreshClaims();await refreshOverview();mountPanels();paint();await resolveTieIfNeeded();}catch(e){console.warn('BINGO V3:',e.message||e);}}
+function queueClaimsRefresh(){
+ if(refreshQueued)return;
+ refreshQueued=true;
+ setTimeout(()=>{refreshQueued=false;refreshClaims().catch(e=>console.warn('BINGO V3 claims:',e.message||e));},140);
+}
 function applyRealtime(payload){
  if(!isAdmin()||!payload?.game)return;
  const next=payload.game.show_state||{type:'idle'},sig=JSON.stringify(next);
  show=next;mountPanels();paint();resolveTieIfNeeded();
- if(sig!==lastRealtimeShowSig){
-   lastRealtimeShowSig=sig;
-   if(['bingo_live_claim','bingo_countdown','tie','winner'].includes(String(next.type||'')))refreshClaims().catch(e=>console.warn('BINGO V3 claims:',e.message||e));
- }
+ if(sig!==lastRealtimeShowSig)lastRealtimeShowSig=sig;
+ queueClaimsRefresh();
 }
 async function publicTick(){try{const o=await refreshOverview();window.dispatchEvent(new CustomEvent('imara-public-game-state',{detail:o}));paint();}catch(e){console.warn('BINGO pública V3:',e.message||e);}}
 function start(){
