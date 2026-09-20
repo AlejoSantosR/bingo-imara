@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demo · 4 premios entregados · Bingo IMARA</title>
+<style>
+:root{--bg:#0e1320;--panel:#151d2f;--line:#2e3b5d;--text:#f7f7fb;--muted:#aeb8ca}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:radial-gradient(circle at 8% 0%,rgba(141,107,255,.2),transparent 31%),radial-gradient(circle at 100% 12%,rgba(255,91,143,.12),transparent 27%),var(--bg);color:var(--text);min-height:100vh}
+.demo{position:fixed;right:16px;top:14px;z-index:50;padding:8px 12px;border-radius:999px;background:#6040d7;border:1px solid #c3b8ff;font-size:11px;font-weight:1000;letter-spacing:.5px}
+.public{width:min(1500px,100%);margin:auto;padding:24px;display:grid;grid-template-columns:350px 1fr;gap:22px}
+.side,.main{background:linear-gradient(160deg,#171e32,#242241);border:1px solid var(--line);border-radius:28px;box-shadow:0 20px 60px #0005}
+.side{padding:24px;text-align:center}.logo{width:82px;height:82px;margin:0 auto 13px;border-radius:25px;display:grid;place-items:center;font-weight:1000;font-size:28px;background:linear-gradient(135deg,#ff5b8f,#8d6bff)}.side h1{font-size:31px;margin:6px 0}.muted{color:var(--muted)}.price{font-size:30px;font-weight:1000;margin:17px 0}
+.guide{margin-top:22px;padding:16px;border-radius:22px;background:linear-gradient(145deg,rgba(8,14,27,.58),rgba(141,107,255,.08));border:1px solid rgba(164,147,255,.22);text-align:left}.kicker{font-size:10px;font-weight:1000;letter-spacing:2px;color:#ffd96f}.guide h3{font-size:20px;margin:5px 0}.guide p{font-size:12px;color:#bdc7db;line-height:1.35}.mini{margin:13px auto 0;max-width:250px;padding:8px;border-radius:15px;background:#0b1220;border:1px solid #ffffff18}.heads,.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}.heads b{height:24px;border-radius:6px;display:grid;place-items:center;background:#36243f;font-size:11px}.cell{aspect-ratio:1;border-radius:7px;background:linear-gradient(145deg,#fff0a7,#e6ad2d);border:1px solid #ffd75c}
+.live{margin-top:12px;text-align:left;padding:12px 13px;border-radius:16px;border:1px solid #ffffff18;background:#ffffff08}.live b{display:block;margin-top:4px}
+.main{padding:22px}.hero{display:grid;grid-template-columns:285px 1fr;gap:24px;align-items:center;min-height:285px;padding:21px;border-radius:28px;border:1px solid rgba(255,213,91,.4);background:radial-gradient(circle at 14% 30%,rgba(255,211,80,.16),transparent 30%),linear-gradient(135deg,#2c2015,#2b203a);box-shadow:0 20px 60px #0004}.hero-media{height:235px;border-radius:21px;background:#16120d;border:1px solid #ffd65b40;overflow:hidden}.hero-media img{width:100%;height:100%;object-fit:contain}.hero h2{font-size:55px;line-height:.96;margin:8px 0;color:#fff4cc}.hero p{font-size:18px;line-height:1.4;color:#d9d0c5}.round-pill{display:inline-flex;margin-top:12px;padding:7px 11px;border-radius:999px;background:#ffd35412;border:1px solid #ffd3543e;color:#ffe89b;font-size:11px;font-weight:900}
+.delivered{margin-top:15px;padding:15px 0 4px}.delivered-head{display:flex;align-items:end;justify-content:space-between;margin:0 4px 10px}.delivered-head strong{color:#ffe39b;font-size:16px}.delivered-head span{font-size:11px;color:var(--muted)}
+.carousel{overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}.track{display:flex;gap:12px;width:max-content;animation:scroll 32s linear infinite;will-change:transform}.carousel:hover .track{animation-play-state:paused}.winner{width:285px;display:grid;grid-template-columns:82px 1fr;gap:11px;align-items:center;padding:11px;border-radius:18px;background:linear-gradient(145deg,#ffffff0d,#ffd65a0d);border:1px solid #ffffff1d}.winner img{width:82px;height:82px;border-radius:14px;object-fit:cover;background:#15110b}.winner b{display:block;color:#ffe49a;font-size:12px;line-height:1.15}.winner strong{display:block;margin-top:5px;font-size:14px}.winner small{display:block;margin-top:3px;color:var(--muted);font-size:11px}.winner .tag{display:inline-flex;margin-top:6px;padding:3px 6px;border-radius:999px;background:#2bd4a714;color:#86efd3;font-size:9px;font-weight:900}
+.game{display:grid;grid-template-columns:320px 1fr;gap:22px;align-items:center;margin-top:16px;padding-top:8px}.ball{width:200px;aspect-ratio:1;margin:auto;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 25%,#fff,#e9edf6 47%,#aeb8cc);color:#10182a;font-size:68px;font-weight:1000;box-shadow:0 22px 55px #0006}.round h3{font-size:34px;margin:5px 0}.board{margin-top:18px;display:grid;grid-template-columns:repeat(5,1fr);gap:9px}.zone{border:1px solid var(--line);border-radius:14px;padding:8px;background:#09101c55}.zone-head{display:flex;justify-content:space-between;align-items:center;padding:7px 8px;border-radius:10px;background:linear-gradient(135deg,#ff5b8f22,#8d6bff22);font-weight:1000}.zone-head small{color:var(--muted);font-size:9px}.nums{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:7px}.num{height:37px;border-radius:8px;border:1px solid #2e3b5d;background:#10182a;display:grid;place-items:center;font-size:11px;color:#b8c2d4}.num.hit{background:linear-gradient(135deg,#ff5b8f,#8d6bff);color:white;border-color:transparent;font-weight:1000}
+.note{margin-top:14px;text-align:center;font-size:11px;color:#8895ad}
+@keyframes scroll{to{transform:translateX(calc(-50% - 6px))}}
+@media(max-width:1100px){.public{grid-template-columns:1fr}.side{max-width:none}.hero{grid-template-columns:230px 1fr}.game{grid-template-columns:1fr}.board{grid-template-columns:repeat(2,1fr)}}@media(max-width:700px){.hero{grid-template-columns:1fr}.hero h2{font-size:38px}.board{grid-template-columns:1fr}.public{padding:12px}}
+</style>
+</head>
+<body>
+<div class="demo">DEMO · NO REGISTRA GANADORES</div>
+<div class="public">
+<aside class="side">
+ <div class="logo">IM</div><div class="muted">PL4 · TRIBU IMARA</div><h1>BINGO IMARA</h1><div class="muted">Una experiencia para compartir, conectar y sorprendernos.</div><div class="price">$ 30.000</div><div class="muted">por cartón</div>
+ <div class="guide"><div class="kicker">🎯 ASÍ GANAS ESTA RONDA</div><h3>Cartón lleno</h3><p>Marca todo el cartón. El centro libre ya cuenta.</p><div class="mini"><div class="heads"><b>B</b><b>I</b><b>N</b><b>G</b><b>O</b></div><div class="grid"><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div></div></div>
+ <div class="live"><div class="kicker">ESTADO EN VIVO</div><b>🎱 Ronda en juego</b><div class="muted" style="font-size:11px;margin-top:4px">Esperando el siguiente BINGO.</div></div>
+</aside>
+<main class="main">
+ <section class="hero">
+   <div class="hero-media"><img src="https://fpevaukkbtruplwptufu.supabase.co/storage/v1/object/public/imara-prizes/P17898895096862ee719b5374568-1789889604117.webp" alt=""></div>
+   <div><div class="kicker">🎁 PREMIO DE ESTA RONDA</div><h2>El relax te acompaña</h2><p>Te obsequiamos 2 servicios de Flor de la vida, con terapias integradas para que te regales bienestar y equilibrio.</p><span class="round-pill">Ronda actual</span></div>
+ </section>
+ <section class="delivered">
+   <div class="delivered-head"><strong>🏆 Premios entregados</strong><span>Ganadores del evento · el carrusel se mueve automáticamente</span></div>
+   <div class="carousel"><div class="track">
+     <article class="winner"><img src="https://fpevaukkbtruplwptufu.supabase.co/storage/v1/object/public/imara-prizes/P1789889217692bfeabdf190ddb-1789889224135.webp"><div><b>Set de Te completo de felicidad</b><strong>Alejandra Ochoa</strong><small>IMARA-084</small><span class="tag">ENTREGADO</span></div></article>
+     <article class="winner"><img src="https://fpevaukkbtruplwptufu.supabase.co/storage/v1/object/public/imara-prizes/P178988930527491e82ac22f97c8-1789889354080.webp"><div><b>Cafetera Moka con el Alma</b><strong>Alejandra Riaño</strong><small>IMARA-104</small><span class="tag">ENTREGADO</span></div></article>
+     <article class="winner"><img src="https://fpevaukkbtruplwptufu.supabase.co/storage/v1/object/public/imara-prizes/P1789889358398aac5e75cb0316-1789889365622.webp"><div><b>Lonchera Abundante de Amor</b><strong>Alejandro Rodriguez</strong><small>IMARA-032</small><span class="tag">ENTREGADO</span></div></article>
+     <article class="winner"><img src="https://fpevaukkbtruplwptufu.supabase.co/storage/v1/object/public/imara-prizes/P178988939075437d56c03703ed8-1789889505096.webp"><div><b>La belleza nos une</b><strong>Alfonso Gómez</strong><small>IMARA-105</small><span class="tag">ENTREGADO</span></div></article>
+     <article class="winner"><img src="https://fpevaukkbtruplwptufu.supabase.co/storage/v1/object/public/imara-prizes/P1789889217692bfeabdf190ddb-1789889224135.webp"><div><b>Set de Te completo de felicidad</b><strong>Alejandra Ochoa</strong><small>IMARA-084</small><span class="tag">ENTREGADO</span></div></article>
+     <article class="winner"><img src="https://fpevaukkbtruplwptufu.supabase.co/storage/v1/object/public/imara-prizes/P178988930527491e82ac22f97c8-1789889354080.webp"><div><b>Cafetera Moka con el Alma</b><strong>Alejandra Riaño</strong><small>IMARA-104</small><span class="tag">ENTREGADO</span></div></article>
+     <article class="winner"><img src="https://fpevaukkbtruplwptufu.supabase.co/storage/v1/object/public/imara-prizes/P1789889358398aac5e75cb0316-1789889365622.webp"><div><b>Lonchera Abundante de Amor</b><strong>Alejandro Rodriguez</strong><small>IMARA-032</small><span class="tag">ENTREGADO</span></div></article>
+     <article class="winner"><img src="https://fpevaukkbtruplwptufu.supabase.co/storage/v1/object/public/imara-prizes/P178988939075437d56c03703ed8-1789889505096.webp"><div><b>La belleza nos une</b><strong>Alfonso Gómez</strong><small>IMARA-105</small><span class="tag">ENTREGADO</span></div></article>
+   </div></div>
+ </section>
+ <section class="game"><div class="ball">42</div><div class="round"><div class="muted">RONDA ACTUAL</div><h3>Bienvenidos!</h3><div>Gana: Cartón lleno</div><div class="muted" style="margin-top:8px">42 balotas llamadas · Modo 1–99</div></div></section>
+ <div class="board" id="board"></div>
+ <div class="note">Simulación visual: las cuatro personas son participantes reales pagados, pero NO han sido registradas como ganadores.</div>
+</main>
+</div>
+<script>
+const ranges=[[1,20],[21,40],[41,60],[61,80],[81,99]],letters=['B','I','N','G','O'];
+const called=new Set([1,3,7,11,14,18,22,25,29,32,38,42,46,51,54,58,62,67,71,76,82,86,91,94,98]);
+document.getElementById('board').innerHTML=ranges.map((r,i)=>'<section class="zone"><div class="zone-head"><strong>'+letters[i]+'</strong><small>'+r[0]+'–'+r[1]+'</small></div><div class="nums">'+Array.from({length:r[1]-r[0]+1},(_,k)=>{const n=r[0]+k;return '<div class="num '+(called.has(n)?'hit':'')+'">'+String(n).padStart(2,'0')+'</div>'}).join('')+'</div></section>').join('');
+</script>
+</body></html>
