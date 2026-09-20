@@ -108,7 +108,7 @@
 
   function renderMobileCard(data){
     const marks=loadMarks(data.id);
-    document.body.className='imara-mobile-body';
+    document.body.classList.add('imara-mobile-body');
     document.body.innerHTML=`
       <main class="mobile-card-shell">
         <header class="mobile-card-top">
