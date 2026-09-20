@@ -113,10 +113,8 @@ async function refreshClaims(){
  if(list.length&&sig!==lastClaimSig&&!publishing){
    lastClaimSig=sig;
    await publishClaim(list,source);
-   if(v.length>=2)setTimeout(()=>startTie(v),1600);
    return;
  }
- if(v.length>=2){await startTie(v);return;}
  if(!list.length){lastClaimSig='';lastAdminAlertSig='';}
 }
 async function publishClaim(list,source='manual'){
@@ -196,7 +194,6 @@ function paint(){
  }
  if(s.type==='bingo_countdown'){
    const inf=countdownInfo(s),labels=['BINGO A LA 1','BINGO A LAS 2','BINGO A LAS 3'],list=uniq(s.candidates||[]),v=valid();
-   if(inf.ready&&v.length>=2&&!IS_PUBLIC)startTie(v);
    let actions='';if(inf.ready&&!IS_PUBLIC&&isAdmin()){
      if(v.length===1)actions+=`<button class="btn good" data-b3-confirm="${esc(v[0].card_id)}">✅ Confirmar BINGO</button>`;
      if(v.length>=2)actions+=`<button class="btn warn" data-b3-tie>🔥 Iniciar desempate</button>`;
