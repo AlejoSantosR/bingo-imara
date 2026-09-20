@@ -61,6 +61,7 @@ async function subscribePush(){
  const j=sub.toJSON();
  await api('subscribe',{subscription:j,target_url:location.href});
  statusData={...(statusData||{}),notification_status:'granted',active_subscriptions:1};
+ document.getElementById('imaraPushBell')?.remove();
 }
 function showDone(){
  const h=shell(`<div class="imara-welcome-success">✅</div><h2>Todo listo</h2><p>Tu cartón sigue listo para jugar y este dispositivo quedó preparado para recibir recordatorios de Bingo IMARA.</p><div class="imara-welcome-actions"><button class="imara-welcome-primary" id="imaraDone">Entrar a mi cartón</button></div>`);
@@ -117,9 +118,13 @@ function firstWelcome(){
  bt.onclick=async()=>{bt.disabled=true;bt.textContent='Confirmando…';try{await api('confirm');statusData={...(statusData||{}),confirmed:true};await notificationStep();}catch(e){bt.disabled=false;bt.textContent='Confirmar mi ingreso';alert(e.message||'No fue posible confirmar. Tu cartón sigue disponible.');}};
 }
 function mountBell(){
+ if(statusData?.notification_status==='granted'){
+   document.getElementById('imaraPushBell')?.remove();
+   return;
+ }
  if(document.getElementById('imaraPushBell'))return;
  const note=document.querySelector('.mobile-note');if(!note)return;
- const b=document.createElement('button');b.type='button';b.id='imaraPushBell';b.className='imara-push-bell';b.textContent=statusData?.notification_status==='granted'?'🔔 Recordatorios activos':'🔔 Recordatorios';
+ const b=document.createElement('button');b.type='button';b.id='imaraPushBell';b.className='imara-push-bell';b.textContent='🔔 Recordatorios';
  b.onclick=async()=>{if(!statusData){try{statusData=await api('status');}catch{return;}}await notificationStep();};
  note.insertAdjacentElement('afterend',b);
 }
