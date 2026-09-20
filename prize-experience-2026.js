@@ -145,7 +145,8 @@ function renderPublic(data){
   const g=latestPublic?.game||{},round=g.round||state?.round||{},show=g.show_state||{},wins=Array.isArray(latestPublic?.winners)?latestPublic.winners:[];
   const next=latestPublic?.next_prize||null;
   const delivered=wins.filter(w=>String(w?.prize||w?.prize_title||'').trim()).slice(0,20);
-  const useNext=(String(round.status||'')==='closed'||show.type==='winner')&&next;
+  const currentRoundHasWinner=delivered.some(w=>String(w?.round_name||'')===String(round.name||''));
+  const useNext=(show.type==='winner'||currentRoundHasWinner)&&next;
   const hero=useNext?{title:next.title||'Próximo premio',description:next.description||'',image:next.image_url||'',kicker:'✨ PRÓXIMO PREMIO',round:'La siguiente ronda'}:{title:round.prizeTitle||String(round.prize||'').split(' · ')[1]||round.prize||'Premio de la ronda',description:round.prizeDescription||'',image:round.prizeImage||'',kicker:'🎁 PREMIO DE ESTA RONDA',round:round.name||'Ronda actual'};
   const sig=JSON.stringify([hero.title,hero.description,hero.image,hero.kicker,hero.round,delivered.map(w=>[w.card_id,w.buyer_alias,w.prize_title,w.prize_image]),next?.id||'']);
   if(sig===lastPublicSig)return;lastPublicSig=sig;
